@@ -48,7 +48,11 @@ The same fixture also contains deterministic point-in-time listing, ST, suspensi
 - 12 Rank IC evaluations;
 - atomic JSON artifact writes.
 
-One warmup plus five measured repetitions produced a median of `9.777 s` and process peak RSS of `459 MiB`. This is an absolute production-throughput measurement, not a Qlib speed comparison: publishing a ratio here would require an independently aligned implementation of all A-share constraints and rolling evidence semantics.
+The v0.1.1 baseline used one warmup plus five measured repetitions and produced a median of `9.777 s` with process peak RSS of `459 MiB`. In v0.1.2, the factor and execution paths consume the same streamed frame batches. The same experiment produced measured wall times `[7.6012, 7.9043, 7.2562, 6.9232, 6.9150]s`, a median of `7.256 s`, and process peak RSS of `411 MiB`.
+
+The automated retention gate reports a `25.7827%` median improvement with exact environment, workload and complete semantic-evidence equality. The original factor pass (`3.860 s`) and second execution-context pass (`3.301 s`) became a shared data/factor/panel pass (`4.569 s`) plus final matrix materialization (`0.028 s`). See `benchmarks/results/shared_context_v1/` for all repetitions and the gate output.
+
+This remains an absolute production-throughput measurement, not a Qlib speed comparison: publishing a ratio here would require an independently aligned implementation of all A-share constraints and rolling evidence semantics.
 
 ## Reproduction
 
@@ -97,6 +101,11 @@ Run the A-share production path:
 $PY -m benchmarks.ashare_factor_backtest.run_full_backtest_ours \
   --manifest "$DATA/manifest.json" --output-dir /tmp/bench-full \
   --warmup-repetitions 1 --repetitions 5
+$PY -m benchmarks.ashare_factor_backtest.compare_full_research_evidence \
+  --baseline benchmarks/results/full_backtest_v1/ours_full_research.json \
+  --candidate /tmp/bench-full/result.json \
+  --output /tmp/bench-full/comparison.json \
+  --maximum-median-seconds 8.3105 --maximum-peak-rss-mib 650
 ```
 
 ## Expression Microbenchmark

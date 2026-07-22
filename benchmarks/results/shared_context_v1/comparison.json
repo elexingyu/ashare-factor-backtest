@@ -1,0 +1,24 @@
+{
+  "baseline": {
+    "commit": "7f1192021c91bf6506894be9de351967201fbdd8",
+    "median_wall_seconds": 9.777000583999325,
+    "peak_rss_mib": 459.3125
+  },
+  "candidate": {
+    "commit": "7899b4447eb2ee0077f8426a2fdaa6fcd1e87f78",
+    "median_wall_seconds": 7.256225874996744,
+    "peak_rss_mib": 410.90625
+  },
+  "environment_exact": true,
+  "limits": {
+    "maximum_median_seconds": 8.3105,
+    "maximum_peak_rss_mib": 650.0
+  },
+  "median_wall_within_limit": true,
+  "peak_rss_within_limit": true,
+  "retention_allowed": true,
+  "schema_version": "ashare-factor-full-research-comparison.v1",
+  "semantic_evidence_exact": true,
+  "wall_time_improvement_fraction": 0.2578269978962655,
+  "workload_exact": true
+}

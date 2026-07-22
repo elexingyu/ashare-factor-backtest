@@ -11,7 +11,7 @@
 - Qlib comparison requires numerical parity before a speed ratio can be rendered.
 - The public benchmark was rerun from clean commit `2ea0c74750baaf6c8c84dac1767c40ace4dec8c6`; the generated evidence contains no `+dirty` marker.
 - The complete-backtest benchmark was rerun from clean commit `7f1192021c91bf6506894be9de351967201fbdd8` against Qlib `d5379c520f66a39953bad76234a7019a72796fd0` in the same Python 3.12.13 environment. Every parity check passed before the `31.77x` ratio was reported.
-- The full A-share rolling path completed five folds, 90 portfolio simulations and 12 Rank IC evaluations in a median `9.777 s` on the versioned 500-security by 1,500-date fixture.
+- The v0.1.2 shared data pass reduced the full A-share rolling median from `9.777 s` to `7.256 s` and peak RSS from 459 MiB to 411 MiB; the automated retention gate confirmed exact workload and complete semantic-evidence equality.
 - The 0.1.1 wheel was installed in a fresh Python 3.12 environment; `doctor`, `compile` and rolling `evaluate` passed with screen evidence, Rank IC and stage timings present in the machine response.
 - GitHub Actions run `29894930464` passed test, lint, build and clean-wheel smoke jobs on Linux with Python 3.11, 3.12 and 3.13.
 - GitHub Actions run `29898393255` repeated the same Python 3.11/3.12/3.13 matrix successfully for the 0.1.1 source and complete-backtest evidence.

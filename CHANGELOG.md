@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.2 - 2026-07-22
+
+- Reuse the factor data pass to build A-share execution matrices without a second persistent-data read.
+- Add lifecycle and array-parity tests for the streaming execution-context collector.
+- Add an automated retention gate for semantic evidence, runtime and peak memory.
+- Reduce the versioned full A-share rolling benchmark median from 9.777 to 7.256 seconds while preserving evidence exactly.
+
 ## 0.1.1 - 2026-07-22
 
 - Add production Rank IC evidence with explicit next-open horizon semantics.

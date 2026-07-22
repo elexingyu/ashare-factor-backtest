@@ -29,7 +29,7 @@
 - Consumes: existing `YearChunk`, `BatchedProductionFrameLoader`, `FactorEvaluationService` and `ProductionExecutionContext`.
 - Produces test requirements for `ChunkedProductionExecutionAccumulator.capture_frames`, `ChunkedProductionExecutionAccumulator.build` and `ExecutionCapturingFrameLoader.iter_frames`.
 
-- [ ] **Step 1: Add an accumulator lifecycle test**
+- [x] **Step 1: Add an accumulator lifecycle test**
 
 Create a minimal execution frame and a `YearChunk`. Assert that `build()` before capture raises, a fully consumed `capture_frames()` produces the expected context, and capturing the same chunk again raises.
 
@@ -46,7 +46,7 @@ with pytest.raises(ValueError, match="already captured"):
     list(accumulator.capture_frames(chunk, (frame,)))
 ```
 
-- [ ] **Step 2: Add a captured-versus-legacy context test**
+- [x] **Step 2: Add a captured-versus-legacy context test**
 
 Generate the 240-date, 12-security fixture, prepare its production job, evaluate one expression through `ExecutionCapturingFrameLoader`, and compare every context array with `build_chunked_production_execution_context`.
 
@@ -59,7 +59,7 @@ np.testing.assert_array_equal(captured.sellable, legacy.sellable)
 np.testing.assert_array_equal(captured.signal_eligible, legacy.signal_eligible)
 ```
 
-- [ ] **Step 3: Add a public-service physical-read-count test**
+- [x] **Step 3: Add a public-service physical-read-count test**
 
 Monkeypatch `BatchedProductionFrameLoader.iter_frames`, run the demo screen evaluator, and require exactly one iterator request per yearly chunk.
 
@@ -74,7 +74,7 @@ FactorEvaluationService().screen(job_path, "ts_pct_change(close,5)", work_root=t
 assert len(requests) == 1
 ```
 
-- [ ] **Step 4: Run the focused tests and verify RED**
+- [x] **Step 4: Run the focused tests and verify RED**
 
 Run: `uv run pytest -q tests/test_shared_production_context.py tests/test_evaluate_factor_evidence.py`
 
@@ -93,7 +93,7 @@ Expected: failures because the accumulator/wrapper do not exist and the public s
 - Produces: `capture_frames(chunk, frames) -> Iterator[pd.DataFrame]` and `build() -> ProductionExecutionContext`.
 - Produces: `ExecutionCapturingFrameLoader(frame_loader, chunks, *, price_storage_dtype, eligibility_column)` with `iter_frames`, `__call__`, `execution_context` and metadata proxying.
 
-- [ ] **Step 1: Add the accumulator skeleton and validation**
+- [x] **Step 1: Add the accumulator skeleton and validation**
 
 Store immutable expected chunk keys, completed keys and four lists of finalized chunk panels. Reject empty/duplicate chunk contracts, unfinished builds and duplicate capture.
 
@@ -109,7 +109,7 @@ class ChunkedProductionExecutionAccumulator:
         self._collected = {name: [] for name in _EXECUTION_PANEL_NAMES}
 ```
 
-- [ ] **Step 2: Implement streaming capture and normal-completion commit**
+- [x] **Step 2: Implement streaming capture and normal-completion commit**
 
 For each yielded frame, build execution panels and retain only those panels. Combine symbol batches only after the source iterator finishes normally, slice to the chunk calculation range, and then commit the chunk. An exception must leave no completed chunk.
 
@@ -128,21 +128,21 @@ def capture_frames(self, chunk, frames):
     self._commit_chunk(chunk, finalized)
 ```
 
-- [ ] **Step 3: Implement final context materialization**
+- [x] **Step 3: Implement final context materialization**
 
 Require every expected chunk, concatenate finalized panels across dates, reject duplicate dates, and call the existing `_from_panels` so numerical semantics remain centralized.
 
-- [ ] **Step 4: Implement the transparent loader wrapper**
+- [x] **Step 4: Implement the transparent loader wrapper**
 
 Map exact `(load_start, load_end)` requests to expected chunks, delegate to the source loader's iterator or callable, and wrap that iterable with `capture_frames`. Explicit properties copy `additional_field_specs` and `additional_dataset_versions`.
 
-- [ ] **Step 5: Run accumulator tests and verify GREEN**
+- [x] **Step 5: Run accumulator tests and verify GREEN**
 
 Run: `uv run pytest -q tests/test_shared_production_context.py`
 
 Expected: all accumulator, parity, metadata and lifecycle tests pass.
 
-- [ ] **Step 6: Commit the component**
+- [x] **Step 6: Commit the component**
 
 ```bash
 git add src/ashare_factor_backtest/evaluation/production_execution_context.py tests/test_shared_production_context.py
@@ -161,7 +161,7 @@ git commit -m "Add streaming execution context capture"
 - Consumes: `ExecutionCapturingFrameLoader.execution_context()` from Task 2.
 - Preserves: `FactorEvaluationService.evaluate(path, expression, *, through="rolling", work_root) -> tuple[dict[str, object], tuple[str, ...]]`.
 
-- [ ] **Step 1: Wrap the prepared loader before expression evaluation**
+- [x] **Step 1: Wrap the prepared loader before expression evaluation**
 
 ```python
 capturing_loader = ExecutionCapturingFrameLoader(
@@ -185,19 +185,19 @@ execution = capturing_loader.execution_context()
 
 Remove the second call to `build_chunked_production_execution_context`. Continue reporting a separate `execution_context` timing for final context materialization. Do not add a new result field because the existing stage artifact identity excludes timings and the public response schema should remain stable.
 
-- [ ] **Step 2: Run focused service tests**
+- [x] **Step 2: Run focused service tests**
 
 Run: `uv run pytest -q tests/test_evaluate_factor_evidence.py tests/test_shared_production_context.py`
 
 Expected: one physical iterator request per chunk; screen/rolling evidence and Rank IC tests pass.
 
-- [ ] **Step 3: Run the full suite and lint**
+- [x] **Step 3: Run the full suite and lint**
 
 Run: `uv run pytest -q && uv run ruff check src tests tools benchmarks`
 
 Expected: zero failures and zero lint findings.
 
-- [ ] **Step 4: Commit the service integration**
+- [x] **Step 4: Commit the service integration**
 
 ```bash
 git add src/ashare_factor_backtest/application/evaluate_factor.py tests/test_evaluate_factor_evidence.py
@@ -222,11 +222,11 @@ git commit -m "Reuse factor data pass for execution context"
 - Consumes: versioned fixture `/tmp/ashare-full-bench-500x1500-v2/data/manifest.json`.
 - Compares against: `benchmarks/results/full_backtest_v1/ours_full_research.json`.
 
-- [ ] **Step 1: Run a 240 by 12 smoke benchmark**
+- [x] **Step 1: Run a 240 by 12 smoke benchmark**
 
 Run one warmup and one measurement with the generated small fixture. Confirm completion, one data pass per chunk and peak RSS below the configured job limit.
 
-- [ ] **Step 2: Compare complete semantic evidence against the baseline**
+- [x] **Step 2: Compare complete semantic evidence against the baseline**
 
 Remove only `timings_seconds`, `peak_rss_mib`, artifact paths/identities and content digests from both result trees. Require the remaining `gate`, `screen`, `rolling`, workload and warning evidence to compare exactly.
 
@@ -257,7 +257,7 @@ Run: `uv run pytest -q tests/test_benchmark_harness.py`
 
 Expected: the comparator test passes for diagnostic-only differences and fails for a changed Rank IC or return value.
 
-- [ ] **Step 3: Run the formal benchmark**
+- [x] **Step 3: Run the formal benchmark**
 
 ```bash
 /tmp/ashare-factor-qlib-bench-312/bin/python \
@@ -269,11 +269,11 @@ Expected: the comparator test passes for diagnostic-only differences and fails f
 
 Expected retention gate: median `<=8.3105s`, peak RSS `<=650 MiB`, semantic evidence exact.
 
-- [ ] **Step 4: Record the result without moving the goalposts**
+- [x] **Step 4: Record the result without moving the goalposts**
 
 If the gate passes, archive JSON and update both README languages and benchmark documentation. If it fails, revert the production integration while retaining the test/experiment report and record the observed bottleneck in the private TODO.
 
-- [ ] **Step 5: Run release verification**
+- [x] **Step 5: Run release verification**
 
 Run: `uv run pytest -q && uv run ruff check src tests tools benchmarks && uv build --out-dir dist`
 

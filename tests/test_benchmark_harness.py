@@ -282,3 +282,22 @@ def test_full_research_comparison_requires_evidence_and_performance_gate(
 
     assert rejected["semantic_evidence_exact"] is False
     assert rejected["retention_allowed"] is False
+
+
+def test_archived_shared_context_claim_matches_versioned_evidence() -> None:
+    root = Path(__file__).resolve().parents[1]
+    evidence = root / "benchmarks" / "results" / "shared_context_v1"
+    candidate = json.loads((evidence / "result.json").read_text(encoding="utf-8"))
+    comparison = json.loads(
+        (evidence / "comparison.json").read_text(encoding="utf-8")
+    )
+    readme = (root / "README.md").read_text(encoding="utf-8")
+
+    assert candidate["engine"]["commit"].startswith("7899b44")
+    assert comparison["environment_exact"] is True
+    assert comparison["workload_exact"] is True
+    assert comparison["semantic_evidence_exact"] is True
+    assert comparison["retention_allowed"] is True
+    assert round(comparison["candidate"]["median_wall_seconds"], 3) == 7.256
+    assert round(comparison["wall_time_improvement_fraction"] * 100, 1) == 25.8
+    assert "**`7.256 s`**" in readme

@@ -71,9 +71,9 @@ The ratio applies only to this contract and cannot be generalized to every expre
 
 ### Full A-Share Research Path
 
-The production path additionally applies point-in-time listing status, ST, suspension, open price limits, stressed costs, screening windows and rolling evaluation. On the same 500 × 1,500 fixture, one expression triggers five rolling folds, 90 portfolio simulations and 12 Rank IC evaluations. Median end-to-end time is **`9.777 s`** with **459 MiB** process peak RSS.
+The production path additionally applies point-in-time listing status, ST, suspension, open price limits, stressed costs, screening windows and rolling evaluation. On the same 500 × 1,500 fixture, one expression triggers five rolling folds, 90 portfolio simulations and 12 Rank IC evaluations. Sharing the factor and execution data pass reduced median end-to-end time from `9.777 s` to **`7.256 s`**, a **25.8%** improvement, while process peak RSS fell from 459 MiB to **411 MiB**.
 
-Median stage times are approximately `3.860 s` for factor/chunk loading, `3.301 s` for execution-context construction, `2.033 s` for rolling evaluation and `0.580 s` for screening. No Qlib ratio is reported for this layer because there is no fully aligned Qlib implementation of the same A-share constraints and rolling evidence contract.
+Median stage times after the optimization are approximately `4.569 s` for the shared data/factor/execution-panel pass, `0.028 s` for final execution-matrix materialization, `2.045 s` for rolling evaluation and `0.592 s` for screening. The automated gate confirms exact equality of the old and new `workload` and complete `evidence` JSON. No Qlib ratio is reported for this layer because there is no fully aligned Qlib implementation of the same A-share constraints and rolling evidence contract.
 
 ### Expression-Computation Microbenchmark
 
