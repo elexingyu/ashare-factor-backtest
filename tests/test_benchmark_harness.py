@@ -120,6 +120,8 @@ def _common_result(name: str, wall_seconds: float) -> dict[str, object]:
         "target_selection_digest": "same-selection",
         "strategy_metrics": {"total_return": 0.1, "sharpe": 1.2},
         "rank_ic": {"rank_ic_mean": 0.03},
+        "execution_adapter": "target_delta_continuous_value_v2",
+        "turnover_coordinate": "traded_security_value_over_previous_portfolio_value",
     }
     return result
 

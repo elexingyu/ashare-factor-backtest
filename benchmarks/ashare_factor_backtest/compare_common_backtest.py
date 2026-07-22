@@ -29,6 +29,9 @@ def compare(ours_dir: Path, qlib_dir: Path, output_path: Path) -> dict[str, Any]
     qlib = _read_result(qlib_dir)
     if ours["workload"] != qlib["workload"]:
         raise ValueError("common benchmark workload contracts differ")
+    for key in ("execution_adapter", "turnover_coordinate"):
+        if ours["evidence"].get(key) != qlib["evidence"].get(key):
+            raise ValueError(f"common benchmark evidence coordinates differ: {key}")
     for key in ("python", "platform", "processor", "logical_cpu_count"):
         if ours["environment"][key] != qlib["environment"][key]:
             raise ValueError(f"common benchmark environments differ: {key}")

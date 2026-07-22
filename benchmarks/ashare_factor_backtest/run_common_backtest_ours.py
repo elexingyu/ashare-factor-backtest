@@ -162,7 +162,8 @@ def run(
             "strategy_metrics": portfolio.strategy.metrics,
             "benchmark_metrics": portfolio.benchmark.metrics,
             "excess_metrics": portfolio.excess_metrics,
-            "average_turnover": portfolio.strategy.average_turnover,
+            "average_turnover": float(turnover_rates.mean()),
+            "average_cash_spend_turnover": portfolio.strategy.average_turnover,
             "total_cost": portfolio.strategy.total_cost,
             "rank_ic": rank_ic,
             "target_selection_digest": target_selection_digest(
