@@ -211,3 +211,74 @@ def test_archived_complete_backtest_claim_matches_versioned_evidence() -> None:
     assert round(summary["qlib_median_wall_seconds"], 3) == 25.539
     assert round(summary["qlib_over_ours_wall_ratio"], 2) == 31.77
     assert "**`31.77x`**" in readme
+
+
+def _full_research_result(
+    *, wall_seconds: list[float], peak_rss_mib: float
+) -> dict[str, object]:
+    return {
+        "engine": {"name": "engine", "commit": "revision"},
+        "environment": {
+            "python": "3.12.13",
+            "platform": "test",
+            "processor": "arm64",
+            "logical_cpu_count": 8,
+            "memory_gib": 24.0,
+        },
+        "workload": {"date_count": 1500, "security_count": 500},
+        "measurements": {
+            "wall_seconds": wall_seconds,
+            "peak_rss_mib": peak_rss_mib,
+        },
+        "evidence": {
+            "screen": {"rank_ic": 0.01},
+            "rolling": {"folds": [{"return": 0.02}]},
+            "gate": {"status": "candidate"},
+            "warnings": [],
+        },
+    }
+
+
+def test_full_research_comparison_requires_evidence_and_performance_gate(
+    tmp_path, monkeypatch
+) -> None:
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1]))
+    from benchmarks.ashare_factor_backtest.compare_full_research_evidence import (
+        compare,
+    )
+
+    baseline = _full_research_result(
+        wall_seconds=[9.5, 10.0, 9.8], peak_rss_mib=460.0
+    )
+    candidate = _full_research_result(
+        wall_seconds=[6.5, 6.7, 6.6], peak_rss_mib=400.0
+    )
+    baseline_path = tmp_path / "baseline.json"
+    candidate_path = tmp_path / "candidate.json"
+    baseline_path.write_text(json.dumps(baseline), encoding="utf-8")
+    candidate_path.write_text(json.dumps(candidate), encoding="utf-8")
+
+    accepted = compare(
+        baseline_path,
+        candidate_path,
+        tmp_path / "accepted.json",
+        maximum_median_seconds=8.3105,
+        maximum_peak_rss_mib=650.0,
+    )
+
+    assert accepted["semantic_evidence_exact"] is True
+    assert accepted["retention_allowed"] is True
+    assert accepted["wall_time_improvement_fraction"] > 0.30
+
+    candidate["evidence"]["screen"]["rank_ic"] = 0.02
+    candidate_path.write_text(json.dumps(candidate), encoding="utf-8")
+    rejected = compare(
+        baseline_path,
+        candidate_path,
+        tmp_path / "rejected.json",
+        maximum_median_seconds=8.3105,
+        maximum_peak_rss_mib=650.0,
+    )
+
+    assert rejected["semantic_evidence_exact"] is False
+    assert rejected["retention_allowed"] is False
