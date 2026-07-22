@@ -1,0 +1,106 @@
+{
+  "engine": {
+    "commit": "d5379c520f66a39953bad76234a7019a72796fd0",
+    "name": "microsoft-qlib",
+    "version": "0.1.dev1"
+  },
+  "environment": {
+    "logical_cpu_count": 15,
+    "memory_gib": 24.0,
+    "platform": "macOS-26.5-arm64-arm-64bit",
+    "processor": "arm64",
+    "python": "3.12.13"
+  },
+  "evidence": {
+    "average_turnover": 1.9904747691155387,
+    "effective_end": "2023-09-29",
+    "execution_adapter": "full_liquidation_rebuy_matching_contract",
+    "rank_ic": {
+      "average_cross_section_count": 500.0,
+      "horizon": 1,
+      "observation_count": 1492,
+      "positive_rate": 0.49396782841823056,
+      "rank_ic_ir": -0.02447756525496048,
+      "rank_ic_mean": -0.0011183248765601684,
+      "rank_ic_std": 0.04568774977868909,
+      "semantics": "signal_t_to_open_t_plus_1_to_t_plus_1_plus_h"
+    },
+    "strategy_metrics": {
+      "annual_return": -0.32284130091922525,
+      "max_drawdown": 0.9069667557425916,
+      "period_count": 1498,
+      "sharpe": -2.6179145904022736,
+      "total_return": -0.9014744524062086
+    },
+    "target_selection_digest": "59d032828b9ed5a26038eab8f24f7209a758138dbed816af405a443957980d12",
+    "total_cost": 0.7771604174877493
+  },
+  "measurements": {
+    "cpu_seconds": [
+      25.045257,
+      26.577787,
+      24.712553999999997,
+      25.483642000000003,
+      23.458389999999994
+    ],
+    "output_digest": "188499e2dc6524b41387312054bffdf5db989c14669474dbbbd5d3464acbd487",
+    "peak_rss_mib": 1086.625,
+    "repetitions": 5,
+    "stage_timings_seconds": [
+      {
+        "data_factor": 0.8216506250028033,
+        "portfolio": 23.73520825000014,
+        "rank_ic": 0.38144862500485033,
+        "total_before_artifact": 25.070563542016316
+      },
+      {
+        "data_factor": 1.0309910000069067,
+        "portfolio": 25.44992674997775,
+        "rank_ic": 0.3776558330282569,
+        "total_before_artifact": 26.98019554099301
+      },
+      {
+        "data_factor": 0.8901438750035595,
+        "portfolio": 23.53313787499792,
+        "rank_ic": 0.43989441700978205,
+        "total_before_artifact": 24.99172816699138
+      },
+      {
+        "data_factor": 0.8131302919937298,
+        "portfolio": 24.28939133300446,
+        "rank_ic": 0.34483587500290014,
+        "total_before_artifact": 25.56442062498536
+      },
+      {
+        "data_factor": 0.8585417919966858,
+        "portfolio": 22.01731487500365,
+        "rank_ic": 0.39489970897557214,
+        "total_before_artifact": 23.413491082988912
+      }
+    ],
+    "wall_seconds": [
+      25.53881658401224,
+      27.365359832998365,
+      25.336521040997468,
+      25.893578166986117,
+      23.836826874990948
+    ],
+    "warmup_repetitions": 1
+  },
+  "schema_version": "ashare-factor-common-backtest-result.v1",
+  "workload": {
+    "contract": {
+      "buy_cost": 0.0003,
+      "direction": "high",
+      "execution_time": "open_t_plus_1",
+      "horizon": 1,
+      "sell_cost": 0.0012,
+      "signal_time": "close_t",
+      "terminal_liquidation": true,
+      "top_fraction": 0.2
+    },
+    "dataset_identity": "d9972bc1d1abdcf49ce6f39f32c053d7f3151e30c3da919f81e2e349d3e38793",
+    "date_count": 1500,
+    "security_count": 500
+  }
+}

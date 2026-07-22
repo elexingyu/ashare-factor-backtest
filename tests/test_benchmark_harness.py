@@ -190,3 +190,24 @@ def test_complete_backtest_comparison_rejects_different_environments(
 
     with np.testing.assert_raises_regex(ValueError, "environments differ: python"):
         compare(ours, qlib, tmp_path / "summary.json")
+
+
+def test_archived_complete_backtest_claim_matches_versioned_evidence() -> None:
+    root = Path(__file__).resolve().parents[1]
+    evidence = root / "benchmarks" / "results" / "full_backtest_v1"
+    ours = json.loads((evidence / "ours_common.json").read_text(encoding="utf-8"))
+    qlib = json.loads((evidence / "qlib_common.json").read_text(encoding="utf-8"))
+    summary = json.loads(
+        (evidence / "common_summary.json").read_text(encoding="utf-8")
+    )
+    readme = (root / "README.md").read_text(encoding="utf-8")
+
+    assert ours["environment"] == qlib["environment"]
+    assert ours["engine"]["commit"].startswith("7f11920")
+    assert qlib["engine"]["commit"].startswith("d5379c5")
+    assert summary["comparable"] is True
+    assert summary["speed_claim_allowed"] is True
+    assert round(summary["ours_median_wall_seconds"], 3) == 0.804
+    assert round(summary["qlib_median_wall_seconds"], 3) == 25.539
+    assert round(summary["qlib_over_ours_wall_ratio"], 2) == 31.77
+    assert "**`31.77x`**" in readme

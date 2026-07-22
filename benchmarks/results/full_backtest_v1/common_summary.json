@@ -1,0 +1,33 @@
+{
+  "checks": {
+    "dates_exact": true,
+    "factor_finite_masks_exact": true,
+    "factor_finite_values_exact": true,
+    "gross_return_within_tolerance": true,
+    "net_return_within_tolerance": true,
+    "rank_ic_within_tolerance": true,
+    "sharpe_within_tolerance": true,
+    "target_selections_exact": true,
+    "total_return_within_tolerance": true
+  },
+  "comparable": true,
+  "errors": {
+    "gross_return_max_abs": 8.688536001777436e-14,
+    "net_return_max_abs": 9.293942586363624e-08,
+    "rank_ic_mean_abs": 5.743175918149733e-08,
+    "sharpe_abs": 0.00015599414403277834,
+    "total_return_abs": 1.322912290291356e-05
+  },
+  "ours_median_wall_seconds": 0.8039707090065349,
+  "qlib_median_wall_seconds": 25.53881658401224,
+  "qlib_over_ours_wall_ratio": 31.765854524190946,
+  "schema_version": "ashare-factor-common-backtest-comparison.v1",
+  "speed_claim_allowed": true,
+  "tolerances": {
+    "gross_return_max_abs": 1e-10,
+    "net_return_max_abs": 1e-06,
+    "rank_ic_mean_abs": 1e-06,
+    "sharpe_abs": 0.001,
+    "total_return_abs": 0.0001
+  }
+}

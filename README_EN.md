@@ -42,7 +42,7 @@ The bundled dataset is entirely synthetic. It covers a listing boundary, an ST i
 - **A-share point-in-time semantics:** factor observation, historical universe membership and next-open execution are kept distinct.
 - **Adjustment/execution separation:** adjusted series may drive factor values while executable trading and returns retain the corresponding real-price semantics.
 - **Trading constraints:** listing status, ST, suspension, open price limits, two-sided costs and long-only portfolios.
-- **Rolling evaluation:** train/test evidence, strategy and benchmark metrics, excess metrics and coverage diagnostics.
+- **Rolling evaluation:** train/test evidence, Rank IC, strategy and benchmark metrics, excess metrics and coverage diagnostics.
 - **Reproducible artifacts:** expression, data identity, job contract and evaluation semantics jointly identify reusable results.
 - **AI-first interface:** `capabilities`, `schema`, `doctor`, `compile` and `evaluate` expose a versioned JSON protocol.
 
@@ -54,13 +54,32 @@ The first release deliberately excludes factor generation/search, multi-factor p
 
 ## Performance Evidence
 
-> **No cross-framework full-backtest speed result is available yet.** A complete end-to-end benchmark must include data loading, factor computation, cross-sectional selection, A-share execution constraints, costs, NAV, IC, drawdown, turnover, rolling windows and artifact writes. No full-backtest speedup will be published before that contract is measured.
+Every performance claim uses deterministic synthetic data, a clean source revision and archived JSON evidence. The comparison program emits a speed ratio only when both engines use the same Python environment and pass pre-registered parity checks for factor values, daily selections, returns, Sharpe and Rank IC.
+
+### Complete Single-Factor Backtest vs Qlib
+
+The common workload contains 500 securities, 1,500 dates and one five-day price-change expression. Both engines start from persistent data, calculate the factor, select a daily cross-section, rebalance at the next open, charge two-sided costs, liquidate at the end and write NAV, return, drawdown, turnover, Rank IC and artifact outputs. Each engine uses one warmup followed by five measured single-process runs.
+
+| Engine | Median wall time | Process peak RSS |
+| --- | ---: | ---: |
+| ashare-factor-backtest `7f11920` | **0.804 s** | 600 MiB |
+| Microsoft Qlib `d5379c5` | 25.539 s | 1,087 MiB |
+
+For this fixed-policy complete backtest, Qlib / this project wall-time ratio is **`31.77x`**. Dates, finite factor values and daily target holdings match exactly. Maximum daily net-return error is `9.29e-08`; total-return error is `1.32e-05`; Sharpe error is `1.56e-04`; and mean Rank IC error is `5.74e-08`. Every value is inside the tolerance frozen before the final runs.
+
+The ratio applies only to this contract and cannot be generalized to every expression, dataset size or machine. The synthetic factor loses money in the generated market; that is orthogonal to the benchmark, which measures correctness and runtime for identical trading decisions rather than demonstrating alpha.
+
+### Full A-Share Research Path
+
+The production path additionally applies point-in-time listing status, ST, suspension, open price limits, stressed costs, screening windows and rolling evaluation. On the same 500 × 1,500 fixture, one expression triggers five rolling folds, 90 portfolio simulations and 12 Rank IC evaluations. Median end-to-end time is **`9.777 s`** with **459 MiB** process peak RSS.
+
+Median stage times are approximately `3.860 s` for factor/chunk loading, `3.301 s` for execution-context construction, `2.033 s` for rolling evaluation and `0.580 s` for screening. No Qlib ratio is reported for this layer because there is no fully aligned Qlib implementation of the same A-share constraints and rolling evidence contract.
 
 ### Expression-Computation Microbenchmark
 
 The table below is generated from versioned JSON artifacts. The comparison fixes source values, mapped expression semantics, valid-value masks, Python environment, worker count and output scope. A speed ratio is rendered only after numerical parity passes.
 
-The first comparison measures both engines reading their native persistent stores and producing four factor matrices. It excludes A-share execution simulation, IC, costs and rolling evaluation. It supports a claim about the current expression-computation path, not the same speedup for a complete backtest.
+The earlier microbenchmark measures both engines reading their native persistent stores and producing four factor matrices. It excludes execution simulation, IC, costs and rolling evaluation. It remains as low-level computation evidence and must not be confused with the complete-backtest result above.
 
 <!-- benchmark:start -->
 **Evidence status:** Release reproducible.

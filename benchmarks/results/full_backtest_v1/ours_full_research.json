@@ -1,0 +1,2862 @@
+{
+  "benchmark_id": "d9972bc1d1abdcf4",
+  "engine": {
+    "commit": "7f1192021c91bf6506894be9de351967201fbdd8",
+    "name": "ashare-factor-backtest-public-rolling"
+  },
+  "environment": {
+    "logical_cpu_count": 15,
+    "memory_gib": 24.0,
+    "platform": "macOS-26.5-arm64-arm-64bit",
+    "processor": "arm64",
+    "python": "3.12.13"
+  },
+  "evidence": {
+    "gate": {
+      "decision_scope": "standalone_unconditional_support_only",
+      "direction_mode_count": 5,
+      "factor_record_action": "retain",
+      "horizon_mode_count": 5,
+      "median_test_excess_sharpe": -0.14153467300808828,
+      "median_train_excess_sharpe": -0.03532908394169012,
+      "positive_folds": 2,
+      "reason_codes": [
+        "median_test_excess_sharpe_nonpositive"
+      ],
+      "research_profile": {
+        "research_routes": [
+          "factor_record",
+          "standalone_gate_fail",
+          "positive_oos_observed",
+          "recent_positive_oos_observed"
+        ],
+        "schema": "production_rolling_research_profile.v1",
+        "temporal_profile": {
+          "best_test_excess_sharpe": 0.3656894892389353,
+          "compounded_oos_excess_total_return": -0.008953404135097931,
+          "direction_mode_count": 5,
+          "direction_sequence": [
+            "low",
+            "low",
+            "low",
+            "low",
+            "low"
+          ],
+          "direction_unique_count": 1,
+          "fold_labels": [
+            "fold_1",
+            "fold_2",
+            "fold_3",
+            "fold_4",
+            "fold_5"
+          ],
+          "horizon_mode_count": 5,
+          "horizon_sequence": [
+            20,
+            20,
+            20,
+            20,
+            20
+          ],
+          "horizon_unique_count": 1,
+          "largest_positive_fold_return_share": 0.9555505344501617,
+          "maximum_positive_sharpe_streak": 1,
+          "mean_test_excess_sharpe": -0.43284849243479134,
+          "median_test_excess_sharpe": -0.14153467300808828,
+          "pooled_daily_sharpe": null,
+          "pooled_daily_sharpe_reason": "daily_return_path_not_loaded",
+          "positive_return_folds": 2,
+          "positive_sharpe_episode_count": 2,
+          "positive_sharpe_fold_share": 0.4,
+          "positive_sharpe_folds": 2,
+          "positive_to_negative_fold_return_ratio": 0.15150900180532187,
+          "recent_three_fold_count": 3,
+          "recent_three_median_test_excess_sharpe": -0.14153467300808828,
+          "recent_three_positive_sharpe_folds": 1,
+          "return_metrics_available": true,
+          "test_excess_sharpes": [
+            0.02120391155638721,
+            -0.6424018802098279,
+            -0.14153467300808828,
+            0.3656894892389353,
+            -1.767199309751363
+          ],
+          "test_excess_total_returns": [
+            7.114048917400417e-05,
+            -0.0028546976329699714,
+            -0.0006326377165450925,
+            0.001529339703197241,
+            -0.0070762626763484215
+          ],
+          "worst_test_excess_sharpe": -1.767199309751363
+        }
+      },
+      "standalone_support": "unsupported",
+      "status": "rejected_rolling"
+    },
+    "rolling": {
+      "folds": [
+        {
+          "direction": "low",
+          "horizon": 20,
+          "label": "fold_1",
+          "test": {
+            "direction": "low",
+            "horizon": 20,
+            "rank_ic": {
+              "average_cross_section_count": 499.89565217391305,
+              "horizon": 20,
+              "observation_count": 115,
+              "positive_rate": 0.5652173913043478,
+              "rank_ic_ir": 0.015182653098073018,
+              "rank_ic_mean": 0.0007554167327198377,
+              "rank_ic_std": 0.049755252118334654,
+              "semantics": "signal_t_to_open_t_plus_1_to_t_plus_1_plus_h",
+              "signal_window": [
+                "2021-02-23",
+                "2021-08-31"
+              ]
+            },
+            "real": {
+              "average_coverage": 1.0,
+              "average_hhi": 0.003199699700830957,
+              "average_selected_count": 100.0,
+              "average_turnover": 0.09958555448658506,
+              "benchmark_metrics": {
+                "annual_return": 0.2144562611080667,
+                "annual_volatility": 0.13457899026260972,
+                "bankrupt": false,
+                "calmar": 2.1521566483642287,
+                "max_drawdown": 0.09964714291177022,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5367647058823529,
+                "sharpe": 1.511448936628763,
+                "sortino": 2.6548564821066343,
+                "total_return": 0.1105533495693305
+              },
+              "blocked_exit_count": 5,
+              "excess_metrics": {
+                "annual_return": 0.001531056376834039,
+                "annual_volatility": 0.007559523440927358,
+                "bankrupt": false,
+                "calmar": 0.19202688157612127,
+                "max_drawdown": 0.007973135658233942,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5147058823529411,
+                "sharpe": 0.2061588878145696,
+                "sortino": 0.39083094620671843,
+                "total_return": 0.0008259934396002144
+              },
+              "forced_writeoff": 0.0,
+              "minimum_cash": 0.0,
+              "periods": 136,
+              "strategy_metrics": {
+                "annual_return": 0.21631566211102315,
+                "annual_volatility": 0.1347044696382762,
+                "bankrupt": false,
+                "calmar": 2.0678845572901183,
+                "max_drawdown": 0.10460722352629605,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5588235294117647,
+                "sharpe": 1.5215416377423676,
+                "sortino": 2.7113703335534374,
+                "total_return": 0.11147065935040135
+              },
+              "total_cost": 0.01095478428505355
+            },
+            "stress": {
+              "average_coverage": 1.0,
+              "average_hhi": 0.0031996662887972373,
+              "average_selected_count": 100.0,
+              "average_turnover": 0.09958964041011649,
+              "benchmark_metrics": {
+                "annual_return": 0.19988535473116387,
+                "annual_volatility": 0.13465806147613582,
+                "bankrupt": false,
+                "calmar": 1.9853349034564975,
+                "max_drawdown": 0.10068092510898816,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5367647058823529,
+                "sharpe": 1.4209393004592827,
+                "sortino": 2.4954510870204163,
+                "total_return": 0.10334248837223248
+              },
+              "blocked_exit_count": 5,
+              "excess_metrics": {
+                "annual_return": 0.0001318231409948023,
+                "annual_volatility": 0.007566561117169382,
+                "bankrupt": false,
+                "calmar": 0.015933232135443426,
+                "max_drawdown": 0.008273471438451092,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5147058823529411,
+                "sharpe": 0.02120391155638721,
+                "sortino": 0.04003520316047221,
+                "total_return": 7.114048917400417e-05
+              },
+              "forced_writeoff": 0.0,
+              "minimum_cash": 0.0,
+              "periods": 136,
+              "strategy_metrics": {
+                "annual_return": 0.20004352738746278,
+                "annual_volatility": 0.13478022418117325,
+                "bankrupt": false,
+                "calmar": 1.8913144267060251,
+                "max_drawdown": 0.105769577264773,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5588235294117647,
+                "sharpe": 1.4207609951849896,
+                "sortino": 2.5337126967649533,
+                "total_return": 0.10342098069658401
+              },
+              "total_cost": 0.018192548048250514
+            },
+            "yearly_real": {
+              "2021": {
+                "benchmark_metrics": {
+                  "annual_return": 0.2144562611080667,
+                  "annual_volatility": 0.13457899026260972,
+                  "bankrupt": false,
+                  "calmar": 2.1521566483642287,
+                  "max_drawdown": 0.09964714291177022,
+                  "period_count": 136,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5367647058823529,
+                  "sharpe": 1.511448936628763,
+                  "sortino": 2.6548564821066343,
+                  "total_return": 0.1105533495693305
+                },
+                "excess_metrics": {
+                  "annual_return": 0.001531056376834039,
+                  "annual_volatility": 0.007559523440927358,
+                  "bankrupt": false,
+                  "calmar": 0.19202688157612127,
+                  "max_drawdown": 0.007973135658233942,
+                  "period_count": 136,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5147058823529411,
+                  "sharpe": 0.2061588878145696,
+                  "sortino": 0.39083094620671843,
+                  "total_return": 0.0008259934396002144
+                },
+                "strategy_metrics": {
+                  "annual_return": 0.21631566211102315,
+                  "annual_volatility": 0.1347044696382762,
+                  "bankrupt": false,
+                  "calmar": 2.0678845572901183,
+                  "max_drawdown": 0.10460722352629605,
+                  "period_count": 136,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5588235294117647,
+                  "sharpe": 1.5215416377423676,
+                  "sortino": 2.7113703335534374,
+                  "total_return": 0.11147065935040135
+                }
+              }
+            },
+            "yearly_stress": {
+              "2021": {
+                "benchmark_metrics": {
+                  "annual_return": 0.19988535473116387,
+                  "annual_volatility": 0.13465806147613582,
+                  "bankrupt": false,
+                  "calmar": 1.9853349034564975,
+                  "max_drawdown": 0.10068092510898816,
+                  "period_count": 136,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5367647058823529,
+                  "sharpe": 1.4209393004592827,
+                  "sortino": 2.4954510870204163,
+                  "total_return": 0.10334248837223248
+                },
+                "excess_metrics": {
+                  "annual_return": 0.0001318231409948023,
+                  "annual_volatility": 0.007566561117169382,
+                  "bankrupt": false,
+                  "calmar": 0.015933232135443426,
+                  "max_drawdown": 0.008273471438451092,
+                  "period_count": 136,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5147058823529411,
+                  "sharpe": 0.02120391155638721,
+                  "sortino": 0.04003520316047221,
+                  "total_return": 7.114048917400417e-05
+                },
+                "strategy_metrics": {
+                  "annual_return": 0.20004352738746278,
+                  "annual_volatility": 0.13478022418117325,
+                  "bankrupt": false,
+                  "calmar": 1.8913144267060251,
+                  "max_drawdown": 0.105769577264773,
+                  "period_count": 136,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5588235294117647,
+                  "sharpe": 1.4207609951849896,
+                  "sortino": 2.5337126967649533,
+                  "total_return": 0.10342098069658401
+                }
+              }
+            }
+          },
+          "test_window": [
+            "2021-02-23",
+            "2021-08-31"
+          ],
+          "train": {
+            "direction": "low",
+            "horizon": 20,
+            "rank_ic": {
+              "average_cross_section_count": 489.23065250379364,
+              "horizon": 20,
+              "observation_count": 659,
+              "positive_rate": 0.4279210925644917,
+              "rank_ic_ir": -0.09086793270760389,
+              "rank_ic_mean": -0.004261064869619964,
+              "rank_ic_std": 0.0468929438873808,
+              "semantics": "signal_t_to_open_t_plus_1_to_t_plus_1_plus_h",
+              "signal_window": [
+                "2018-07-17",
+                "2021-02-22"
+              ]
+            },
+            "real": {
+              "average_coverage": 1.0,
+              "average_hhi": 0.003180316575209902,
+              "average_selected_count": 97.92625368731564,
+              "average_turnover": 0.09845551809233981,
+              "benchmark_metrics": {
+                "annual_return": -0.15992102870971536,
+                "annual_volatility": 0.1447062512224398,
+                "bankrupt": false,
+                "calmar": -0.43097357379244544,
+                "max_drawdown": 0.3710692219535773,
+                "period_count": 660,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.4727272727272727,
+                "sharpe": -1.131429397047849,
+                "sortino": -1.9465222741485222,
+                "total_return": -0.36643558887491323
+              },
+              "blocked_exit_count": 30,
+              "excess_metrics": {
+                "annual_return": 0.00032432786734393204,
+                "annual_volatility": 0.008149701404568466,
+                "bankrupt": false,
+                "calmar": 0.017233132352194445,
+                "max_drawdown": 0.018820018364370802,
+                "period_count": 660,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5015151515151515,
+                "sharpe": 0.043864572366504005,
+                "sortino": 0.07387787453038729,
+                "total_return": 0.0008496531625239445
+              },
+              "forced_writeoff": 0.001310829772120471,
+              "minimum_cash": 0.0,
+              "periods": 660,
+              "strategy_metrics": {
+                "annual_return": -0.1596485676885564,
+                "annual_volatility": 0.14504921739576943,
+                "bankrupt": false,
+                "calmar": -0.43029281099203387,
+                "max_drawdown": 0.3710230884882528,
+                "period_count": 660,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.4666666666666667,
+                "sharpe": -1.1261765746867427,
+                "sortino": -1.9287872473999976,
+                "total_return": -0.3658972788693383
+              },
+              "total_cost": 0.04052143271488349
+            },
+            "stress": {
+              "average_coverage": 1.0,
+              "average_hhi": 0.0031802789261402994,
+              "average_selected_count": 97.92625368731564,
+              "average_turnover": 0.09846150972977787,
+              "benchmark_metrics": {
+                "annual_return": -0.168916055302206,
+                "annual_volatility": 0.14471806821493263,
+                "bankrupt": false,
+                "calmar": -0.4348046638261906,
+                "max_drawdown": 0.38848722048144524,
+                "period_count": 660,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.4696969696969697,
+                "sharpe": -1.2056551713652874,
+                "sortino": -2.0663748894636935,
+                "total_return": -0.38404902509462713
+              },
+              "blocked_exit_count": 30,
+              "excess_metrics": {
+                "annual_return": -0.0012237063581964636,
+                "annual_volatility": 0.008182343607429945,
+                "bankrupt": false,
+                "calmar": -0.06001827332525208,
+                "max_drawdown": 0.020388896421010525,
+                "period_count": 660,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.4909090909090909,
+                "sharpe": -0.14555466306175807,
+                "sortino": -0.2426829571131338,
+                "total_return": -0.0032017711446132857
+              },
+              "forced_writeoff": 0.0012711520465501797,
+              "minimum_cash": 0.0,
+              "periods": 660,
+              "strategy_metrics": {
+                "annual_return": -0.16993305800952774,
+                "annual_volatility": 0.1450769552460061,
+                "bankrupt": false,
+                "calmar": -0.4347030238731332,
+                "max_drawdown": 0.39091758896787016,
+                "period_count": 660,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.46515151515151515,
+                "sharpe": -1.2107467526728257,
+                "sortino": -2.0695025987456197,
+                "total_return": -0.3860211591525756
+              },
+              "total_cost": 0.0665326879839205
+            }
+          },
+          "train_variants": [
+            {
+              "coverage": 1.0,
+              "direction": "high",
+              "horizon": 1,
+              "periods": 679,
+              "stress_excess_sharpe": -3.6242301413751825
+            },
+            {
+              "coverage": 1.0,
+              "direction": "high",
+              "horizon": 5,
+              "periods": 675,
+              "stress_excess_sharpe": -1.7263476982780745
+            },
+            {
+              "coverage": 1.0,
+              "direction": "high",
+              "horizon": 20,
+              "periods": 660,
+              "stress_excess_sharpe": -1.30555788238915
+            },
+            {
+              "coverage": 1.0,
+              "direction": "low",
+              "horizon": 1,
+              "periods": 679,
+              "stress_excess_sharpe": -2.07148514370077
+            },
+            {
+              "coverage": 1.0,
+              "direction": "low",
+              "horizon": 5,
+              "periods": 675,
+              "stress_excess_sharpe": -0.22365642739432118
+            },
+            {
+              "coverage": 1.0,
+              "direction": "low",
+              "horizon": 20,
+              "periods": 660,
+              "stress_excess_sharpe": -0.14555466306175807
+            }
+          ],
+          "train_window": [
+            "2018-07-17",
+            "2021-02-22"
+          ]
+        },
+        {
+          "direction": "low",
+          "horizon": 20,
+          "label": "fold_2",
+          "test": {
+            "direction": "low",
+            "horizon": 20,
+            "rank_ic": {
+              "average_cross_section_count": 499.9217391304348,
+              "horizon": 20,
+              "observation_count": 115,
+              "positive_rate": 0.5391304347826087,
+              "rank_ic_ir": 0.11100610824492943,
+              "rank_ic_mean": 0.005014127101453402,
+              "rank_ic_std": 0.04516983056815199,
+              "semantics": "signal_t_to_open_t_plus_1_to_t_plus_1_plus_h",
+              "signal_window": [
+                "2021-09-01",
+                "2022-03-09"
+              ]
+            },
+            "real": {
+              "average_coverage": 1.0,
+              "average_hhi": 0.0032424031995770216,
+              "average_selected_count": 100.0,
+              "average_turnover": 0.0996756551772407,
+              "benchmark_metrics": {
+                "annual_return": -0.042440031582543836,
+                "annual_volatility": 0.1472631959552253,
+                "bankrupt": false,
+                "calmar": -0.2925671750391944,
+                "max_drawdown": 0.14506081065607673,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.4852941176470588,
+                "sharpe": -0.22085273320626597,
+                "sortino": -0.3587768247585751,
+                "total_return": -0.0231326166115422
+              },
+              "blocked_exit_count": 3,
+              "excess_metrics": {
+                "annual_return": -0.004083348289884214,
+                "annual_volatility": 0.008176449707929747,
+                "bankrupt": false,
+                "calmar": -1.1228588455550217,
+                "max_drawdown": 0.003636564209338212,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5367647058823529,
+                "sharpe": -0.49633367281275553,
+                "sortino": -0.781818736593338,
+                "total_return": -0.002205786991045011
+              },
+              "forced_writeoff": 0.0,
+              "minimum_cash": 0.0,
+              "periods": 136,
+              "strategy_metrics": {
+                "annual_return": -0.04635008244204286,
+                "annual_volatility": 0.14701908006154926,
+                "bankrupt": false,
+                "calmar": -0.3194191423594068,
+                "max_drawdown": 0.14510740370685196,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5,
+                "sharpe": -0.2492992362504444,
+                "sortino": -0.41172769149519817,
+                "total_return": -0.025287377977796677
+              },
+              "total_cost": 0.011210214380825189
+            },
+            "stress": {
+              "average_coverage": 1.0,
+              "average_hhi": 0.0032423949707718613,
+              "average_selected_count": 100.0,
+              "average_turnover": 0.09968131089697327,
+              "benchmark_metrics": {
+                "annual_return": -0.05429261321602041,
+                "annual_volatility": 0.14727682074774606,
+                "bankrupt": false,
+                "calmar": -0.369040003467192,
+                "max_drawdown": 0.14711850397228568,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.4852941176470588,
+                "sharpe": -0.3053684553542905,
+                "sortino": -0.4968965092944094,
+                "total_return": -0.029676927695484467
+              },
+              "blocked_exit_count": 3,
+              "excess_metrics": {
+                "annual_return": -0.005283146109844705,
+                "annual_volatility": 0.008193513538814368,
+                "bankrupt": false,
+                "calmar": -1.3321588161921627,
+                "max_drawdown": 0.00396585305417715,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5220588235294118,
+                "sharpe": -0.6424018802098279,
+                "sortino": -1.004665448275365,
+                "total_return": -0.0028546976329699714
+              },
+              "forced_writeoff": 0.0,
+              "minimum_cash": 0.0,
+              "periods": 136,
+              "strategy_metrics": {
+                "annual_return": -0.05928892351755899,
+                "annual_volatility": 0.14703708363074036,
+                "bankrupt": false,
+                "calmar": -0.4021765202386583,
+                "max_drawdown": 0.14742015143593154,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.49264705882352944,
+                "sharpe": -0.34213312377530003,
+                "sortino": -0.5633095331141548,
+                "total_return": -0.03244690667320804
+              },
+              "total_cost": 0.01861861810129556
+            },
+            "yearly_real": {
+              "2021": {
+                "benchmark_metrics": {
+                  "annual_return": -0.0736059435944213,
+                  "annual_volatility": 0.1628390775942924,
+                  "bankrupt": false,
+                  "calmar": -0.5286929271038492,
+                  "max_drawdown": 0.13922248590997918,
+                  "period_count": 88,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.4659090909090909,
+                  "sharpe": -0.3880548166646706,
+                  "sortino": -0.6470826949241003,
+                  "total_return": -0.026345515280605913
+                },
+                "excess_metrics": {
+                  "annual_return": -0.0028790202231200324,
+                  "annual_volatility": 0.00846296351997254,
+                  "bankrupt": false,
+                  "calmar": -0.791686893834321,
+                  "max_drawdown": 0.003636564209338212,
+                  "period_count": 88,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5568181818181818,
+                  "sharpe": -0.33644736319605034,
+                  "sortino": -0.49068445760285656,
+                  "total_return": -0.0010063154931628793
+                },
+                "strategy_metrics": {
+                  "annual_return": -0.07627305081739033,
+                  "annual_volatility": 0.16222909887553985,
+                  "bankrupt": false,
+                  "calmar": -0.5493157380968284,
+                  "max_drawdown": 0.1388510205108043,
+                  "period_count": 88,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.4772727272727273,
+                  "sharpe": -0.4079040752168701,
+                  "sortino": -0.6953753936773387,
+                  "total_return": -0.027325318873566262
+                }
+              },
+              "2022": {
+                "benchmark_metrics": {
+                  "annual_return": 0.017446045626446915,
+                  "annual_volatility": 0.1131894427659204,
+                  "bankrupt": false,
+                  "calmar": 0.5018900126618504,
+                  "max_drawdown": 0.03476069494572953,
+                  "period_count": 48,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5208333333333334,
+                  "sharpe": 0.2093779248578148,
+                  "sortino": 0.3424575445925785,
+                  "total_return": 0.003299834509558286
+                },
+                "excess_metrics": {
+                  "annual_return": -0.006287506442912205,
+                  "annual_volatility": 0.007621274971099781,
+                  "bankrupt": false,
+                  "calmar": -1.7794786067628452,
+                  "max_drawdown": 0.00353334196826911,
+                  "period_count": 48,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5,
+                  "sharpe": -0.8237782853553217,
+                  "sortino": -1.6238682210215745,
+                  "total_return": -0.001200679760527401
+                },
+                "strategy_metrics": {
+                  "annual_return": 0.011048847059253353,
+                  "annual_volatility": 0.11390016876099945,
+                  "bankrupt": false,
+                  "calmar": 0.31965408536463574,
+                  "max_drawdown": 0.034565011257871814,
+                  "period_count": 48,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5416666666666666,
+                  "sharpe": 0.1533994825474747,
+                  "sortino": 0.25018141715545805,
+                  "total_return": 0.0020951927045218532
+                }
+              }
+            },
+            "yearly_stress": {
+              "2021": {
+                "benchmark_metrics": {
+                  "annual_return": -0.08381088185522012,
+                  "annual_volatility": 0.1628541089110204,
+                  "bankrupt": false,
+                  "calmar": -0.5981088260030563,
+                  "max_drawdown": 0.14012647567048586,
+                  "period_count": 88,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.4659090909090909,
+                  "sharpe": -0.4559951937765992,
+                  "sortino": -0.7601598142769039,
+                  "total_return": -0.03010445218554647
+                },
+                "excess_metrics": {
+                  "annual_return": -0.004020786663739062,
+                  "annual_volatility": 0.008486880138819321,
+                  "bankrupt": false,
+                  "calmar": -1.0477573828626807,
+                  "max_drawdown": 0.0038375168999081415,
+                  "period_count": 88,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5340909090909091,
+                  "sharpe": -0.4704723571525158,
+                  "sortino": -0.6813959164742721,
+                  "total_return": -0.0014059253423897022
+                },
+                "strategy_metrics": {
+                  "annual_return": -0.08749468284291961,
+                  "annual_volatility": 0.1622389450834783,
+                  "bankrupt": false,
+                  "calmar": -0.6258665492871834,
+                  "max_drawdown": 0.13979766604010024,
+                  "period_count": 88,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.4659090909090909,
+                  "sharpe": -0.4831769272510045,
+                  "sortino": -0.8170603878894382,
+                  "total_return": -0.03146805291568977
+                }
+              },
+              "2022": {
+                "benchmark_metrics": {
+                  "annual_return": 0.0023163390962068764,
+                  "annual_volatility": 0.11320755471536623,
+                  "bankrupt": false,
+                  "calmar": 0.06483499265137298,
+                  "max_drawdown": 0.03572668094006215,
+                  "period_count": 48,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5208333333333334,
+                  "sharpe": 0.07701897802194912,
+                  "sortino": 0.12693464600721366,
+                  "total_return": 0.00044079436288346763
+                },
+                "excess_metrics": {
+                  "annual_return": -0.0075933177086783266,
+                  "annual_volatility": 0.007624238933520412,
+                  "bankrupt": false,
+                  "calmar": -2.1187348650894844,
+                  "max_drawdown": 0.0035838923660500696,
+                  "period_count": 48,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5,
+                  "sharpe": -0.9959183555731445,
+                  "sortino": -1.9563526133214861,
+                  "total_return": -0.0014508120239720146
+                },
+                "strategy_metrics": {
+                  "annual_return": -0.00529456731115141,
+                  "annual_volatility": 0.11394779098076367,
+                  "bankrupt": false,
+                  "calmar": -0.14799889651716833,
+                  "max_drawdown": 0.03577437018618057,
+                  "period_count": 48,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5416666666666666,
+                  "sharpe": 0.010362787050652689,
+                  "sortino": 0.017049055196954776,
+                  "total_return": -0.0010106571708505818
+                }
+              }
+            }
+          },
+          "test_window": [
+            "2021-09-01",
+            "2022-03-09"
+          ],
+          "train": {
+            "direction": "low",
+            "horizon": 20,
+            "rank_ic": {
+              "average_cross_section_count": 494.38391502276176,
+              "horizon": 20,
+              "observation_count": 659,
+              "positive_rate": 0.4400606980273141,
+              "rank_ic_ir": -0.09272361135729755,
+              "rank_ic_mean": -0.004299418758305708,
+              "rank_ic_std": 0.04636811158851973,
+              "semantics": "signal_t_to_open_t_plus_1_to_t_plus_1_plus_h",
+              "signal_window": [
+                "2019-01-23",
+                "2021-08-31"
+              ]
+            },
+            "real": {
+              "average_coverage": 1.0,
+              "average_hhi": 0.0032131187649592622,
+              "average_selected_count": 98.92341678939617,
+              "average_turnover": 0.09988349387067536,
+              "benchmark_metrics": {
+                "annual_return": -0.06411829471461661,
+                "annual_volatility": 0.14169130526427942,
+                "bankrupt": false,
+                "calmar": -0.17914190411611988,
+                "max_drawdown": 0.3579190197345178,
+                "period_count": 680,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.48970588235294116,
+                "sharpe": -0.39676763443068,
+                "sortino": -0.6738056004017787,
+                "total_return": -0.16373818462956824
+              },
+              "blocked_exit_count": 29,
+              "excess_metrics": {
+                "annual_return": 0.00013640878767695597,
+                "annual_volatility": 0.008072636336848616,
+                "bankrupt": false,
+                "calmar": 0.007423268399771215,
+                "max_drawdown": 0.018375839364929886,
+                "period_count": 680,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.49558823529411766,
+                "sharpe": 0.02093271744865775,
+                "sortino": 0.03552813443602528,
+                "total_return": 0.00036812984512701874
+              },
+              "forced_writeoff": 0.0,
+              "minimum_cash": 0.0,
+              "periods": 680,
+              "strategy_metrics": {
+                "annual_return": -0.06399063222578927,
+                "annual_volatility": 0.14194631469052899,
+                "bankrupt": false,
+                "calmar": -0.185097317730643,
+                "max_drawdown": 0.34571344960767936,
+                "period_count": 680,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.49264705882352944,
+                "sharpe": -0.39483619985919277,
+                "sortino": -0.6724644664376938,
+                "total_return": -0.1634303316969894
+              },
+              "total_cost": 0.04400367601230176
+            },
+            "stress": {
+              "average_coverage": 1.0,
+              "average_hhi": 0.003213085196883005,
+              "average_selected_count": 98.92341678939617,
+              "average_turnover": 0.09988942378880004,
+              "benchmark_metrics": {
+                "annual_return": -0.07410667518241854,
+                "annual_volatility": 0.14168451797606146,
+                "bankrupt": false,
+                "calmar": -0.20154813477294686,
+                "max_drawdown": 0.3676872289882666,
+                "period_count": 680,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.48823529411764705,
+                "sharpe": -0.47250101350076545,
+                "sortino": -0.8014880248993457,
+                "total_return": -0.18760423423875394
+              },
+              "blocked_exit_count": 29,
+              "excess_metrics": {
+                "annual_return": -0.0014703533288336068,
+                "annual_volatility": 0.008102561780453554,
+                "bankrupt": false,
+                "calmar": -0.07538975442360646,
+                "max_drawdown": 0.01950335745321385,
+                "period_count": 680,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.48970588235294116,
+                "sharpe": -0.1775495431010314,
+                "sortino": -0.2991458067401233,
+                "total_return": -0.003962667686779886
+              },
+              "forced_writeoff": 0.0,
+              "minimum_cash": 0.0,
+              "periods": 680,
+              "strategy_metrics": {
+                "annual_return": -0.07546806551470986,
+                "annual_volatility": 0.14195110695901492,
+                "bankrupt": false,
+                "calmar": -0.21135147362997572,
+                "max_drawdown": 0.3570737606818669,
+                "period_count": 680,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.4852941176470588,
+                "sharpe": -0.4817063961619118,
+                "sortino": -0.8153204557563415,
+                "total_return": -0.1908234886886151
+              },
+              "total_cost": 0.07221078750674273
+            }
+          },
+          "train_variants": [
+            {
+              "coverage": 1.0,
+              "direction": "high",
+              "horizon": 1,
+              "periods": 680,
+              "stress_excess_sharpe": -3.6491344485380295
+            },
+            {
+              "coverage": 1.0,
+              "direction": "high",
+              "horizon": 5,
+              "periods": 680,
+              "stress_excess_sharpe": -1.5220990291646537
+            },
+            {
+              "coverage": 1.0,
+              "direction": "high",
+              "horizon": 20,
+              "periods": 680,
+              "stress_excess_sharpe": -0.8883572923046771
+            },
+            {
+              "coverage": 1.0,
+              "direction": "low",
+              "horizon": 1,
+              "periods": 680,
+              "stress_excess_sharpe": -2.855745321969908
+            },
+            {
+              "coverage": 1.0,
+              "direction": "low",
+              "horizon": 5,
+              "periods": 680,
+              "stress_excess_sharpe": -0.46119587275685603
+            },
+            {
+              "coverage": 1.0,
+              "direction": "low",
+              "horizon": 20,
+              "periods": 680,
+              "stress_excess_sharpe": -0.1775495431010314
+            }
+          ],
+          "train_window": [
+            "2019-01-23",
+            "2021-08-31"
+          ]
+        },
+        {
+          "direction": "low",
+          "horizon": 20,
+          "label": "fold_3",
+          "test": {
+            "direction": "low",
+            "horizon": 20,
+            "rank_ic": {
+              "average_cross_section_count": 499.8695652173913,
+              "horizon": 20,
+              "observation_count": 115,
+              "positive_rate": 0.3652173913043478,
+              "rank_ic_ir": -0.33884234490953924,
+              "rank_ic_mean": -0.01557641685695082,
+              "rank_ic_std": 0.045969510868274915,
+              "semantics": "signal_t_to_open_t_plus_1_to_t_plus_1_plus_h",
+              "signal_window": [
+                "2022-03-10",
+                "2022-09-15"
+              ]
+            },
+            "real": {
+              "average_coverage": 1.0,
+              "average_hhi": 0.0032163179697871276,
+              "average_selected_count": 100.0,
+              "average_turnover": 0.0995979062402416,
+              "benchmark_metrics": {
+                "annual_return": 0.15328889982998373,
+                "annual_volatility": 0.14337592467493432,
+                "bankrupt": false,
+                "calmar": 1.5860004852724379,
+                "max_drawdown": 0.09665123135422765,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5294117647058824,
+                "sharpe": 1.0666186282793677,
+                "sortino": 1.7054797534239567,
+                "total_return": 0.08000786358469814
+              },
+              "blocked_exit_count": 4,
+              "excess_metrics": {
+                "annual_return": 0.0007782756816614445,
+                "annual_volatility": 0.008038502374161018,
+                "bankrupt": false,
+                "calmar": 0.1429192162072759,
+                "max_drawdown": 0.005445563600997576,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.49264705882352944,
+                "sharpe": 0.10080062285709074,
+                "sortino": 0.15464043860569718,
+                "total_return": 0.00041994658772148696
+              },
+              "forced_writeoff": 0.0,
+              "minimum_cash": 0.0,
+              "periods": 136,
+              "strategy_metrics": {
+                "annual_return": 0.154186476534657,
+                "annual_volatility": 0.14357312460911842,
+                "bankrupt": false,
+                "calmar": 1.6165275848411036,
+                "max_drawdown": 0.09538128392025723,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5367647058823529,
+                "sharpe": 1.0707814690950999,
+                "sortino": 1.7258098146993908,
+                "total_return": 0.08046140920172573
+              },
+              "total_cost": 0.011664932554559023
+            },
+            "stress": {
+              "average_coverage": 1.0,
+              "average_hhi": 0.003216287742778573,
+              "average_selected_count": 100.0,
+              "average_turnover": 0.09960201126358871,
+              "benchmark_metrics": {
+                "annual_return": 0.13997452255420106,
+                "annual_volatility": 0.14335616933640652,
+                "bankrupt": false,
+                "calmar": 1.4249497042259927,
+                "max_drawdown": 0.09823120222354285,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5294117647058824,
+                "sharpe": 0.9857045885717485,
+                "sortino": 1.575552597763276,
+                "total_return": 0.07326092144689622
+              },
+              "blocked_exit_count": 4,
+              "excess_metrics": {
+                "annual_return": -0.0011719241928680457,
+                "annual_volatility": 0.008055681749995408,
+                "bankrupt": false,
+                "calmar": -0.1939939667034139,
+                "max_drawdown": 0.006041034227934173,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.4852941176470588,
+                "sharpe": -0.14153467300808828,
+                "sortino": -0.21640241243819017,
+                "total_return": -0.0006326377165450925
+              },
+              "forced_writeoff": 0.0,
+              "minimum_cash": 0.0,
+              "periods": 136,
+              "strategy_metrics": {
+                "annual_return": 0.13863855883196763,
+                "annual_volatility": 0.14356108843508422,
+                "bankrupt": false,
+                "calmar": 1.4257937416210122,
+                "max_drawdown": 0.09723605510734448,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5367647058823529,
+                "sharpe": 0.976339473480958,
+                "sortino": 1.573923524190844,
+                "total_return": 0.07258193610829555
+              },
+              "total_cost": 0.019372662166951733
+            },
+            "yearly_real": {
+              "2022": {
+                "benchmark_metrics": {
+                  "annual_return": 0.15328889982998373,
+                  "annual_volatility": 0.14337592467493432,
+                  "bankrupt": false,
+                  "calmar": 1.5860004852724379,
+                  "max_drawdown": 0.09665123135422765,
+                  "period_count": 136,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5294117647058824,
+                  "sharpe": 1.0666186282793677,
+                  "sortino": 1.7054797534239567,
+                  "total_return": 0.08000786358469814
+                },
+                "excess_metrics": {
+                  "annual_return": 0.0007782756816614445,
+                  "annual_volatility": 0.008038502374161018,
+                  "bankrupt": false,
+                  "calmar": 0.1429192162072759,
+                  "max_drawdown": 0.005445563600997576,
+                  "period_count": 136,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.49264705882352944,
+                  "sharpe": 0.10080062285709074,
+                  "sortino": 0.15464043860569718,
+                  "total_return": 0.00041994658772148696
+                },
+                "strategy_metrics": {
+                  "annual_return": 0.154186476534657,
+                  "annual_volatility": 0.14357312460911842,
+                  "bankrupt": false,
+                  "calmar": 1.6165275848411036,
+                  "max_drawdown": 0.09538128392025723,
+                  "period_count": 136,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5367647058823529,
+                  "sharpe": 1.0707814690950999,
+                  "sortino": 1.7258098146993908,
+                  "total_return": 0.08046140920172573
+                }
+              }
+            },
+            "yearly_stress": {
+              "2022": {
+                "benchmark_metrics": {
+                  "annual_return": 0.13997452255420106,
+                  "annual_volatility": 0.14335616933640652,
+                  "bankrupt": false,
+                  "calmar": 1.4249497042259927,
+                  "max_drawdown": 0.09823120222354285,
+                  "period_count": 136,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5294117647058824,
+                  "sharpe": 0.9857045885717485,
+                  "sortino": 1.575552597763276,
+                  "total_return": 0.07326092144689622
+                },
+                "excess_metrics": {
+                  "annual_return": -0.0011719241928680457,
+                  "annual_volatility": 0.008055681749995408,
+                  "bankrupt": false,
+                  "calmar": -0.1939939667034139,
+                  "max_drawdown": 0.006041034227934173,
+                  "period_count": 136,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.4852941176470588,
+                  "sharpe": -0.14153467300808828,
+                  "sortino": -0.21640241243819017,
+                  "total_return": -0.0006326377165450925
+                },
+                "strategy_metrics": {
+                  "annual_return": 0.13863855883196763,
+                  "annual_volatility": 0.14356108843508422,
+                  "bankrupt": false,
+                  "calmar": 1.4257937416210122,
+                  "max_drawdown": 0.09723605510734448,
+                  "period_count": 136,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5367647058823529,
+                  "sharpe": 0.976339473480958,
+                  "sortino": 1.573923524190844,
+                  "total_return": 0.07258193610829555
+                }
+              }
+            }
+          },
+          "test_window": [
+            "2022-03-10",
+            "2022-09-15"
+          ],
+          "train": {
+            "direction": "low",
+            "horizon": 20,
+            "rank_ic": {
+              "average_cross_section_count": 499.55083459787556,
+              "horizon": 20,
+              "observation_count": 659,
+              "positive_rate": 0.45220030349013657,
+              "rank_ic_ir": -0.07120404575892932,
+              "rank_ic_mean": -0.0032838187649932645,
+              "rank_ic_std": 0.0461184295076584,
+              "semantics": "signal_t_to_open_t_plus_1_to_t_plus_1_plus_h",
+              "signal_window": [
+                "2019-08-01",
+                "2022-03-09"
+              ]
+            },
+            "real": {
+              "average_coverage": 1.0,
+              "average_hhi": 0.0031819053631496007,
+              "average_selected_count": 99.92488954344624,
+              "average_turnover": 0.09989981768154298,
+              "benchmark_metrics": {
+                "annual_return": -0.06138416550972159,
+                "annual_volatility": 0.14309651865828663,
+                "bankrupt": false,
+                "calmar": -0.17151210024647387,
+                "max_drawdown": 0.3578999115602258,
+                "period_count": 680,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.48823529411764705,
+                "sharpe": -0.37113220074913317,
+                "sortino": -0.63925467277402,
+                "total_return": -0.15712933976007393
+              },
+              "blocked_exit_count": 28,
+              "excess_metrics": {
+                "annual_return": 0.0011854055628797155,
+                "annual_volatility": 0.008055429323060774,
+                "bankrupt": false,
+                "calmar": 0.09374465349396705,
+                "max_drawdown": 0.012645047143472588,
+                "period_count": 680,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5205882352941177,
+                "sharpe": 0.15109686197136502,
+                "sortino": 0.2569064072340725,
+                "total_return": 0.0032019343096190145
+              },
+              "forced_writeoff": 0.0,
+              "minimum_cash": 0.0,
+              "periods": 680,
+              "strategy_metrics": {
+                "annual_return": -0.060271525078110066,
+                "annual_volatility": 0.14338316444643745,
+                "bankrupt": false,
+                "calmar": -0.1744544969986935,
+                "max_drawdown": 0.3454856487795866,
+                "period_count": 680,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.49117647058823527,
+                "sharpe": -0.36184306940918104,
+                "sortino": -0.6270714898944918,
+                "total_return": -0.15443052327448126
+              },
+              "total_cost": 0.04502540362741035
+            },
+            "stress": {
+              "average_coverage": 1.0,
+              "average_hhi": 0.00318186929602075,
+              "average_selected_count": 99.92488954344624,
+              "average_turnover": 0.09990528397679481,
+              "benchmark_metrics": {
+                "annual_return": -0.07151294964605115,
+                "annual_volatility": 0.14309165908516935,
+                "bankrupt": false,
+                "calmar": -0.1945121225783257,
+                "max_drawdown": 0.36765291899611285,
+                "period_count": 680,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.48823529411764705,
+                "sharpe": -0.4469503262522922,
+                "sortino": -0.7701949861002609,
+                "total_return": -0.18144861601932138
+              },
+              "blocked_exit_count": 28,
+              "excess_metrics": {
+                "annual_return": -0.0003181955286377658,
+                "annual_volatility": 0.008083335151914721,
+                "bankrupt": false,
+                "calmar": -0.024309294918930864,
+                "max_drawdown": 0.013089459389871938,
+                "period_count": 680,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5176470588235295,
+                "sharpe": -0.03532908394169012,
+                "sortino": -0.05978417255104751,
+                "total_return": -0.0008583908606145663
+              },
+              "forced_writeoff": 0.0,
+              "minimum_cash": 0.0,
+              "periods": 680,
+              "strategy_metrics": {
+                "annual_return": -0.07180839007387185,
+                "annual_volatility": 0.1433881425992602,
+                "bankrupt": false,
+                "calmar": -0.20122880175610222,
+                "max_drawdown": 0.3568494641284335,
+                "period_count": 680,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.48823529411764705,
+                "sharpe": -0.44794815783316544,
+                "sortino": -0.7746304796809725,
+                "total_return": -0.182151253046274
+              },
+              "total_cost": 0.07387942544399681
+            }
+          },
+          "train_variants": [
+            {
+              "coverage": 1.0,
+              "direction": "high",
+              "horizon": 1,
+              "periods": 680,
+              "stress_excess_sharpe": -3.7499914412861024
+            },
+            {
+              "coverage": 1.0,
+              "direction": "high",
+              "horizon": 5,
+              "periods": 680,
+              "stress_excess_sharpe": -1.0683023786993973
+            },
+            {
+              "coverage": 1.0,
+              "direction": "high",
+              "horizon": 20,
+              "periods": 680,
+              "stress_excess_sharpe": -0.625291650080813
+            },
+            {
+              "coverage": 1.0,
+              "direction": "low",
+              "horizon": 1,
+              "periods": 680,
+              "stress_excess_sharpe": -2.857348355946234
+            },
+            {
+              "coverage": 1.0,
+              "direction": "low",
+              "horizon": 5,
+              "periods": 680,
+              "stress_excess_sharpe": -0.2994337432962496
+            },
+            {
+              "coverage": 1.0,
+              "direction": "low",
+              "horizon": 20,
+              "periods": 680,
+              "stress_excess_sharpe": -0.03532908394169012
+            }
+          ],
+          "train_window": [
+            "2019-08-01",
+            "2022-03-09"
+          ]
+        },
+        {
+          "direction": "low",
+          "horizon": 20,
+          "label": "fold_4",
+          "test": {
+            "direction": "low",
+            "horizon": 20,
+            "rank_ic": {
+              "average_cross_section_count": 499.9391304347826,
+              "horizon": 20,
+              "observation_count": 115,
+              "positive_rate": 0.4782608695652174,
+              "rank_ic_ir": -0.14302670418719074,
+              "rank_ic_mean": -0.006462108989766497,
+              "rank_ic_std": 0.045181136113637964,
+              "semantics": "signal_t_to_open_t_plus_1_to_t_plus_1_plus_h",
+              "signal_window": [
+                "2022-09-16",
+                "2023-03-24"
+              ]
+            },
+            "real": {
+              "average_coverage": 1.0,
+              "average_hhi": 0.0031756531893036614,
+              "average_selected_count": 100.0,
+              "average_turnover": 0.09975839150354361,
+              "benchmark_metrics": {
+                "annual_return": 0.16209805874354322,
+                "annual_volatility": 0.15366564124038426,
+                "bankrupt": false,
+                "calmar": 1.9605675477645303,
+                "max_drawdown": 0.08267915019218285,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5073529411764706,
+                "sharpe": 1.0547427557246454,
+                "sortino": 1.801892076250987,
+                "total_return": 0.08445213197220447
+              },
+              "blocked_exit_count": 6,
+              "excess_metrics": {
+                "annual_return": 0.004048658620330325,
+                "annual_volatility": 0.007849892529841427,
+                "bankrupt": false,
+                "calmar": 0.510376735052196,
+                "max_drawdown": 0.00793268646917511,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5514705882352942,
+                "sharpe": 0.5186475658172583,
+                "sortino": 0.814655353799509,
+                "total_return": 0.002182958320567474
+              },
+              "forced_writeoff": 0.0005902573611507074,
+              "minimum_cash": 0.0,
+              "periods": 136,
+              "strategy_metrics": {
+                "annual_return": 0.16680299706674195,
+                "annual_volatility": 0.15263081457522265,
+                "bankrupt": false,
+                "calmar": 2.0548413023985805,
+                "max_drawdown": 0.08117561043377691,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5220588235294118,
+                "sharpe": 1.0873520864188275,
+                "sortino": 1.8685595738497192,
+                "total_return": 0.08681944577694911
+              },
+              "total_cost": 0.011925657053407607
+            },
+            "stress": {
+              "average_coverage": 1.0,
+              "average_hhi": 0.0031755930687430555,
+              "average_selected_count": 100.0,
+              "average_turnover": 0.09976177287354913,
+              "benchmark_metrics": {
+                "annual_return": 0.14802381909924356,
+                "annual_volatility": 0.1536253554060297,
+                "bankrupt": false,
+                "calmar": 1.7804444735736875,
+                "max_drawdown": 0.08313868884780881,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5073529411764706,
+                "sharpe": 0.9756205178094093,
+                "sortino": 1.6657048892332968,
+                "total_return": 0.07734413903199377
+              },
+              "blocked_exit_count": 6,
+              "excess_metrics": {
+                "annual_return": 0.0028356246115566197,
+                "annual_volatility": 0.007827020005623778,
+                "bankrupt": false,
+                "calmar": 0.3464907626901027,
+                "max_drawdown": 0.008183838984743064,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5441176470588235,
+                "sharpe": 0.3656894892389353,
+                "sortino": 0.5742980241644727,
+                "total_return": 0.001529339703197241
+              },
+              "forced_writeoff": 0.0005866042457047488,
+              "minimum_cash": 0.0,
+              "periods": 136,
+              "strategy_metrics": {
+                "annual_return": 0.15127918369533644,
+                "annual_volatility": 0.15259298161148172,
+                "bankrupt": false,
+                "calmar": 1.849829328790114,
+                "max_drawdown": 0.0817800763242742,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5220588235294118,
+                "sharpe": 0.9997609615582995,
+                "sortino": 1.7172212821267474,
+                "total_return": 0.07899176419782328
+              },
+              "total_cost": 0.019805761618439072
+            },
+            "yearly_real": {
+              "2022": {
+                "benchmark_metrics": {
+                  "annual_return": 0.47301269130555146,
+                  "annual_volatility": 0.14205586009428645,
+                  "bankrupt": false,
+                  "calmar": 13.225393571731537,
+                  "max_drawdown": 0.035765490738709424,
+                  "period_count": 76,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5263157894736842,
+                  "sharpe": 2.7993297888038886,
+                  "sortino": 5.890860745586568,
+                  "total_return": 0.12390328613618373
+                },
+                "excess_metrics": {
+                  "annual_return": -0.018089188858387506,
+                  "annual_volatility": 0.007949092085585705,
+                  "bankrupt": false,
+                  "calmar": -2.2803357889762323,
+                  "max_drawdown": 0.00793268646917511,
+                  "period_count": 76,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.4605263157894737,
+                  "sharpe": -2.292405100884696,
+                  "sortino": -3.4593800803342845,
+                  "total_return": -0.005490288375213259
+                },
+                "strategy_metrics": {
+                  "annual_return": 0.4463670865417215,
+                  "annual_volatility": 0.14128587088719924,
+                  "bankrupt": false,
+                  "calmar": 11.811179838702728,
+                  "max_drawdown": 0.03779191347836999,
+                  "period_count": 76,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5394736842105263,
+                  "sharpe": 2.684436106950906,
+                  "sortino": 5.6123581257756765,
+                  "total_return": 0.11773273298944575
+                }
+              },
+              "2023": {
+                "benchmark_metrics": {
+                  "annual_return": -0.13935891866231753,
+                  "annual_volatility": 0.165316679471923,
+                  "bankrupt": false,
+                  "calmar": -1.6855388370391657,
+                  "max_drawdown": 0.08267915019218233,
+                  "period_count": 60,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.48333333333333334,
+                  "sharpe": -0.82464769142767,
+                  "sortino": -1.2920934641649868,
+                  "total_return": -0.03510191192660961
+                },
+                "excess_metrics": {
+                  "annual_return": 0.032807866328408375,
+                  "annual_volatility": 0.007346629798841053,
+                  "bankrupt": false,
+                  "calmar": 26.513038381188434,
+                  "max_drawdown": 0.0012374238612986076,
+                  "period_count": 60,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.6666666666666666,
+                  "sharpe": 4.397965680408818,
+                  "sortino": 7.458439767061964,
+                  "total_return": 0.007715607606530117
+                },
+                "strategy_metrics": {
+                  "annual_return": -0.11112312110905187,
+                  "annual_volatility": 0.16432108730751932,
+                  "bankrupt": false,
+                  "calmar": -1.3689225189098695,
+                  "max_drawdown": 0.08117561043377669,
+                  "period_count": 60,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5,
+                  "sharpe": -0.6342980553143678,
+                  "sortino": -1.005086493942137,
+                  "total_return": -0.027657136898743606
+                }
+              }
+            },
+            "yearly_stress": {
+              "2022": {
+                "benchmark_metrics": {
+                  "annual_return": 0.4571303125172923,
+                  "annual_volatility": 0.142093966075346,
+                  "bankrupt": false,
+                  "calmar": 12.493924126628597,
+                  "max_drawdown": 0.03658820942757285,
+                  "period_count": 76,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5263157894736842,
+                  "sharpe": 2.7222114555460024,
+                  "sortino": 5.723786911988509,
+                  "total_return": 0.12023474648789878
+                },
+                "excess_metrics": {
+                  "annual_return": -0.018911421475187762,
+                  "annual_volatility": 0.007920570640278795,
+                  "bankrupt": false,
+                  "calmar": -2.3108252142355044,
+                  "max_drawdown": 0.008183838984743064,
+                  "period_count": 76,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.4605263157894737,
+                  "sharpe": -2.406447089602943,
+                  "sortino": -3.6395720163124055,
+                  "total_return": -0.005741518535952395
+                },
+                "strategy_metrics": {
+                  "annual_return": 0.4295739070330078,
+                  "annual_volatility": 0.1413090830083293,
+                  "bankrupt": false,
+                  "calmar": 11.12508396855307,
+                  "max_drawdown": 0.038613093460442276,
+                  "period_count": 76,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5394736842105263,
+                  "sharpe": 2.601257383434275,
+                  "sortino": 5.437866364217083,
+                  "total_return": 0.11380289792632103
+                }
+              },
+              "2023": {
+                "benchmark_metrics": {
+                  "annual_return": -0.1512285950554103,
+                  "annual_volatility": 0.16516834258268992,
+                  "bankrupt": false,
+                  "calmar": -1.8189918213919023,
+                  "max_drawdown": 0.08313868884780877,
+                  "period_count": 60,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.48333333333333334,
+                  "sharpe": -0.9095629053276933,
+                  "sortino": -1.4235493353388022,
+                  "total_return": -0.03828716042809133
+                },
+                "excess_metrics": {
+                  "annual_return": 0.031075250921177577,
+                  "annual_volatility": 0.007343059477878607,
+                  "bankrupt": false,
+                  "calmar": 25.081045068849832,
+                  "max_drawdown": 0.0012389934644219604,
+                  "period_count": 60,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.65,
+                  "sharpe": 4.171422504573221,
+                  "sortino": 7.038341334288213,
+                  "total_return": 0.007312845074697094
+                },
+                "strategy_metrics": {
+                  "annual_return": -0.12485281067203713,
+                  "annual_volatility": 0.1641906374798794,
+                  "bankrupt": false,
+                  "calmar": -1.5266898281798047,
+                  "max_drawdown": 0.08178007632427396,
+                  "period_count": 60,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5,
+                  "sharpe": -0.7296897629554929,
+                  "sortino": -1.1550464721869322,
+                  "total_return": -0.03125430342595503
+                }
+              }
+            }
+          },
+          "test_window": [
+            "2022-09-16",
+            "2023-03-24"
+          ],
+          "train": {
+            "direction": "low",
+            "horizon": 20,
+            "rank_ic": {
+              "average_cross_section_count": 499.8937784522003,
+              "horizon": 20,
+              "observation_count": 659,
+              "positive_rate": 0.44309559939301973,
+              "rank_ic_ir": -0.10762994162269236,
+              "rank_ic_mean": -0.004953300996987824,
+              "rank_ic_std": 0.04602158955313867,
+              "semantics": "signal_t_to_open_t_plus_1_to_t_plus_1_plus_h",
+              "signal_window": [
+                "2020-02-07",
+                "2022-09-15"
+              ]
+            },
+            "real": {
+              "average_coverage": 1.0,
+              "average_hhi": 0.003178607259920114,
+              "average_selected_count": 100.0,
+              "average_turnover": 0.09990629931031665,
+              "benchmark_metrics": {
+                "annual_return": -0.06461128995683507,
+                "annual_volatility": 0.14518144830486468,
+                "bankrupt": false,
+                "calmar": -0.19163371216635922,
+                "max_drawdown": 0.3371603525623161,
+                "period_count": 680,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.49411764705882355,
+                "sharpe": -0.3874399606429674,
+                "sortino": -0.652769711642092,
+                "total_return": -0.16492635334557837
+              },
+              "blocked_exit_count": 27,
+              "excess_metrics": {
+                "annual_return": 0.0028493875492410226,
+                "annual_volatility": 0.007847315378036583,
+                "bankrupt": false,
+                "calmar": 0.35076075980873456,
+                "max_drawdown": 0.008123450156724367,
+                "period_count": 680,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5264705882352941,
+                "sharpe": 0.36651280706635436,
+                "sortino": 0.607677672439164,
+                "total_return": 0.007707440669113552
+              },
+              "forced_writeoff": 0.0,
+              "minimum_cash": 0.0,
+              "periods": 680,
+              "strategy_metrics": {
+                "annual_return": -0.06194600501273828,
+                "annual_volatility": 0.1452617655676637,
+                "bankrupt": false,
+                "calmar": -0.18845999757336473,
+                "max_drawdown": 0.32869577528580624,
+                "period_count": 680,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.4970588235294118,
+                "sharpe": -0.3675604865881171,
+                "sortino": -0.6226940444158084,
+                "total_return": -0.15849007275965077
+              },
+              "total_cost": 0.04046370773696219
+            },
+            "stress": {
+              "average_coverage": 1.0,
+              "average_hhi": 0.00317855633870863,
+              "average_selected_count": 100.0,
+              "average_turnover": 0.09991203953607276,
+              "benchmark_metrics": {
+                "annual_return": -0.0747457359419722,
+                "annual_volatility": 0.14517002120702044,
+                "bankrupt": false,
+                "calmar": -0.21635988892807792,
+                "max_drawdown": 0.34546946900503855,
+                "period_count": 680,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.49411764705882355,
+                "sharpe": -0.4624975022952968,
+                "sortino": -0.7791565189062795,
+                "total_return": -0.18911641125979217
+              },
+              "blocked_exit_count": 27,
+              "excess_metrics": {
+                "annual_return": 0.0013684962773288234,
+                "annual_volatility": 0.007866395204552096,
+                "bankrupt": false,
+                "calmar": 0.14538959032988952,
+                "max_drawdown": 0.009412615265121115,
+                "period_count": 680,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5205882352941177,
+                "sharpe": 0.17778210558562127,
+                "sortino": 0.29315154577169855,
+                "total_return": 0.0036970605968849046
+              },
+              "forced_writeoff": 0.0,
+              "minimum_cash": 0.0,
+              "periods": 680,
+              "strategy_metrics": {
+                "annual_return": -0.0734795289260276,
+                "annual_volatility": 0.14525971795960693,
+                "bankrupt": false,
+                "calmar": -0.21722216318708207,
+                "max_drawdown": 0.33826902304965784,
+                "period_count": 680,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.49264705882352944,
+                "sharpe": -0.4527079030004107,
+                "sortino": -0.7641110437983645,
+                "total_return": -0.1861185254952038
+              },
+              "total_cost": 0.06635160577205283
+            }
+          },
+          "train_variants": [
+            {
+              "coverage": 1.0,
+              "direction": "high",
+              "horizon": 1,
+              "periods": 680,
+              "stress_excess_sharpe": -4.115046089477038
+            },
+            {
+              "coverage": 1.0,
+              "direction": "high",
+              "horizon": 5,
+              "periods": 680,
+              "stress_excess_sharpe": -1.3678813170562634
+            },
+            {
+              "coverage": 1.0,
+              "direction": "high",
+              "horizon": 20,
+              "periods": 680,
+              "stress_excess_sharpe": -0.7933073167937988
+            },
+            {
+              "coverage": 1.0,
+              "direction": "low",
+              "horizon": 1,
+              "periods": 680,
+              "stress_excess_sharpe": -2.9519214449943374
+            },
+            {
+              "coverage": 1.0,
+              "direction": "low",
+              "horizon": 5,
+              "periods": 680,
+              "stress_excess_sharpe": -0.6179226476604732
+            },
+            {
+              "coverage": 1.0,
+              "direction": "low",
+              "horizon": 20,
+              "periods": 680,
+              "stress_excess_sharpe": 0.17778210558562127
+            }
+          ],
+          "train_window": [
+            "2020-02-07",
+            "2022-09-15"
+          ]
+        },
+        {
+          "direction": "low",
+          "horizon": 20,
+          "label": "fold_5",
+          "test": {
+            "direction": "low",
+            "horizon": 20,
+            "rank_ic": {
+              "average_cross_section_count": 499.9304347826087,
+              "horizon": 20,
+              "observation_count": 115,
+              "positive_rate": 0.4956521739130435,
+              "rank_ic_ir": 0.086357114111972,
+              "rank_ic_mean": 0.0031387081856907037,
+              "rank_ic_std": 0.036345681742224564,
+              "semantics": "signal_t_to_open_t_plus_1_to_t_plus_1_plus_h",
+              "signal_window": [
+                "2023-03-27",
+                "2023-10-02"
+              ]
+            },
+            "real": {
+              "average_coverage": 1.0,
+              "average_hhi": 0.003219802785857783,
+              "average_selected_count": 100.0,
+              "average_turnover": 0.0994207349444429,
+              "benchmark_metrics": {
+                "annual_return": 0.21011428614979888,
+                "annual_volatility": 0.1334312743599444,
+                "bankrupt": false,
+                "calmar": 2.8253502744694154,
+                "max_drawdown": 0.0743675175600155,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5220588235294118,
+                "sharpe": 1.4964191957445803,
+                "sortino": 2.7918210731241038,
+                "total_return": 0.10840877537797677
+              },
+              "blocked_exit_count": 2,
+              "excess_metrics": {
+                "annual_return": -0.012243006218355834,
+                "annual_volatility": 0.00741203899398428,
+                "bankrupt": false,
+                "calmar": -1.5046976669510954,
+                "max_drawdown": 0.008136522364099437,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.4411764705882353,
+                "sharpe": -1.6582204234157252,
+                "sortino": -2.3127725376575867,
+                "total_return": -0.0066260668723399085
+              },
+              "forced_writeoff": 0.0,
+              "minimum_cash": 0.0,
+              "periods": 136,
+              "strategy_metrics": {
+                "annual_return": 0.19529884941954712,
+                "annual_volatility": 0.13364636139401728,
+                "bankrupt": false,
+                "calmar": 2.61794923356479,
+                "max_drawdown": 0.07459993758305772,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5073529411764706,
+                "sharpe": 1.4019898486809244,
+                "sortino": 2.5674674350729605,
+                "total_return": 0.10106438471043466
+              },
+              "total_cost": 0.011093511072527224
+            },
+            "stress": {
+              "average_coverage": 1.0,
+              "average_hhi": 0.0032198002702630998,
+              "average_selected_count": 100.0,
+              "average_turnover": 0.09942643488130834,
+              "benchmark_metrics": {
+                "annual_return": 0.19462543337227278,
+                "annual_volatility": 0.13344073145036983,
+                "bankrupt": false,
+                "calmar": 2.6021373614374643,
+                "max_drawdown": 0.07479445023023629,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5220588235294118,
+                "sharpe": 1.3997162170975692,
+                "sortino": 2.618840933368103,
+                "total_return": 0.10072956241568587
+              },
+              "blocked_exit_count": 2,
+              "excess_metrics": {
+                "annual_return": -0.01307231541291598,
+                "annual_volatility": 0.007430151351591265,
+                "bankrupt": false,
+                "calmar": -1.5398702669135091,
+                "max_drawdown": 0.008489231653987265,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.4411764705882353,
+                "sharpe": -1.767199309751363,
+                "sortino": -2.4680992533389015,
+                "total_return": -0.0070762626763484215
+              },
+              "forced_writeoff": 0.0,
+              "minimum_cash": 0.0,
+              "periods": 136,
+              "strategy_metrics": {
+                "annual_return": 0.17900891290693655,
+                "annual_volatility": 0.1336480509804899,
+                "bankrupt": false,
+                "calmar": 2.3859490081573154,
+                "max_drawdown": 0.07502629448279213,
+                "period_count": 136,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5073529411764706,
+                "sharpe": 1.299233586463515,
+                "sortino": 2.3849944241694083,
+                "total_return": 0.0929405108964092
+              },
+              "total_cost": 0.018422358480763523
+            },
+            "yearly_real": {
+              "2023": {
+                "benchmark_metrics": {
+                  "annual_return": 0.21011428614979888,
+                  "annual_volatility": 0.1334312743599444,
+                  "bankrupt": false,
+                  "calmar": 2.8253502744694154,
+                  "max_drawdown": 0.0743675175600155,
+                  "period_count": 136,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5220588235294118,
+                  "sharpe": 1.4964191957445803,
+                  "sortino": 2.7918210731241038,
+                  "total_return": 0.10840877537797677
+                },
+                "excess_metrics": {
+                  "annual_return": -0.012243006218355834,
+                  "annual_volatility": 0.00741203899398428,
+                  "bankrupt": false,
+                  "calmar": -1.5046976669510954,
+                  "max_drawdown": 0.008136522364099437,
+                  "period_count": 136,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.4411764705882353,
+                  "sharpe": -1.6582204234157252,
+                  "sortino": -2.3127725376575867,
+                  "total_return": -0.0066260668723399085
+                },
+                "strategy_metrics": {
+                  "annual_return": 0.19529884941954712,
+                  "annual_volatility": 0.13364636139401728,
+                  "bankrupt": false,
+                  "calmar": 2.61794923356479,
+                  "max_drawdown": 0.07459993758305772,
+                  "period_count": 136,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5073529411764706,
+                  "sharpe": 1.4019898486809244,
+                  "sortino": 2.5674674350729605,
+                  "total_return": 0.10106438471043466
+                }
+              }
+            },
+            "yearly_stress": {
+              "2023": {
+                "benchmark_metrics": {
+                  "annual_return": 0.19462543337227278,
+                  "annual_volatility": 0.13344073145036983,
+                  "bankrupt": false,
+                  "calmar": 2.6021373614374643,
+                  "max_drawdown": 0.07479445023023629,
+                  "period_count": 136,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5220588235294118,
+                  "sharpe": 1.3997162170975692,
+                  "sortino": 2.618840933368103,
+                  "total_return": 0.10072956241568587
+                },
+                "excess_metrics": {
+                  "annual_return": -0.01307231541291598,
+                  "annual_volatility": 0.007430151351591265,
+                  "bankrupt": false,
+                  "calmar": -1.5398702669135091,
+                  "max_drawdown": 0.008489231653987265,
+                  "period_count": 136,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.4411764705882353,
+                  "sharpe": -1.767199309751363,
+                  "sortino": -2.4680992533389015,
+                  "total_return": -0.0070762626763484215
+                },
+                "strategy_metrics": {
+                  "annual_return": 0.17900891290693655,
+                  "annual_volatility": 0.1336480509804899,
+                  "bankrupt": false,
+                  "calmar": 2.3859490081573154,
+                  "max_drawdown": 0.07502629448279213,
+                  "period_count": 136,
+                  "periods_per_year": 252.0,
+                  "positive_period_rate": 0.5073529411764706,
+                  "sharpe": 1.299233586463515,
+                  "sortino": 2.3849944241694083,
+                  "total_return": 0.0929405108964092
+                }
+              }
+            }
+          },
+          "test_window": [
+            "2023-03-27",
+            "2023-10-02"
+          ],
+          "train": {
+            "direction": "low",
+            "horizon": 20,
+            "rank_ic": {
+              "average_cross_section_count": 499.8998482549317,
+              "horizon": 20,
+              "observation_count": 659,
+              "positive_rate": 0.48558421851289835,
+              "rank_ic_ir": -0.05830181927984576,
+              "rank_ic_mean": -0.002734109780569963,
+              "rank_ic_std": 0.04689578840492739,
+              "semantics": "signal_t_to_open_t_plus_1_to_t_plus_1_plus_h",
+              "signal_window": [
+                "2020-08-17",
+                "2023-03-24"
+              ]
+            },
+            "real": {
+              "average_coverage": 1.0,
+              "average_hhi": 0.0031857643343234853,
+              "average_selected_count": 100.0,
+              "average_turnover": 0.09992633544375822,
+              "benchmark_metrics": {
+                "annual_return": 0.0480318335244827,
+                "annual_volatility": 0.14527183252286835,
+                "bankrupt": false,
+                "calmar": 0.2586475056584648,
+                "max_drawdown": 0.18570383426742612,
+                "period_count": 680,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5044117647058823,
+                "sharpe": 0.39556226134627454,
+                "sortino": 0.6714584949111487,
+                "total_return": 0.13495525577077316
+              },
+              "blocked_exit_count": 27,
+              "excess_metrics": {
+                "annual_return": 0.0019330137043522821,
+                "annual_volatility": 0.007847520926354754,
+                "bankrupt": false,
+                "calmar": 0.13033972111771608,
+                "max_drawdown": 0.01483058033096821,
+                "period_count": 680,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5235294117647059,
+                "sharpe": 0.2500084390641041,
+                "sortino": 0.41603777653952456,
+                "total_return": 0.005224634898942648
+              },
+              "forced_writeoff": 0.000588300966907657,
+              "minimum_cash": 0.0,
+              "periods": 680,
+              "strategy_metrics": {
+                "annual_return": 0.050057693421282856,
+                "annual_volatility": 0.14504957034115465,
+                "bankrupt": false,
+                "calmar": 0.27696379989169534,
+                "max_drawdown": 0.180737314554673,
+                "period_count": 680,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.513235294117647,
+                "sharpe": 0.40926590915347144,
+                "sortino": 0.6999251493146861,
+                "total_return": 0.14088498260881144
+              },
+              "total_cost": 0.0482392584473999
+            },
+            "stress": {
+              "average_coverage": 1.0,
+              "average_hhi": 0.0031857360152347577,
+              "average_selected_count": 100.0,
+              "average_turnover": 0.09993183353085289,
+              "benchmark_metrics": {
+                "annual_return": 0.03662362019639387,
+                "annual_volatility": 0.145256429764854,
+                "bankrupt": false,
+                "calmar": 0.19180071136172666,
+                "max_drawdown": 0.19094621670783865,
+                "period_count": 680,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5044117647058823,
+                "sharpe": 0.32022977207997616,
+                "sortino": 0.5434890171992981,
+                "total_return": 0.101925353203002
+              },
+              "blocked_exit_count": 27,
+              "excess_metrics": {
+                "annual_return": 0.0005006432747043377,
+                "annual_volatility": 0.007851949682982222,
+                "bankrupt": false,
+                "calmar": 0.0291684189644582,
+                "max_drawdown": 0.017163881090516867,
+                "period_count": 680,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5176470588235295,
+                "sharpe": 0.06767040671373512,
+                "sortino": 0.11211596045125516,
+                "total_return": 0.0013515165890936043
+              },
+              "forced_writeoff": 0.0005690703418533232,
+              "minimum_cash": 0.0,
+              "periods": 680,
+              "strategy_metrics": {
+                "annual_return": 0.03714259884024518,
+                "annual_volatility": 0.1450417179930431,
+                "bankrupt": false,
+                "calmar": 0.19898273362999122,
+                "max_drawdown": 0.18666242121948085,
+                "period_count": 680,
+                "periods_per_year": 252.0,
+                "positive_period_rate": 0.5117647058823529,
+                "sharpe": 0.32394433027405695,
+                "sortino": 0.5533042590075647,
+                "total_return": 0.10341462359779996
+              },
+              "total_cost": 0.07903389150129142
+            }
+          },
+          "train_variants": [
+            {
+              "coverage": 1.0,
+              "direction": "high",
+              "horizon": 1,
+              "periods": 680,
+              "stress_excess_sharpe": -4.121464097857915
+            },
+            {
+              "coverage": 1.0,
+              "direction": "high",
+              "horizon": 5,
+              "periods": 680,
+              "stress_excess_sharpe": -1.3742676329417178
+            },
+            {
+              "coverage": 1.0,
+              "direction": "high",
+              "horizon": 20,
+              "periods": 680,
+              "stress_excess_sharpe": -1.0262534314793252
+            },
+            {
+              "coverage": 1.0,
+              "direction": "low",
+              "horizon": 1,
+              "periods": 680,
+              "stress_excess_sharpe": -3.2577836151838064
+            },
+            {
+              "coverage": 1.0,
+              "direction": "low",
+              "horizon": 5,
+              "periods": 680,
+              "stress_excess_sharpe": -0.8881364881195687
+            },
+            {
+              "coverage": 1.0,
+              "direction": "low",
+              "horizon": 20,
+              "periods": 680,
+              "stress_excess_sharpe": 0.06767040671373512
+            }
+          ],
+          "train_window": [
+            "2020-08-17",
+            "2023-03-24"
+          ]
+        }
+      ],
+      "policy": {
+        "cost_evidence": "real_and_stress",
+        "execution_semantics": "production_execution_context",
+        "horizons": [
+          1,
+          5,
+          20
+        ],
+        "minimum_coverage": 0.7,
+        "minimum_periods": 340,
+        "real_buy_cost": 0.0003,
+        "real_sell_cost": 0.0012,
+        "stress_buy_cost": 0.0005,
+        "stress_sell_cost": 0.002,
+        "top_fraction": 0.2,
+        "windows": [
+          {
+            "label": "fold_1",
+            "test": [
+              "2021-02-23",
+              "2021-08-31"
+            ],
+            "train": [
+              "2018-07-17",
+              "2021-02-22"
+            ]
+          },
+          {
+            "label": "fold_2",
+            "test": [
+              "2021-09-01",
+              "2022-03-09"
+            ],
+            "train": [
+              "2019-01-23",
+              "2021-08-31"
+            ]
+          },
+          {
+            "label": "fold_3",
+            "test": [
+              "2022-03-10",
+              "2022-09-15"
+            ],
+            "train": [
+              "2019-08-01",
+              "2022-03-09"
+            ]
+          },
+          {
+            "label": "fold_4",
+            "test": [
+              "2022-09-16",
+              "2023-03-24"
+            ],
+            "train": [
+              "2020-02-07",
+              "2022-09-15"
+            ]
+          },
+          {
+            "label": "fold_5",
+            "test": [
+              "2023-03-27",
+              "2023-10-02"
+            ],
+            "train": [
+              "2020-08-17",
+              "2023-03-24"
+            ]
+          }
+        ]
+      },
+      "summary": {
+        "direction_mode_count": 5,
+        "horizon_mode_count": 5,
+        "median_test_excess_sharpe": -0.14153467300808828,
+        "positive_folds": 2
+      }
+    },
+    "screen": {
+      "discovery": {
+        "direction": "low",
+        "horizon": 20,
+        "rank_ic": {
+          "average_cross_section_count": 491.0540880503145,
+          "horizon": 20,
+          "observation_count": 795,
+          "positive_rate": 0.4477987421383648,
+          "rank_ic_ir": -0.0816176691090489,
+          "rank_ic_mean": -0.003894186157933424,
+          "rank_ic_std": 0.0477125382339751,
+          "semantics": "signal_t_to_open_t_plus_1_to_t_plus_1_plus_h",
+          "signal_window": [
+            "2018-07-17",
+            "2021-08-31"
+          ]
+        },
+        "real": {
+          "average_coverage": 1.0,
+          "average_hhi": 0.0031836074903510963,
+          "average_selected_count": 98.27272727272727,
+          "average_turnover": 0.09870820984389636,
+          "benchmark_metrics": {
+            "annual_return": -0.1041854163053122,
+            "annual_volatility": 0.1431935263817416,
+            "bankrupt": false,
+            "calmar": -0.2563637486580113,
+            "max_drawdown": 0.4063968359438187,
+            "period_count": 796,
+            "periods_per_year": 252.0,
+            "positive_period_rate": 0.4836683417085427,
+            "sharpe": -0.696576470777855,
+            "sortino": -1.1995744281298364,
+            "total_return": -0.29356865484110084
+          },
+          "blocked_exit_count": 35,
+          "excess_metrics": {
+            "annual_return": 0.000364026734987144,
+            "annual_volatility": 0.008056031355266334,
+            "bankrupt": false,
+            "calmar": 0.019342528149510353,
+            "max_drawdown": 0.018820018364370802,
+            "period_count": 796,
+            "periods_per_year": 252.0,
+            "positive_period_rate": 0.5037688442211056,
+            "sharpe": 0.04920656199693104,
+            "sortino": 0.08403269677605885,
+            "total_return": 0.0011503140911874876
+          },
+          "forced_writeoff": 0.0,
+          "minimum_cash": 0.0,
+          "periods": 796,
+          "strategy_metrics": {
+            "annual_return": -0.10385931584725616,
+            "annual_volatility": 0.1435119818128407,
+            "bankrupt": false,
+            "calmar": -0.256781074410396,
+            "max_drawdown": 0.40446639646528143,
+            "period_count": 796,
+            "periods_per_year": 252.0,
+            "positive_period_rate": 0.4824120603015075,
+            "sharpe": -0.6921752408546045,
+            "sortino": -1.191539591720995,
+            "total_return": -0.2927560369103085
+          },
+          "total_cost": 0.04708709005148723
+        },
+        "stress": {
+          "average_coverage": 1.0,
+          "average_hhi": 0.0031835655879065947,
+          "average_selected_count": 98.27272727272727,
+          "average_turnover": 0.09871419459477103,
+          "benchmark_metrics": {
+            "annual_return": -0.11376261681233746,
+            "annual_volatility": 0.14317644309663888,
+            "bankrupt": false,
+            "calmar": -0.2688442996337439,
+            "max_drawdown": 0.4231542828593364,
+            "period_count": 796,
+            "periods_per_year": 252.0,
+            "positive_period_rate": 0.48115577889447236,
+            "sharpe": -0.7717118474532692,
+            "sortino": -1.325935016105698,
+            "total_return": -0.3171507921649742
+          },
+          "blocked_exit_count": 35,
+          "excess_metrics": {
+            "annual_return": -0.0011712139076668349,
+            "annual_volatility": 0.008083655866349274,
+            "bankrupt": false,
+            "calmar": -0.057443712669995824,
+            "max_drawdown": 0.020388896421010525,
+            "period_count": 796,
+            "periods_per_year": 252.0,
+            "positive_period_rate": 0.4949748743718593,
+            "sharpe": -0.14092950190266687,
+            "sortino": -0.23824864685330682,
+            "total_return": -0.003694873959232625
+          },
+          "forced_writeoff": 0.0,
+          "minimum_cash": 0.0,
+          "periods": 796,
+          "strategy_metrics": {
+            "annual_return": -0.1148005903610212,
+            "annual_volatility": 0.14351070084040865,
+            "bankrupt": false,
+            "calmar": -0.27090824750618453,
+            "max_drawdown": 0.42376188771587847,
+            "period_count": 796,
+            "periods_per_year": 252.0,
+            "positive_period_rate": 0.4798994974874372,
+            "sharpe": -0.7777398187604685,
+            "sortino": -1.3359777644144024,
+            "total_return": -0.3196738339210867
+          },
+          "total_cost": 0.07709418915311159
+        }
+      },
+      "discovery_variants": [
+        {
+          "coverage": 1.0,
+          "direction": "high",
+          "horizon": 1,
+          "periods": 815,
+          "stress_excess_sharpe": -3.672915651371004
+        },
+        {
+          "coverage": 1.0,
+          "direction": "high",
+          "horizon": 5,
+          "periods": 811,
+          "stress_excess_sharpe": -1.4697777054393864
+        },
+        {
+          "coverage": 1.0,
+          "direction": "high",
+          "horizon": 20,
+          "periods": 796,
+          "stress_excess_sharpe": -1.1212250666560393
+        },
+        {
+          "coverage": 1.0,
+          "direction": "low",
+          "horizon": 1,
+          "periods": 815,
+          "stress_excess_sharpe": -2.1243440845778627
+        },
+        {
+          "coverage": 1.0,
+          "direction": "low",
+          "horizon": 5,
+          "periods": 811,
+          "stress_excess_sharpe": -0.29138609326738063
+        },
+        {
+          "coverage": 1.0,
+          "direction": "low",
+          "horizon": 20,
+          "periods": 796,
+          "stress_excess_sharpe": -0.14092950190266687
+        }
+      ],
+      "selected_direction": "low",
+      "selected_horizon": 20,
+      "validation": {
+        "direction": "low",
+        "horizon": 20,
+        "rank_ic": {
+          "average_cross_section_count": 499.91204588910136,
+          "horizon": 20,
+          "observation_count": 523,
+          "positive_rate": 0.4875717017208413,
+          "rank_ic_ir": -0.03139527597696324,
+          "rank_ic_mean": -0.0013974499699851122,
+          "rank_ic_std": 0.0445114727136182,
+          "semantics": "signal_t_to_open_t_plus_1_to_t_plus_1_plus_h",
+          "signal_window": [
+            "2021-09-01",
+            "2023-10-02"
+          ]
+        },
+        "real": {
+          "average_coverage": 1.0,
+          "average_hhi": 0.003208927593116347,
+          "average_selected_count": 100.0,
+          "average_turnover": 0.0999095652047773,
+          "benchmark_metrics": {
+            "annual_return": 0.11930504150961951,
+            "annual_volatility": 0.1448067649326461,
+            "bankrupt": false,
+            "calmar": 0.8224484681288503,
+            "max_drawdown": 0.14506081065607673,
+            "period_count": 544,
+            "periods_per_year": 252.0,
+            "positive_period_rate": 0.5128676470588235,
+            "sharpe": 0.8508554242796991,
+            "sortino": 1.4291384977156718,
+            "total_return": 0.2754590409347588
+          },
+          "blocked_exit_count": 15,
+          "excess_metrics": {
+            "annual_return": -0.0037950523607741538,
+            "annual_volatility": 0.007766306483834507,
+            "bankrupt": false,
+            "calmar": -0.28874219303463017,
+            "max_drawdown": 0.013143393838250013,
+            "period_count": 544,
+            "periods_per_year": 252.0,
+            "positive_period_rate": 0.5055147058823529,
+            "sharpe": -0.485698375980336,
+            "sortino": -0.722382544475894,
+            "total_return": -0.008174484597972653
+          },
+          "forced_writeoff": 0.0,
+          "minimum_cash": 0.0,
+          "periods": 544,
+          "strategy_metrics": {
+            "annual_return": 0.11505722026941134,
+            "annual_volatility": 0.14453220382716092,
+            "bankrupt": false,
+            "calmar": 0.7929107497633379,
+            "max_drawdown": 0.14510740370685196,
+            "period_count": 544,
+            "periods_per_year": 252.0,
+            "positive_period_rate": 0.5183823529411765,
+            "sharpe": 0.825880760893789,
+            "sortino": 1.3933393119013544,
+            "total_return": 0.2650328206492907
+          },
+          "total_cost": 0.045255270979977835
+        },
+        "stress": {
+          "average_coverage": 1.0,
+          "average_hhi": 0.0032088648484750533,
+          "average_selected_count": 100.0,
+          "average_turnover": 0.09991551802861705,
+          "benchmark_metrics": {
+            "annual_return": 0.10675605176237446,
+            "annual_volatility": 0.1448060137038847,
+            "bankrupt": false,
+            "calmar": 0.7256466649666671,
+            "max_drawdown": 0.14711850397228568,
+            "period_count": 544,
+            "periods_per_year": 252.0,
+            "positive_period_rate": 0.5128676470588235,
+            "sharpe": 0.772968175295214,
+            "sortino": 1.298723296481425,
+            "total_return": 0.24479024634607938
+          },
+          "blocked_exit_count": 15,
+          "excess_metrics": {
+            "annual_return": -0.005112364560701743,
+            "annual_volatility": 0.007772579165122218,
+            "bankrupt": false,
+            "calmar": -0.3629821922668659,
+            "max_drawdown": 0.014084339864648547,
+            "period_count": 544,
+            "periods_per_year": 252.0,
+            "positive_period_rate": 0.49816176470588236,
+            "sharpe": -0.6555373144993591,
+            "sortino": -0.9735982348957235,
+            "total_return": -0.011003535962929245
+          },
+          "forced_writeoff": 0.0,
+          "minimum_cash": 0.0,
+          "periods": 544,
+          "strategy_metrics": {
+            "annual_return": 0.10109791134600266,
+            "annual_volatility": 0.1445339998159244,
+            "bankrupt": false,
+            "calmar": 0.6857808132827727,
+            "max_drawdown": 0.14742015143593154,
+            "period_count": 544,
+            "periods_per_year": 252.0,
+            "positive_period_rate": 0.5165441176470589,
+            "sharpe": 0.7386777649000962,
+            "sortino": 1.24534945731377,
+            "total_return": 0.23109315210410797
+          },
+          "total_cost": 0.07437722571074279
+        },
+        "yearly_real": {
+          "2021": {
+            "benchmark_metrics": {
+              "annual_return": -0.0736059435944213,
+              "annual_volatility": 0.1628390775942924,
+              "bankrupt": false,
+              "calmar": -0.5286929271038492,
+              "max_drawdown": 0.13922248590997918,
+              "period_count": 88,
+              "periods_per_year": 252.0,
+              "positive_period_rate": 0.4659090909090909,
+              "sharpe": -0.3880548166646706,
+              "sortino": -0.6470826949241003,
+              "total_return": -0.026345515280605913
+            },
+            "excess_metrics": {
+              "annual_return": -0.0028790202231200324,
+              "annual_volatility": 0.00846296351997254,
+              "bankrupt": false,
+              "calmar": -0.791686893834321,
+              "max_drawdown": 0.003636564209338212,
+              "period_count": 88,
+              "periods_per_year": 252.0,
+              "positive_period_rate": 0.5568181818181818,
+              "sharpe": -0.33644736319605034,
+              "sortino": -0.49068445760285656,
+              "total_return": -0.0010063154931628793
+            },
+            "strategy_metrics": {
+              "annual_return": -0.07627305081739033,
+              "annual_volatility": 0.16222909887553985,
+              "bankrupt": false,
+              "calmar": -0.5493157380968284,
+              "max_drawdown": 0.1388510205108043,
+              "period_count": 88,
+              "periods_per_year": 252.0,
+              "positive_period_rate": 0.4772727272727273,
+              "sharpe": -0.4079040752168701,
+              "sortino": -0.6953753936773387,
+              "total_return": -0.027325318873566262
+            }
+          },
+          "2022": {
+            "benchmark_metrics": {
+              "annual_return": 0.21349623487489144,
+              "annual_volatility": 0.13818534933535634,
+              "bankrupt": false,
+              "calmar": 2.208971995708692,
+              "max_drawdown": 0.0966495887180302,
+              "period_count": 260,
+              "periods_per_year": 252.0,
+              "positive_period_rate": 0.5307692307692308,
+              "sharpe": 1.4698469001689265,
+              "sortino": 2.527607255337757,
+              "total_return": 0.22097373004418808
+            },
+            "excess_metrics": {
+              "annual_return": -0.006130496356607229,
+              "annual_volatility": 0.007926972252452032,
+              "bankrupt": false,
+              "calmar": -0.4664317627586843,
+              "max_drawdown": 0.013143393838251397,
+              "period_count": 260,
+              "periods_per_year": 252.0,
+              "positive_period_rate": 0.4846153846153846,
+              "sharpe": -0.771778857266234,
+              "sortino": -1.2121225071357828,
+              "total_return": -0.006324498573453408
+            },
+            "strategy_metrics": {
+              "annual_return": 0.20605690062823823,
+              "annual_volatility": 0.1381242150983539,
+              "bankrupt": false,
+              "calmar": 2.161255077264853,
+              "max_drawdown": 0.09534131477391866,
+              "period_count": 260,
+              "periods_per_year": 252.0,
+              "positive_period_rate": 0.5423076923076923,
+              "sharpe": 1.4258935256792122,
+              "sortino": 2.4584436430660106,
+              "total_return": 0.21325168343030376
+            }
+          },
+          "2023": {
+            "benchmark_metrics": {
+              "annual_return": 0.09467555939755301,
+              "annual_volatility": 0.14445218869413323,
+              "bankrupt": false,
+              "calmar": 0.9571767354153327,
+              "max_drawdown": 0.09891126256476755,
+              "period_count": 196,
+              "periods_per_year": 252.0,
+              "positive_period_rate": 0.5102040816326531,
+              "sharpe": 0.6985524772145983,
+              "sortino": 1.1684789769677657,
+              "total_return": 0.07289032273564766
+            },
+            "excess_metrics": {
+              "annual_return": -0.0011008313695963778,
+              "annual_volatility": 0.007199668358275939,
+              "bankrupt": false,
+              "calmar": -0.1334745049543122,
+              "max_drawdown": 0.008247502921799096,
+              "period_count": 196,
+              "periods_per_year": 252.0,
+              "positive_period_rate": 0.5102040816326531,
+              "sharpe": -0.1493837823507184,
+              "sortino": -0.20956007637516172,
+              "total_return": -0.0008563069493735531
+            },
+            "strategy_metrics": {
+              "annual_return": 0.09347050620223896,
+              "annual_volatility": 0.14408440808866602,
+              "bankrupt": false,
+              "calmar": 0.9640755376210386,
+              "max_drawdown": 0.09695350888467476,
+              "period_count": 196,
+              "periods_per_year": 252.0,
+              "positive_period_rate": 0.5051020408163265,
+              "sharpe": 0.6923201354016691,
+              "sortino": 1.1533740127249195,
+              "total_return": 0.07197159929637431
+            }
+          }
+        },
+        "yearly_stress": {
+          "2021": {
+            "benchmark_metrics": {
+              "annual_return": -0.08381088185522012,
+              "annual_volatility": 0.1628541089110204,
+              "bankrupt": false,
+              "calmar": -0.5981088260030563,
+              "max_drawdown": 0.14012647567048586,
+              "period_count": 88,
+              "periods_per_year": 252.0,
+              "positive_period_rate": 0.4659090909090909,
+              "sharpe": -0.4559951937765992,
+              "sortino": -0.7601598142769039,
+              "total_return": -0.03010445218554647
+            },
+            "excess_metrics": {
+              "annual_return": -0.004020786663739062,
+              "annual_volatility": 0.008486880138819321,
+              "bankrupt": false,
+              "calmar": -1.0477573828626807,
+              "max_drawdown": 0.0038375168999081415,
+              "period_count": 88,
+              "periods_per_year": 252.0,
+              "positive_period_rate": 0.5340909090909091,
+              "sharpe": -0.4704723571525158,
+              "sortino": -0.6813959164742721,
+              "total_return": -0.0014059253423897022
+            },
+            "strategy_metrics": {
+              "annual_return": -0.08749468284291961,
+              "annual_volatility": 0.1622389450834783,
+              "bankrupt": false,
+              "calmar": -0.6258665492871834,
+              "max_drawdown": 0.13979766604010024,
+              "period_count": 88,
+              "periods_per_year": 252.0,
+              "positive_period_rate": 0.4659090909090909,
+              "sharpe": -0.4831769272510045,
+              "sortino": -0.8170603878894382,
+              "total_return": -0.03146805291568977
+            }
+          },
+          "2022": {
+            "benchmark_metrics": {
+              "annual_return": 0.20066994499471913,
+              "annual_volatility": 0.13818739447814213,
+              "bankrupt": false,
+              "calmar": 2.0428895156619387,
+              "max_drawdown": 0.09822848639452628,
+              "period_count": 260,
+              "periods_per_year": 252.0,
+              "positive_period_rate": 0.5307692307692308,
+              "sharpe": 1.3928775421566677,
+              "sortino": 2.3944433383855666,
+              "total_return": 0.20766095400288664
+            },
+            "excess_metrics": {
+              "annual_return": -0.007623490719437465,
+              "annual_volatility": 0.007927866983966357,
+              "bankrupt": false,
+              "calmar": -0.5412742657945323,
+              "max_drawdown": 0.014084339864646994,
+              "period_count": 260,
+              "periods_per_year": 252.0,
+              "positive_period_rate": 0.4807692307692308,
+              "sharpe": -0.9613120589695417,
+              "sortino": -1.5064482242631352,
+              "total_return": -0.007864552159614124
+            },
+            "strategy_metrics": {
+              "annual_return": 0.19151664881194153,
+              "annual_volatility": 0.1381245084668354,
+              "bankrupt": false,
+              "calmar": 1.9704436509287409,
+              "max_drawdown": 0.09719468441620893,
+              "period_count": 260,
+              "periods_per_year": 252.0,
+              "positive_period_rate": 0.5423076923076923,
+              "sharpe": 1.3380167819392965,
+              "sortino": 2.3072929058468676,
+              "total_return": 0.19816324143899866
+            }
+          },
+          "2023": {
+            "benchmark_metrics": {
+              "annual_return": 0.08137549755929019,
+              "annual_volatility": 0.1444378911546112,
+              "bankrupt": false,
+              "calmar": 0.8171245064298285,
+              "max_drawdown": 0.0995876355671122,
+              "period_count": 196,
+              "periods_per_year": 252.0,
+              "positive_period_rate": 0.5102040816326531,
+              "sharpe": 0.6139489898904836,
+              "sortino": 1.0284867193628113,
+              "total_return": 0.06273794176894798
+            },
+            "excess_metrics": {
+              "annual_return": -0.0022628223717064966,
+              "annual_volatility": 0.007203898839823391,
+              "bankrupt": false,
+              "calmar": -0.26324408455985926,
+              "max_drawdown": 0.00859590966873921,
+              "period_count": 196,
+              "periods_per_year": 252.0,
+              "positive_period_rate": 0.5051020408163265,
+              "sharpe": -0.310862782047847,
+              "sortino": -0.436358567174724,
+              "total_return": -0.0017604158649089374
+            },
+            "strategy_metrics": {
+              "annual_return": 0.07892853689119783,
+              "annual_volatility": 0.14408318593173686,
+              "bankrupt": false,
+              "calmar": 0.8069123761650171,
+              "max_drawdown": 0.09781549920738432,
+              "period_count": 196,
+              "periods_per_year": 252.0,
+              "positive_period_rate": 0.5051020408163265,
+              "sharpe": 0.5993780173274603,
+              "sortino": 0.9998938383874212,
+              "total_return": 0.060867081036017234
+            }
+          }
+        }
+      }
+    },
+    "warnings": [
+      "Market states have no manifest; identity was computed from partition bytes.",
+      "Engineering evidence mode is non-promotable and cannot enter admission."
+    ]
+  },
+  "measurements": {
+    "cpu_seconds": [
+      10.777544,
+      10.144312999999997,
+      10.705257000000003,
+      10.280742000000004,
+      10.293031
+    ],
+    "peak_rss_mib": 459.3125,
+    "repetitions": 5,
+    "stage_timings_seconds": [
+      {
+        "execution_context": 3.5389034579857253,
+        "factor": 4.092874875001144,
+        "prepare": 0.02463066700147465,
+        "rolling": 2.0157492909929715,
+        "screen": 0.5678051669965498,
+        "total": 10.239971083006822
+      },
+      {
+        "execution_context": 3.2133084169763606,
+        "factor": 3.6692236670060083,
+        "prepare": 0.02263312498689629,
+        "rolling": 2.169186749990331,
+        "screen": 0.610917458019685,
+        "total": 9.68527633298072
+      },
+      {
+        "execution_context": 3.4229147910082247,
+        "factor": 4.158829166990472,
+        "prepare": 0.023011582990875468,
+        "rolling": 2.0326387499808334,
+        "screen": 0.5994354170106817,
+        "total": 10.236835791991325
+      },
+      {
+        "execution_context": 3.2818655830051284,
+        "factor": 3.860472792002838,
+        "prepare": 0.022063208976760507,
+        "rolling": 2.0188956249912735,
+        "screen": 0.580055666010594,
+        "total": 9.763359208009206
+      },
+      {
+        "execution_context": 3.301313959003892,
+        "factor": 3.8271369579888415,
+        "prepare": 0.020606167003279552,
+        "rolling": 2.047373791981954,
+        "screen": 0.5803281659900676,
+        "total": 9.776765084010549
+      }
+    ],
+    "wall_seconds": [
+      10.240139417001046,
+      9.685515416000271,
+      10.237042875000043,
+      9.763581208011601,
+      9.777000583999325
+    ],
+    "warmup_repetitions": 1
+  },
+  "schema_version": "ashare-factor-full-backtest-result.v1",
+  "workload": {
+    "benchmark_portfolio_runs": 36,
+    "dataset_identity": "d9972bc1d1abdcf49ce6f39f32c053d7f3151e30c3da919f81e2e349d3e38793",
+    "date_count": 1500,
+    "expression": "ts_pct_change(close,5)",
+    "includes": [
+      "persistent_data_read",
+      "expression_evaluation",
+      "pit_universe",
+      "st_suspension_limit_execution",
+      "two_sided_costs",
+      "nav_metrics_turnover",
+      "rank_ic",
+      "screen_selection",
+      "rolling_evaluation",
+      "atomic_json_artifacts"
+    ],
+    "rank_ic_runs": 12,
+    "rolling_fold_count": 5,
+    "security_count": 500,
+    "strategy_portfolio_runs": 54
+  }
+}

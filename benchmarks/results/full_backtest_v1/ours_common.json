@@ -1,0 +1,140 @@
+{
+  "engine": {
+    "commit": "7f1192021c91bf6506894be9de351967201fbdd8",
+    "name": "ashare-factor-backtest"
+  },
+  "environment": {
+    "logical_cpu_count": 15,
+    "memory_gib": 24.0,
+    "platform": "macOS-26.5-arm64-arm-64bit",
+    "processor": "arm64",
+    "python": "3.12.13"
+  },
+  "evidence": {
+    "average_turnover": 1.9914567802271208,
+    "benchmark_metrics": {
+      "annual_return": -0.316682702667482,
+      "annual_volatility": 0.143275779139596,
+      "bankrupt": false,
+      "calmar": -0.3509229137452105,
+      "max_drawdown": 0.9024281124526715,
+      "period_count": 1498,
+      "periods_per_year": 252.0,
+      "positive_period_rate": 0.42456608811748997,
+      "sharpe": -2.5840599446372767,
+      "sortino": -4.168869414787706,
+      "total_return": -0.8960266276151752
+    },
+    "effective_end": "2023-09-29",
+    "excess_metrics": {
+      "annual_return": -0.009035179629151235,
+      "annual_volatility": 0.02015960941503236,
+      "bankrupt": false,
+      "calmar": -0.10277235873364492,
+      "max_drawdown": 0.08791449121614214,
+      "period_count": 1498,
+      "periods_per_year": 252.0,
+      "positive_period_rate": 0.48998664886515353,
+      "sharpe": -0.44013185037200403,
+      "sortino": -0.710878084319564,
+      "total_return": -0.05252358165054216
+    },
+    "rank_ic": {
+      "average_cross_section_count": 500.0,
+      "horizon": 1,
+      "observation_count": 1492,
+      "positive_rate": 0.49396782841823056,
+      "rank_ic_ir": -0.02447882291082354,
+      "rank_ic_mean": -0.0011183823083193499,
+      "rank_ic_std": 0.04568774864680469,
+      "semantics": "signal_t_to_open_t_plus_1_to_t_plus_1_plus_h",
+      "signal_window": [
+        "2018-01-02",
+        "2023-09-29"
+      ]
+    },
+    "strategy_metrics": {
+      "annual_return": -0.3228565971925873,
+      "annual_volatility": 0.14479271761070175,
+      "bankrupt": false,
+      "calmar": -0.35596926631054443,
+      "max_drawdown": 0.9069788539298504,
+      "period_count": 1498,
+      "periods_per_year": 252.0,
+      "positive_period_rate": 0.4205607476635514,
+      "sharpe": -2.6180705845463064,
+      "sortino": -4.2343557557448825,
+      "total_return": -0.9014876815291115
+    },
+    "target_selection_digest": "59d032828b9ed5a26038eab8f24f7209a758138dbed816af405a443957980d12",
+    "total_cost": 0.7771754331326841
+  },
+  "measurements": {
+    "cpu_seconds": [
+      0.899851,
+      0.8631960000000001,
+      0.8246990000000003,
+      0.820398,
+      0.8188279999999999
+    ],
+    "output_digest": "ceedcc9458c4967d42c00842cd5f09c87d21bcb825db5ddd1df8127b728d2584",
+    "peak_rss_mib": 599.6875,
+    "repetitions": 5,
+    "stage_timings_seconds": [
+      {
+        "data": 0.10746058300719596,
+        "factor": 0.007033999980194494,
+        "portfolio_ic": 0.3072651670081541,
+        "total_before_artifact": 0.5459257079928648
+      },
+      {
+        "data": 0.1110235000087414,
+        "factor": 0.019363375002285466,
+        "portfolio_ic": 0.2760929590149317,
+        "total_before_artifact": 0.5227934170106892
+      },
+      {
+        "data": 0.10469987499527633,
+        "factor": 0.006638708000537008,
+        "portfolio_ic": 0.26053179102018476,
+        "total_before_artifact": 0.4852809169969987
+      },
+      {
+        "data": 0.10231816599844024,
+        "factor": 0.007041125005343929,
+        "portfolio_ic": 0.26362958300160244,
+        "total_before_artifact": 0.4871858330152463
+      },
+      {
+        "data": 0.10197458401671611,
+        "factor": 0.006722000020090491,
+        "portfolio_ic": 0.2629640829982236,
+        "total_before_artifact": 0.4856098330055829
+      }
+    ],
+    "wall_seconds": [
+      0.8868330419936683,
+      0.8422554999997374,
+      0.8037523750099353,
+      0.8039707090065349,
+      0.8034733750100713
+    ],
+    "warmup_repetitions": 1
+  },
+  "schema_version": "ashare-factor-common-backtest-result.v1",
+  "workload": {
+    "contract": {
+      "buy_cost": 0.0003,
+      "direction": "high",
+      "execution_time": "open_t_plus_1",
+      "horizon": 1,
+      "sell_cost": 0.0012,
+      "signal_time": "close_t",
+      "terminal_liquidation": true,
+      "top_fraction": 0.2
+    },
+    "dataset_identity": "d9972bc1d1abdcf49ce6f39f32c053d7f3151e30c3da919f81e2e349d3e38793",
+    "date_count": 1500,
+    "security_count": 500
+  }
+}
