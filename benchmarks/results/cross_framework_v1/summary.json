@@ -1,0 +1,37 @@
+{
+  "absolute_tolerance": 1e-05,
+  "comparable": true,
+  "expression_parity": [
+    {
+      "finite_masks_equal": true,
+      "maximum_absolute_error": 0.0,
+      "position": 0,
+      "values_close": true
+    },
+    {
+      "finite_masks_equal": true,
+      "maximum_absolute_error": 0.0,
+      "position": 1,
+      "values_close": true
+    },
+    {
+      "finite_masks_equal": true,
+      "maximum_absolute_error": 0.0,
+      "position": 2,
+      "values_close": true
+    },
+    {
+      "finite_masks_equal": true,
+      "maximum_absolute_error": 1.4495849598006316e-05,
+      "position": 3,
+      "values_close": true
+    }
+  ],
+  "maximum_absolute_error": 1.4495849598006316e-05,
+  "ours_median_wall_seconds": 0.08873170800507069,
+  "qlib_median_wall_seconds": 0.9031236250011716,
+  "qlib_over_ours_wall_ratio": 10.17813863055089,
+  "relative_tolerance": 1e-05,
+  "schema_version": "ashare-factor-cross-framework-summary.v1",
+  "warning": "expression-layer result only; not a full backtest comparison"
+}

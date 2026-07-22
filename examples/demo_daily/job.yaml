@@ -1,0 +1,71 @@
+schema_version: production-job.v1
+job_id: public_synthetic_demo_v1
+dataset_version: public-synthetic-cc0-v1
+data:
+  bars_dir: bars
+  market_states_dir: states
+  stock_master: stock_master.parquet
+  st_intervals: st_intervals.parquet
+  trade_calendar: trade_calendar.csv
+plugins: []
+universe:
+  view: signal_eligible
+  index_code: null
+evaluation:
+  start: '2021-01-04'
+  end: '2021-06-30'
+  max_lookback: 20
+  symbol_batch_size: 4
+  cache_mib: 32
+  memory_limit_mib: 1024
+  symbol_cap: 8
+research:
+  evidence_mode: engineering
+  screen:
+    discovery:
+    - '2021-01-04'
+    - '2021-03-31'
+    validation:
+    - '2021-04-01'
+    - '2021-06-30'
+    horizons:
+    - 1
+    - 5
+    - 20
+    minimum_coverage: 0.7
+    minimum_periods: 20
+    top_fraction: 0.25
+    real_buy_cost: 0.0003
+    real_sell_cost: 0.0012
+    stress_buy_cost: 0.0005
+    stress_sell_cost: 0.002
+  rolling:
+    windows:
+    - label: early_2021
+      train:
+      - '2021-01-04'
+      - '2021-02-26'
+      test:
+      - '2021-03-01'
+      - '2021-04-30'
+    - label: late_2021
+      train:
+      - '2021-03-01'
+      - '2021-04-30'
+      test:
+      - '2021-05-03'
+      - '2021-06-30'
+    gate:
+      required_folds: 2
+      minimum_positive_folds: 1
+      minimum_median_test_excess_sharpe: 0.0
+      minimum_direction_mode_count: 1
+      minimum_horizon_mode_count: 1
+  selection_null:
+    permutations: 20
+    maximum_portfolio_evaluations: 100000
+    maximum_empirical_p: 0.1
+    minimum_changed_column_fraction: 0.5
+    maximum_mean_coverage_drift: 0.01
+    maximum_daily_coverage_drift: 0.1
+    seed_namespace: public-synthetic-demo-v1

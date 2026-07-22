@@ -1,0 +1,49 @@
+[project]
+name = "ashare-factor-backtest"
+version = "0.1.0"
+description = "AI-callable expression factor backtesting with explicit A-share market semantics"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+keywords = ["a-share", "backtesting", "factor-backtesting", "quantitative-finance"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business :: Financial :: Investment",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+dependencies = [
+    "numba>=0.61",
+    "numpy>=2.0",
+    "pandas>=2.2",
+    "pyarrow>=16",
+    "pyyaml>=6",
+]
+
+[project.urls]
+Homepage = "https://github.com/elexingyu/ashare-factor-backtest"
+Repository = "https://github.com/elexingyu/ashare-factor-backtest"
+Issues = "https://github.com/elexingyu/ashare-factor-backtest/issues"
+
+[project.scripts]
+ashare-backtest = "ashare_factor_backtest.cli.public_main:main"
+
+[build-system]
+requires = ["setuptools>=80"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["ashare_factor_backtest*"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9",
+    "ruff>=0.15",
+]

@@ -1,0 +1,13 @@
+.venv/
+build/
+dist/
+*.egg-info/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.pyc
+!benchmarks/
+!benchmarks/**
+benchmarks/**/__pycache__/
+benchmarks/**/*.pyc
+benchmarks/work/

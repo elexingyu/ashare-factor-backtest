@@ -1,0 +1,16 @@
+include BENCHMARKS.md
+include CHANGELOG.md
+include COMPATIBILITY.md
+include CONTRIBUTING.md
+include LICENSE
+include NOTICE
+include README.md
+include README_EN.md
+include RELEASE_READINESS.md
+include SECURITY.md
+include THIRD_PARTY_NOTICES.md
+recursive-include .github *.yml
+recursive-include benchmarks *.json *.md *.py
+recursive-include examples *.csv *.json *.md *.parquet *.py *.yaml
+recursive-include tests *.py
+recursive-include tools *.py

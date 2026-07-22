@@ -1,0 +1,9 @@
+{
+  "analysis_range": [
+    "2020-01-02",
+    "2021-06-30"
+  ],
+  "content_hash": "be79c03c0dfb6c1364ab08a7d7bd53cfa6bc9605b9233d48e02d9168e5513b94",
+  "fixture": "fully_synthetic_cc0_v1",
+  "schema": "astock_production_yearly_bars_v1"
+}

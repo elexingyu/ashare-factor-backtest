@@ -1,0 +1,10 @@
+# Changelog
+
+## 0.1.0 - Unreleased
+
+- Add a safe, typed factor-expression compiler and production operator catalog.
+- Add explicit A-share PIT universe, suspension and open-limit execution semantics.
+- Add next-open long-only evaluation with costs, IC, drawdown, turnover and rolling evidence.
+- Add a one-line JSON CLI for AI callers: `doctor`, `capabilities`, `schema`, `compile` and `evaluate`.
+- Add a CC0 synthetic fixture, standalone wheel, reproducible benchmark harness and CI for Python 3.11-3.13.
+- Publish Chinese-first and English README files generated from the same versioned benchmark evidence.

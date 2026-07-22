@@ -1,0 +1,37 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+      - name: Install locked dependencies
+        run: uv sync --locked --all-groups
+      - name: Test
+        run: uv run pytest -q
+      - name: Lint
+        run: uv run ruff check src tests tools benchmarks
+      - name: Build wheel and source archive
+        run: uv build --out-dir dist
+      - name: Clean wheel smoke
+        run: |
+          uv venv --clear /tmp/ashare-factor-backtest-clean --python ${{ matrix.python-version }}
+          uv pip install --python /tmp/ashare-factor-backtest-clean/bin/python dist/*.whl
+          /tmp/ashare-factor-backtest-clean/bin/ashare-backtest doctor --json
+          /tmp/ashare-factor-backtest-clean/bin/ashare-backtest compile 'cs_rank(ts_pct_change(close,5))' --json
+          /tmp/ashare-factor-backtest-clean/bin/ashare-backtest evaluate --job examples/demo_daily/job.yaml 'cs_rank(ts_pct_change(close,5))' --through rolling --work-root /tmp/ashare-factor-backtest-demo --json

@@ -1,0 +1,76 @@
+{
+  "benchmark_id": "6d9177567ff5f9b5",
+  "cache_state": "warm",
+  "engine": {
+    "commit": "d5379c520f66a39953bad76234a7019a72796fd0",
+    "name": "microsoft-qlib-local-provider-kernels-1",
+    "version": "0.1.dev1"
+  },
+  "environment": {
+    "logical_cpu_count": 15,
+    "memory_gib": 24.0,
+    "platform": "macOS-26.5-arm64-arm-64bit",
+    "processor": "arm64",
+    "python": "3.12.13"
+  },
+  "measurements": {
+    "cpu_seconds": [
+      0.8999540000000001,
+      0.8715280000000001,
+      0.8914210000000002,
+      0.8890399999999996,
+      0.9607950000000001
+    ],
+    "output_digest": "bb735866b198fd6efa53e78683cab3a90f357c4c3da632d593780fb8bc580e3c",
+    "peak_rss_mib": 690.390625,
+    "repetitions": 5,
+    "wall_seconds": [
+      0.9102240420179442,
+      0.8877797909954097,
+      0.9031236250011716,
+      0.8988397499779239,
+      0.9785437919781543
+    ]
+  },
+  "parity": {
+    "comparable": true,
+    "exact": false,
+    "maximum_absolute_error": 1.4495849598006316e-05,
+    "reason": "same output shapes, finite masks and values within declared tolerance",
+    "reference_engine": "ashare-factor-backtest-public-evaluator"
+  },
+  "schema_version": "ashare-factor-benchmark.v1",
+  "workload": {
+    "dataset_identity": "6d9177567ff5f9b5024d4bef2ba276e02e7b3397c680d109b9e0639e4b5ece7f",
+    "date_count": 1500,
+    "expression_contract": [
+      {
+        "ours": "close",
+        "qlib": "$close",
+        "valid_from": 0
+      },
+      {
+        "ours": "ts_delay(close,5)",
+        "qlib": "Ref($close,5)",
+        "valid_from": 5
+      },
+      {
+        "ours": "ts_pct_change(close,5)",
+        "qlib": "$close/Ref($close,5)-1",
+        "valid_from": 5
+      },
+      {
+        "ours": "ts_mean(close,20)",
+        "qlib": "Mean($close,20)",
+        "valid_from": 19
+      }
+    ],
+    "expression_count": 4,
+    "expressions_sha256": "be605f962d9662ce29842bec4bbd3d92194fa7e6427f839d35e7bb207137e692",
+    "output_contract": [
+      "factor_values"
+    ],
+    "security_count": 500,
+    "semantics": "native_persistent_store_to_factor_matrix_complete_windows"
+  }
+}
