@@ -28,9 +28,9 @@
     }
   ],
   "maximum_absolute_error": 1.4495849598006316e-05,
-  "ours_median_wall_seconds": 0.08873170800507069,
+  "ours_median_wall_seconds": 0.08603133400902152,
   "qlib_median_wall_seconds": 0.9031236250011716,
-  "qlib_over_ours_wall_ratio": 10.17813863055089,
+  "qlib_over_ours_wall_ratio": 10.49761270592953,
   "relative_tolerance": 1e-05,
   "schema_version": "ashare-factor-cross-framework-summary.v1",
   "warning": "expression-layer result only; not a full backtest comparison"

@@ -2,34 +2,34 @@
   "benchmark_id": "6d9177567ff5f9b5",
   "cache_state": "warm",
   "engine": {
-    "commit": "b2edd764cf58f0cce90e0fc063a6618af87e2df1+dirty",
+    "commit": "2ea0c74750baaf6c8c84dac1767c40ace4dec8c6",
     "name": "ashare-factor-backtest-public-evaluator",
     "version": "astock_formula_ops_v6_production"
   },
   "environment": {
     "logical_cpu_count": 15,
     "memory_gib": 24.0,
-    "platform": "macOS-26.5-arm64-arm-64bit",
+    "platform": "macOS-26.5-arm64-arm-64bit-Mach-O",
     "processor": "arm64",
-    "python": "3.12.13"
+    "python": "3.13.13"
   },
   "measurements": {
     "cpu_seconds": [
-      0.092063,
-      0.092302,
-      0.089777,
-      0.08893600000000002,
-      0.08896499999999996
+      0.09092999999999996,
+      0.08782800000000002,
+      0.08705900000000011,
+      0.08785200000000004,
+      0.08737699999999993
     ],
     "output_digest": "4365fcf9b21dcb535bca374c5f2241f042afea7a269c0aae0d879da7493ab017",
-    "peak_rss_mib": 372.140625,
+    "peak_rss_mib": 371.625,
     "repetitions": 5,
     "wall_seconds": [
-      0.09035691601457074,
-      0.09095074998913333,
-      0.08873170800507069,
-      0.08795908399042673,
-      0.08751979097723961
+      0.08962074998999014,
+      0.08647112498874776,
+      0.08582429101807065,
+      0.08603133400902152,
+      0.08598708399222232
     ]
   },
   "parity": {

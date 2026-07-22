@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 - Unreleased
+## 0.1.0 - 2026-07-22
 
 - Add a safe, typed factor-expression compiler and production operator catalog.
 - Add explicit A-share PIT universe, suspension and open-limit execution semantics.
