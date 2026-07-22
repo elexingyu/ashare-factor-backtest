@@ -9,6 +9,7 @@ from pathlib import Path
 import resource
 import sys
 import tempfile
+from time import perf_counter
 from typing import Any
 
 from ashare_factor_backtest.application.production_job import ProductionJobService
@@ -49,8 +50,10 @@ class FactorEvaluationService:
         through: str = "rolling",
         work_root: Path,
     ) -> tuple[dict[str, object], tuple[str, ...]]:
+        total_start = perf_counter()
         if through not in {"screen", "rolling"}:
             raise ValueError(f"unsupported public factor stage: {through}")
+        prepare_start = perf_counter()
         prepared = ProductionJobService().prepare(
             path,
             expression=expression,
@@ -59,6 +62,8 @@ class FactorEvaluationService:
         job = prepared.job
         if job.research is None:
             raise ValueError("factor evaluation requires a research contract")
+        prepare_seconds = perf_counter() - prepare_start
+        factor_start = perf_counter()
         evaluated = evaluate_expression_by_year(
             expression,
             chunks=prepared.chunks,
@@ -71,12 +76,15 @@ class FactorEvaluationService:
         )
         if evaluated.lookback > job.evaluation.max_lookback:
             raise ValueError("expression lookback exceeds production job max_lookback")
+        factor_seconds = perf_counter() - factor_start
+        execution_start = perf_counter()
         execution = build_chunked_production_execution_context(
             chunks=prepared.chunks,
             frame_loader=prepared.frame_loader,
             price_storage_dtype="float32",
             eligibility_column=job.view,
         )
+        execution_seconds = perf_counter() - execution_start
         common: dict[str, object] = {
             "canonical": evaluated.canonical,
             "evidence_mode": job.research.evidence_mode,
@@ -90,6 +98,7 @@ class FactorEvaluationService:
         artifact_paths: dict[str, str] = {}
         reused: list[str] = []
 
+        screen_start = perf_counter()
         screen_payload, screen_target, was_reused = _load_or_compute_stage(
             work_root=work_root,
             stage="screen",
@@ -105,12 +114,15 @@ class FactorEvaluationService:
             },
             memory_limit_mib=job.evaluation.memory_limit_mib,
         )
+        screen_seconds = perf_counter() - screen_start
         artifact_paths["screen"] = str(screen_target)
         if was_reused:
             reused.append("screen")
         final_payload = screen_payload
 
+        rolling_seconds = 0.0
         if through == "rolling":
+            rolling_start = perf_counter()
             rolling_payload, rolling_target, was_reused = _load_or_compute_stage(
                 work_root=work_root,
                 stage="rolling",
@@ -123,15 +135,26 @@ class FactorEvaluationService:
                 ),
                 memory_limit_mib=job.evaluation.memory_limit_mib,
             )
+            rolling_seconds = perf_counter() - rolling_start
             artifact_paths["rolling"] = str(rolling_target)
             if was_reused:
                 reused.append("rolling")
             final_payload = rolling_payload
 
         result = dict(final_payload)
+        if through == "rolling":
+            result["screen"] = screen_payload["screen"]
         result["artifact_path"] = artifact_paths[through]
         result["stage_artifacts"] = artifact_paths
         result["reused_stages"] = reused
+        result["timings_seconds"] = {
+            "prepare": prepare_seconds,
+            "factor": factor_seconds,
+            "execution_context": execution_seconds,
+            "screen": screen_seconds,
+            "rolling": rolling_seconds,
+            "total": perf_counter() - total_start,
+        }
         warnings = list(prepared.warnings)
         if job.research.evidence_mode == "engineering":
             warnings.append(

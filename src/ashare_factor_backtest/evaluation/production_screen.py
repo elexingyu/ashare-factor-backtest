@@ -29,6 +29,9 @@ from ashare_factor_backtest.evaluation.production_evaluator import (
 from ashare_factor_backtest.evaluation.production_execution_context import (
     ProductionExecutionContext,
 )
+from ashare_factor_backtest.evaluation.production_rank_ic import (
+    evaluate_production_rank_ic,
+)
 from ashare_factor_backtest.evaluation.production_universe_readiness import YearChunk
 
 
@@ -220,6 +223,20 @@ def screen_production_values(
         segment="test",
         cost_label="real",
     )
+    discovery_rank_ic = evaluate_production_rank_ic(
+        values,
+        execution_context,
+        horizon=choice.horizon,
+        signal_start=policy.discovery[0],
+        signal_end=policy.discovery[1],
+    )
+    validation_rank_ic = evaluate_production_rank_ic(
+        values,
+        execution_context,
+        horizon=choice.horizon,
+        signal_start=policy.validation[0],
+        signal_end=policy.validation[1],
+    )
     return {
         "selected_direction": choice.direction,
         "selected_horizon": choice.horizon,
@@ -227,12 +244,14 @@ def screen_production_values(
         "discovery": {
             "direction": choice.direction,
             "horizon": choice.horizon,
+            "rank_ic": discovery_rank_ic,
             "real": _summary(discovery_real),
             "stress": _summary(discovery_stress),
         },
         "validation": {
             "direction": choice.direction,
             "horizon": choice.horizon,
+            "rank_ic": validation_rank_ic,
             "real": _summary(validation_real),
             "stress": _summary(validation_stress),
             "yearly_real": _yearly_summary(validation_real),

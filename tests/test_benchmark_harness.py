@@ -106,3 +106,87 @@ def test_benchmark_report_renders_chinese_and_english(tmp_path, monkeypatch) -> 
     assert "工作负载包含 2 只证券、20 个交易日" in chinese
     assert "Median wall time" in english
     assert "2 securities, 20 dates" in english
+
+
+def _common_result(name: str, wall_seconds: float) -> dict[str, object]:
+    result = _result(name)
+    result["workload"] = {
+        "benchmark_id": "common-full-backtest-v1",
+        "semantics": "fixed",
+    }
+    result["measurements"] = {"wall_seconds": [wall_seconds]}
+    result["evidence"] = {
+        "target_selection_digest": "same-selection",
+        "strategy_metrics": {"total_return": 0.1, "sharpe": 1.2},
+        "rank_ic": {"rank_ic_mean": 0.03},
+    }
+    return result
+
+
+def test_complete_backtest_comparison_requires_parity_before_speed_claim(
+    tmp_path, monkeypatch
+) -> None:
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1]))
+    from benchmarks.ashare_factor_backtest.compare_common_backtest import compare
+
+    ours = tmp_path / "ours"
+    qlib = tmp_path / "qlib"
+    ours.mkdir()
+    qlib.mkdir()
+    arrays = {
+        "return_dates_ns": np.arange(3, dtype=np.int64),
+        "factor": np.arange(6, dtype=float).reshape(3, 2),
+        "gross_returns": np.array([0.0, 0.01, -0.02]),
+        "net_returns": np.array([0.0, 0.009, -0.021]),
+    }
+    np.savez_compressed(ours / "outputs.npz", **arrays)
+    np.savez_compressed(qlib / "outputs.npz", **arrays)
+    (ours / "result.json").write_text(
+        json.dumps(_common_result("ours", 1.0)), encoding="utf-8"
+    )
+    (qlib / "result.json").write_text(
+        json.dumps(_common_result("qlib", 2.0)), encoding="utf-8"
+    )
+
+    comparable = compare(ours, qlib, tmp_path / "comparable.json")
+
+    assert comparable["comparable"] is True
+    assert comparable["speed_claim_allowed"] is True
+    assert comparable["qlib_over_ours_wall_ratio"] == 2.0
+
+    mismatched = arrays | {"net_returns": np.array([0.0, 0.009, -0.03])}
+    np.savez_compressed(qlib / "outputs.npz", **mismatched)
+    rejected = compare(ours, qlib, tmp_path / "rejected.json")
+
+    assert rejected["comparable"] is False
+    assert rejected["speed_claim_allowed"] is False
+    assert rejected["qlib_over_ours_wall_ratio"] is None
+
+
+def test_complete_backtest_comparison_rejects_different_environments(
+    tmp_path, monkeypatch
+) -> None:
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1]))
+    from benchmarks.ashare_factor_backtest.compare_common_backtest import compare
+
+    ours = tmp_path / "ours"
+    qlib = tmp_path / "qlib"
+    ours.mkdir()
+    qlib.mkdir()
+    arrays = {
+        "return_dates_ns": np.arange(2, dtype=np.int64),
+        "factor": np.ones((2, 2)),
+        "gross_returns": np.zeros(2),
+        "net_returns": np.zeros(2),
+    }
+    np.savez_compressed(ours / "outputs.npz", **arrays)
+    np.savez_compressed(qlib / "outputs.npz", **arrays)
+    ours_result = _common_result("ours", 1.0)
+    qlib_result = _common_result("qlib", 2.0)
+    qlib_result["environment"] = dict(qlib_result["environment"])
+    qlib_result["environment"]["python"] = "3.12"
+    (ours / "result.json").write_text(json.dumps(ours_result), encoding="utf-8")
+    (qlib / "result.json").write_text(json.dumps(qlib_result), encoding="utf-8")
+
+    with np.testing.assert_raises_regex(ValueError, "environments differ: python"):
+        compare(ours, qlib, tmp_path / "summary.json")

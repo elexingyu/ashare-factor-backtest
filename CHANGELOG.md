@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.1 - 2026-07-22
+
+- Add production Rank IC evidence with explicit next-open horizon semantics.
+- Preserve screen evidence and stage-level timings in full rolling evaluations.
+- Add a deterministic, complete 500-security by 1,500-date benchmark against Qlib.
+- Require matching environments and output parity before reporting cross-framework speed.
+
 ## 0.1.0 - 2026-07-22
 
 - Add a safe, typed factor-expression compiler and production operator catalog.
