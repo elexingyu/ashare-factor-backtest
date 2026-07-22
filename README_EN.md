@@ -2,6 +2,10 @@
 
 [简体中文](README.md) | English
 
+[![CI](https://github.com/elexingyu/ashare-factor-backtest/actions/workflows/ci.yml/badge.svg)](https://github.com/elexingyu/ashare-factor-backtest/actions/workflows/ci.yml)
+[![Python 3.11-3.13](https://img.shields.io/badge/python-3.11--3.13-blue.svg)](https://www.python.org/)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green.svg)](LICENSE)
+
 An A-share single-factor backtesting engine designed for AI agents and automated research workflows. Given an expression and a data job, the CLI performs safe compilation, applies A-share trading constraints, runs rolling evaluation and returns stable machine-readable results.
 
 > This project is research software, not investment advice. Backtests and synthetic examples do not establish future profitability.

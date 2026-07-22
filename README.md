@@ -2,6 +2,10 @@
 
 简体中文 | [English](README_EN.md)
 
+[![CI](https://github.com/elexingyu/ashare-factor-backtest/actions/workflows/ci.yml/badge.svg)](https://github.com/elexingyu/ashare-factor-backtest/actions/workflows/ci.yml)
+[![Python 3.11-3.13](https://img.shields.io/badge/python-3.11--3.13-blue.svg)](https://www.python.org/)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green.svg)](LICENSE)
+
 一个面向 AI 和自动化研究流程的 A 股单因子回测引擎。输入表达式与数据配置，CLI 会完成安全编译、A 股交易约束处理、滚动检验，并输出稳定的机器可读结果。
 
 > 本项目仅用于研究，不构成投资建议。回测结果和合成示例不能证明未来收益。
