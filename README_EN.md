@@ -54,6 +54,10 @@ The first release deliberately excludes factor generation/search, multi-factor p
 
 ## Performance Evidence
 
+> **No cross-framework full-backtest speed result is available yet.** A complete end-to-end benchmark must include data loading, factor computation, cross-sectional selection, A-share execution constraints, costs, NAV, IC, drawdown, turnover, rolling windows and artifact writes. No full-backtest speedup will be published before that contract is measured.
+
+### Expression-Computation Microbenchmark
+
 The table below is generated from versioned JSON artifacts. The comparison fixes source values, mapped expression semantics, valid-value masks, Python environment, worker count and output scope. A speed ratio is rendered only after numerical parity passes.
 
 The first comparison measures both engines reading their native persistent stores and producing four factor matrices. It excludes A-share execution simulation, IC, costs and rolling evaluation. It supports a claim about the current expression-computation path, not the same speedup for a complete backtest.
