@@ -11,7 +11,7 @@
 - Use raw opens and raw exchange limits for order/tradability coordinates while retaining continuous adjusted opens for fast valuation.
 - Emit a machine-readable warning when scale-dependent back-adjusted price levels enter cross-sectional selection, while leaving scale-invariant return and ratio expressions unaffected.
 - Version the new execution semantics so v0.1 artifacts cannot be reused silently.
-- Archive the v0.1 full-backtest/Qlib timing claim until a 0.2 parity benchmark is complete.
+- Replace the archived v0.1 full-liquidation comparison with a v0.2 target-delta benchmark: all 11 parity checks pass and the clean 500-by-1,500 workload measures 1.330 seconds versus Qlib's 19.070 seconds (`14.34x`) with lower peak RSS.
 
 ## 0.1.2 - 2026-07-22
 

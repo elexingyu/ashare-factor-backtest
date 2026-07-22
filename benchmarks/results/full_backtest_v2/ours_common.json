@@ -1,0 +1,143 @@
+{
+  "engine": {
+    "commit": "9eda1243f2d4850db298b03df102bdbce3566c76",
+    "name": "ashare-factor-backtest"
+  },
+  "environment": {
+    "logical_cpu_count": 15,
+    "memory_gib": 24.0,
+    "platform": "macOS-26.5-arm64-arm-64bit",
+    "processor": "arm64",
+    "python": "3.12.13"
+  },
+  "evidence": {
+    "average_cash_spend_turnover": 0.7184699912662041,
+    "average_turnover": 0.7185182609566234,
+    "benchmark_metrics": {
+      "annual_return": -0.005150297977883578,
+      "annual_volatility": 0.14348803461401938,
+      "bankrupt": false,
+      "calmar": -0.01287105301474759,
+      "max_drawdown": 0.40014581339866995,
+      "period_count": 1498,
+      "periods_per_year": 252.0,
+      "positive_period_rate": 0.4986648865153538,
+      "sharpe": 0.03572924182936914,
+      "sortino": 0.06113281894679268,
+      "total_return": -0.030228470511409977
+    },
+    "effective_end": "2023-09-29",
+    "excess_metrics": {
+      "annual_return": -0.1340484210010061,
+      "annual_volatility": 0.020113532914292784,
+      "bankrupt": false,
+      "calmar": -0.23206274885547173,
+      "max_drawdown": 0.577638684632195,
+      "period_count": 1498,
+      "periods_per_year": 252.0,
+      "positive_period_rate": 0.32643524699599463,
+      "sharpe": -7.14358835983095,
+      "sortino": -10.173067609930515,
+      "total_return": -0.574955669114142
+    },
+    "execution_adapter": "target_delta_continuous_value_v2",
+    "rank_ic": {
+      "average_cross_section_count": 500.0,
+      "horizon": 1,
+      "observation_count": 1492,
+      "positive_rate": 0.49396782841823056,
+      "rank_ic_ir": -0.02447882291082354,
+      "rank_ic_mean": -0.0011183823083193499,
+      "rank_ic_std": 0.04568774864680469,
+      "semantics": "signal_t_to_open_t_plus_1_to_t_plus_1_plus_h",
+      "signal_window": [
+        "2018-01-02",
+        "2023-09-29"
+      ]
+    },
+    "strategy_metrics": {
+      "annual_return": -0.138508329667272,
+      "annual_volatility": 0.1449587023198095,
+      "bankrupt": false,
+      "calmar": -0.21793172233996472,
+      "max_drawdown": 0.6355583674560447,
+      "period_count": 1498,
+      "periods_per_year": 252.0,
+      "positive_period_rate": 0.46461949265687585,
+      "sharpe": -0.9557110821127255,
+      "sortino": -1.600360016053226,
+      "total_return": -0.5878041091363735
+    },
+    "target_selection_digest": "59d032828b9ed5a26038eab8f24f7209a758138dbed816af405a443957980d12",
+    "total_cost": 0.4652068657464658,
+    "turnover_coordinate": "traded_security_value_over_previous_portfolio_value"
+  },
+  "measurements": {
+    "cpu_seconds": [
+      1.366263,
+      1.346361,
+      1.3543120000000002,
+      1.3399200000000002,
+      1.3317289999999993
+    ],
+    "output_digest": "2e4085e0910b1ed51c7d3278d0e9057e5164c0092f37c9148d5921b1f19a29d6",
+    "peak_rss_mib": 567.59375,
+    "repetitions": 5,
+    "stage_timings_seconds": [
+      {
+        "data": 0.10326491598971188,
+        "factor": 0.0066473750048317015,
+        "portfolio_ic": 0.8026205000060145,
+        "total_before_artifact": 1.0268450419825967
+      },
+      {
+        "data": 0.10211429200717248,
+        "factor": 0.006586582981981337,
+        "portfolio_ic": 0.7854616669937968,
+        "total_before_artifact": 1.0090050419967156
+      },
+      {
+        "data": 0.09948633299791254,
+        "factor": 0.00667658299789764,
+        "portfolio_ic": 0.7941620000055991,
+        "total_before_artifact": 1.0170875420153607
+      },
+      {
+        "data": 0.10085254098521546,
+        "factor": 0.006552040984388441,
+        "portfolio_ic": 0.783359749999363,
+        "total_before_artifact": 1.0066107499878854
+      },
+      {
+        "data": 0.10016716699465178,
+        "factor": 0.006684000021778047,
+        "portfolio_ic": 0.7771103330014739,
+        "total_before_artifact": 0.9983137919916771
+      }
+    ],
+    "wall_seconds": [
+      1.3506986249994952,
+      1.3299917080148589,
+      1.338071458012564,
+      1.3275217080081347,
+      1.3219351250154432
+    ],
+    "warmup_repetitions": 1
+  },
+  "schema_version": "ashare-factor-common-backtest-result.v1",
+  "workload": {
+    "contract": {
+      "buy_cost": 0.0003,
+      "direction": "high",
+      "execution_time": "open_t_plus_1",
+      "horizon": 1,
+      "sell_cost": 0.0012,
+      "signal_time": "close_t",
+      "terminal_liquidation": true,
+      "top_fraction": 0.2
+    },
+    "dataset_identity": "e89042bdb1f1104d2164cc095fcba669a0453be88d50aba835387ed7ff13f1bb",
+    "date_count": 1500,
+    "security_count": 500
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "checks": {
+    "cost_rate_within_tolerance": true,
+    "dates_exact": true,
+    "factor_finite_masks_exact": true,
+    "factor_finite_values_exact": true,
+    "gross_return_within_tolerance": true,
+    "net_return_within_tolerance": true,
+    "rank_ic_within_tolerance": true,
+    "sharpe_within_tolerance": true,
+    "target_selections_exact": true,
+    "total_return_within_tolerance": true,
+    "turnover_rate_within_tolerance": true
+  },
+  "comparable": true,
+  "errors": {
+    "cost_rate_max_abs": 5.1295773184634186e-15,
+    "gross_return_max_abs": 5.530298441414061e-15,
+    "net_return_max_abs": 3.0427049768633196e-15,
+    "rank_ic_mean_abs": 5.743175918149733e-08,
+    "sharpe_abs": 8.382183835919932e-14,
+    "total_return_abs": 2.842170943040401e-14,
+    "turnover_rate_max_abs": 4.984124224449715e-12
+  },
+  "first_mismatches": {},
+  "ours_median_wall_seconds": 1.3299917080148589,
+  "qlib_median_wall_seconds": 19.06973108300008,
+  "qlib_over_ours_wall_ratio": 14.338233064222253,
+  "schema_version": "ashare-factor-common-backtest-comparison.v1",
+  "speed_claim_allowed": true,
+  "tolerances": {
+    "cost_rate_max_abs": 1e-06,
+    "gross_return_max_abs": 1e-10,
+    "net_return_max_abs": 1e-06,
+    "rank_ic_mean_abs": 1e-06,
+    "sharpe_abs": 0.001,
+    "total_return_abs": 0.0001,
+    "turnover_rate_max_abs": 1e-06
+  }
+}

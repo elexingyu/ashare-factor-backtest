@@ -65,18 +65,18 @@ Every performance claim uses deterministic synthetic data, a clean source revisi
 
 ### Complete Single-Factor Backtest vs Qlib
 
-> **Archived evidence:** the comparison below belongs to the v0.1 full-liquidation-and-rebuy contract. Version 0.2 uses per-security net rebalancing, so `31.77x` is not a current-version speed claim. It remains historical engineering evidence until the 0.2 parity benchmark is rerun.
+Version 0.2 uses per-security target-delta rebalancing: overlapping holdings are retained and only target differences trade. The Qlib side uses an independent adapter for the same order contract. A speed ratio is emitted only after factor values, selections, daily returns, turnover, costs and Rank IC pass parity.
 
 The common workload contains 500 securities, 1,500 dates and one five-day price-change expression. Both engines start from persistent data, calculate the factor, select a daily cross-section, rebalance at the next open, charge two-sided costs, liquidate at the end and write NAV, return, drawdown, turnover, Rank IC and artifact outputs. Each engine uses one warmup followed by five measured single-process runs.
 
 | Engine | Median wall time | Process peak RSS |
 | --- | ---: | ---: |
-| ashare-factor-backtest `7f11920` | **0.804 s** | 600 MiB |
-| Microsoft Qlib `d5379c5` | 25.539 s | 1,087 MiB |
+| ashare-factor-backtest `9eda124` | **1.330 s** | 568 MiB |
+| Microsoft Qlib `d5379c5` | 19.070 s | 1,038 MiB |
 
-For this fixed-policy complete backtest, Qlib / this project wall-time ratio is **`31.77x`**. Dates, finite factor values and daily target holdings match exactly. Maximum daily net-return error is `9.29e-08`; total-return error is `1.32e-05`; Sharpe error is `1.56e-04`; and mean Rank IC error is `5.74e-08`. Every value is inside the tolerance frozen before the final runs.
+For this fixed-policy complete backtest, the Qlib / project wall-time ratio is **`14.34x`**. All 11 parity checks pass with no first mismatch: maximum daily net-return error is `3.04e-15`, turnover error is `4.98e-12`, total-return error is `2.84e-14`, Sharpe error is `8.38e-14`, and mean Rank IC error is `5.74e-08`.
 
-The ratio applies only to this contract and cannot be generalized to every expression, dataset size or machine. The synthetic factor loses money in the generated market; that is orthogonal to the benchmark, which measures correctness and runtime for identical trading decisions rather than demonstrating alpha.
+The ratio applies only to this workload and cannot be generalized to every expression, dataset size or machine. The shared contract excludes board lots, minimum commissions, price limits, suspensions and corporate actions. Whether the synthetic factor makes money is orthogonal to a benchmark of correctness and runtime. The v0.1 full-liquidation evidence and its `31.77x` historical ratio remain versioned, but do not describe v0.2.
 
 ### Full A-Share Research Path
 

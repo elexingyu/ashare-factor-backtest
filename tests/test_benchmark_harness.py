@@ -296,6 +296,28 @@ def test_archived_complete_backtest_claim_matches_versioned_evidence() -> None:
     assert "**`31.77x`**" in readme
 
 
+def test_v02_complete_backtest_claim_matches_versioned_evidence() -> None:
+    root = Path(__file__).resolve().parents[1]
+    evidence = root / "benchmarks" / "results" / "full_backtest_v2"
+    ours = json.loads((evidence / "ours_common.json").read_text(encoding="utf-8"))
+    qlib = json.loads((evidence / "qlib_common.json").read_text(encoding="utf-8"))
+    summary = json.loads(
+        (evidence / "common_summary.json").read_text(encoding="utf-8")
+    )
+    readme = (root / "README.md").read_text(encoding="utf-8")
+
+    assert ours["environment"] == qlib["environment"]
+    assert ours["engine"]["commit"].startswith("9eda124")
+    assert qlib["engine"]["commit"].startswith("d5379c5")
+    assert summary["comparable"] is True
+    assert summary["speed_claim_allowed"] is True
+    assert summary["first_mismatches"] == {}
+    assert round(summary["ours_median_wall_seconds"], 3) == 1.330
+    assert round(summary["qlib_median_wall_seconds"], 3) == 19.070
+    assert round(summary["qlib_over_ours_wall_ratio"], 2) == 14.34
+    assert "**`14.34x`**" in readme
+
+
 def _full_research_result(
     *, wall_seconds: list[float], peak_rss_mib: float
 ) -> dict[str, object]:

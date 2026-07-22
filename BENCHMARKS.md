@@ -1,12 +1,10 @@
 # Benchmark Methodology
 
-> The complete-backtest/Qlib evidence below is archived for v0.1. Version 0.2 replaced full liquidation and rebuy with per-security target-delta rebalancing. The expression microbenchmark remains applicable, but the complete-backtest speed ratio must not be attributed to v0.2 until a new parity run is published.
-
 Performance claims are accepted only when both engines use the same deterministic source values, mapped expression semantics, valid-window masks, Python environment, process count and output contract. Cross-framework speed is reported only after numerical parity passes. The raw evidence is versioned under `benchmarks/results/`.
 
 ## Complete Backtest Benchmark
 
-The `full_backtest_v1` fixture contains 500 synthetic securities and 1,500 business dates beginning on 2018-01-02. Its seed is `20260722`; the dataset identity is `d9972bc1d1abdcf49ce6f39f32c053d7f3151e30c3da919f81e2e349d3e38793`.
+The v0.2 `full_backtest_v2` fixture contains 500 synthetic securities and 1,500 business dates beginning on 2018-01-02. Its seed is `20260722`; the dataset identity is `e89042bdb1f1104d2164cc095fcba669a0453be88d50aba835387ed7ff13f1bb`.
 
 The common contract is deliberately narrow enough to implement identically in both engines:
 
@@ -14,9 +12,10 @@ The common contract is deliberately narrow enough to implement identically in bo
 - signal observed at close T, daily top 20% selected, execution at open T+1;
 - one-day open-to-open holding return;
 - buy cost 3 bps and sell cost 12 bps, including terminal liquidation;
-- outputs: factor matrix, daily target selections, gross/net returns, NAV metrics, drawdown, turnover, Rank IC and serialized artifacts.
+- per-security target-delta rebalancing: retained names are not sold and repurchased;
+- outputs: factor matrix, daily target selections, gross/net returns, NAV metrics, drawdown, turnover, cost rates, Rank IC and serialized artifacts.
 
-Qlib's account marks positions with its `$close` field. To preserve the shared open-to-open valuation contract without leaking the signal, the fixture stores the causal close signal as `$signal_close` and maps Qlib's valuation `$close` to the same-day open. The runner uses Qlib's native `D.features` and `backtest_daily`; its order generator performs full liquidation and rebuy so turnover and costs match this project's fixed-policy evaluator.
+Qlib's account marks positions with its `$close` field. To preserve the shared open-to-open valuation contract without leaking the signal, the fixture stores the causal close signal as `$signal_close` and maps Qlib's valuation `$close` to the same-day open. The runner uses Qlib's native `D.features`, exchange, account and `backtest_daily`. A benchmark-only order adapter computes the same target-value deltas, sells before buys and scales buys pro rata when fees consume cash. Because this project defines buy cost as a fraction of total cash spent while Qlib defines it as a fraction of traded security value, the adapter applies `qlib_open_cost = buy_cost / (1 - buy_cost)`.
 
 Before the final timing run, these tolerances were frozen:
 
@@ -25,18 +24,22 @@ Before the final timing run, these tolerances were frozen:
 | dates, finite masks, finite factor values, target selections | exact |
 | maximum gross-return error | `1e-10` |
 | maximum net-return error | `1e-6` |
+| maximum turnover-rate error | `1e-6` |
+| maximum cost-rate error | `1e-6` |
 | total-return error | `1e-4` |
 | Sharpe error | `1e-3` |
 | mean Rank IC error | `1e-6` |
 
-Both engines ran in the same Python 3.12.13 environment on an arm64 macOS machine with 24 GiB memory and 15 logical CPUs. Each runner used one process, one warmup and five measured repetitions. The project source was clean commit `7f1192021c91bf6506894be9de351967201fbdd8`; Qlib was clean commit `d5379c520f66a39953bad76234a7019a72796fd0`.
+Both engines ran in the same Python 3.12.13 environment on an arm64 macOS machine with 24 GiB memory and 15 logical CPUs. Each runner used one process, one warmup and five measured repetitions. The project source was clean commit `9eda1243f2d4850db298b03df102bdbce3566c76`; Qlib was clean commit `d5379c520f66a39953bad76234a7019a72796fd0`.
 
 | Engine | Median wall time | Process peak RSS |
 | --- | ---: | ---: |
-| ashare-factor-backtest | 0.804 s | 600 MiB |
-| Microsoft Qlib | 25.539 s | 1,087 MiB |
+| ashare-factor-backtest | 1.330 s | 568 MiB |
+| Microsoft Qlib | 19.070 s | 1,038 MiB |
 
-All parity checks passed. The Qlib / project median wall-time ratio is `31.7659x`. See `benchmarks/results/full_backtest_v1/common_summary.json` for exact errors and `ours_common.json` / `qlib_common.json` for all repetitions and stage timings.
+All 11 parity checks passed with no first mismatch. The Qlib / project median wall-time ratio is `14.3382x`. Maximum daily net-return error is `3.0427e-15`; turnover-rate error is `4.9841e-12`; total-return error is `2.8422e-14`; Sharpe error is `8.3822e-14`; and mean Rank IC error is `5.7432e-08`. See `benchmarks/results/full_backtest_v2/common_summary.json` for exact errors and `ours_common.json` / `qlib_common.json` for every repetition and stage timing.
+
+The v0.1 full-liquidation/rebuy result remains archived under `full_backtest_v1`. Its `31.7659x` ratio describes the old execution contract and must not be attributed to v0.2.
 
 ## Full A-Share Research Benchmark
 
