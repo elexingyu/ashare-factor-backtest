@@ -279,7 +279,7 @@ Run: `uv run pytest -q && uv run ruff check src tests tools benchmarks && uv bui
 
 Expected: tests, lint and build pass; the working tree contains only intended evidence/documentation changes.
 
-- [ ] **Step 6: Commit verified evidence**
+- [x] **Step 6: Commit verified evidence**
 
 ```bash
 git add benchmarks/results/shared_context_v1 README.md README_EN.md BENCHMARKS.md

@@ -15,6 +15,7 @@
 - The 0.1.1 wheel was installed in a fresh Python 3.12 environment; `doctor`, `compile` and rolling `evaluate` passed with screen evidence, Rank IC and stage timings present in the machine response.
 - GitHub Actions run `29894930464` passed test, lint, build and clean-wheel smoke jobs on Linux with Python 3.11, 3.12 and 3.13.
 - GitHub Actions run `29898393255` repeated the same Python 3.11/3.12/3.13 matrix successfully for the 0.1.1 source and complete-backtest evidence.
+- GitHub Actions run `29900507339` passed the same Python 3.11/3.12/3.13 matrix for the v0.1.2 shared-data-pass implementation and archived performance evidence.
 - The PyPI project endpoint for `ashare-factor-backtest` returned 404 on 2026-07-22, so the name appeared available at audit time.
 
 ## Optional Next Distribution Step
