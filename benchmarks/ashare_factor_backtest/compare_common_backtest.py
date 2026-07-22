@@ -16,6 +16,8 @@ from benchmarks.ashare_factor_backtest.common_backtest import write_json
 TOLERANCES = {
     "gross_return_max_abs": 1e-10,
     "net_return_max_abs": 1e-6,
+    "turnover_rate_max_abs": 1e-6,
+    "cost_rate_max_abs": 1e-6,
     "total_return_abs": 1e-4,
     "sharpe_abs": 1e-3,
     "rank_ic_mean_abs": 1e-6,
@@ -49,6 +51,10 @@ def compare(ours_dir: Path, qlib_dir: Path, output_path: Path) -> dict[str, Any]
     )
     gross_error = _max_abs(ours_arrays["gross_returns"], qlib_arrays["gross_returns"])
     net_error = _max_abs(ours_arrays["net_returns"], qlib_arrays["net_returns"])
+    turnover_error = _max_abs(
+        ours_arrays["turnover_rates"], qlib_arrays["turnover_rates"]
+    )
+    cost_error = _max_abs(ours_arrays["cost_rates"], qlib_arrays["cost_rates"])
     total_return_error = abs(
         float(ours["evidence"]["strategy_metrics"]["total_return"])
         - float(qlib["evidence"]["strategy_metrics"]["total_return"])
@@ -68,6 +74,9 @@ def compare(ours_dir: Path, qlib_dir: Path, output_path: Path) -> dict[str, Any]
         "target_selections_exact": selections_exact,
         "gross_return_within_tolerance": gross_error <= TOLERANCES["gross_return_max_abs"],
         "net_return_within_tolerance": net_error <= TOLERANCES["net_return_max_abs"],
+        "turnover_rate_within_tolerance": turnover_error
+        <= TOLERANCES["turnover_rate_max_abs"],
+        "cost_rate_within_tolerance": cost_error <= TOLERANCES["cost_rate_max_abs"],
         "total_return_within_tolerance": total_return_error <= TOLERANCES["total_return_abs"],
         "sharpe_within_tolerance": sharpe_error <= TOLERANCES["sharpe_abs"],
         "rank_ic_within_tolerance": rank_ic_error <= TOLERANCES["rank_ic_mean_abs"],
@@ -83,9 +92,49 @@ def compare(ours_dir: Path, qlib_dir: Path, output_path: Path) -> dict[str, Any]
         "errors": {
             "gross_return_max_abs": gross_error,
             "net_return_max_abs": net_error,
+            "turnover_rate_max_abs": turnover_error,
+            "cost_rate_max_abs": cost_error,
             "total_return_abs": total_return_error,
             "sharpe_abs": sharpe_error,
             "rank_ic_mean_abs": rank_ic_error,
+        },
+        "first_mismatches": {
+            name: mismatch
+            for name, mismatch in (
+                (
+                    "gross_returns",
+                    _first_mismatch(
+                        ours_arrays["gross_returns"],
+                        qlib_arrays["gross_returns"],
+                        TOLERANCES["gross_return_max_abs"],
+                    ),
+                ),
+                (
+                    "net_returns",
+                    _first_mismatch(
+                        ours_arrays["net_returns"],
+                        qlib_arrays["net_returns"],
+                        TOLERANCES["net_return_max_abs"],
+                    ),
+                ),
+                (
+                    "turnover_rates",
+                    _first_mismatch(
+                        ours_arrays["turnover_rates"],
+                        qlib_arrays["turnover_rates"],
+                        TOLERANCES["turnover_rate_max_abs"],
+                    ),
+                ),
+                (
+                    "cost_rates",
+                    _first_mismatch(
+                        ours_arrays["cost_rates"],
+                        qlib_arrays["cost_rates"],
+                        TOLERANCES["cost_rate_max_abs"],
+                    ),
+                ),
+            )
+            if mismatch is not None
         },
         "ours_median_wall_seconds": ours_median,
         "qlib_median_wall_seconds": qlib_median,
@@ -104,6 +153,26 @@ def _max_abs(left: np.ndarray, right: np.ndarray) -> float:
     if left.shape != right.shape:
         return float("inf")
     return float(np.max(np.abs(np.asarray(left, dtype=float) - np.asarray(right, dtype=float))))
+
+
+def _first_mismatch(
+    left: np.ndarray, right: np.ndarray, tolerance: float
+) -> dict[str, float | int | str] | None:
+    if left.shape != right.shape:
+        return {"position": 0, "reason": f"shape {left.shape} != {right.shape}"}
+    left_values = np.asarray(left, dtype=float)
+    right_values = np.asarray(right, dtype=float)
+    errors = np.abs(left_values - right_values)
+    indexes = np.flatnonzero(errors > tolerance)
+    if not len(indexes):
+        return None
+    position = int(indexes[0])
+    return {
+        "position": position,
+        "ours": float(left_values.flat[position]),
+        "qlib": float(right_values.flat[position]),
+        "absolute_error": float(errors.flat[position]),
+    }
 
 
 def _parser() -> argparse.ArgumentParser:

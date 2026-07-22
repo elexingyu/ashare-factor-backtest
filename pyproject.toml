@@ -1,6 +1,6 @@
 [project]
 name = "ashare-factor-backtest"
-version = "0.1.2"
+version = "0.2.0"
 description = "AI-callable expression factor backtesting with explicit A-share market semantics"
 readme = "README.md"
 requires-python = ">=3.11"

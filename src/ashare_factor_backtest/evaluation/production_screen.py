@@ -447,6 +447,20 @@ def evaluate_production_fixed_values(
         decision_start=policy.validation[0],
         decision_end=policy.validation[1],
     )
+    discovery_rank_ic = evaluate_production_rank_ic(
+        values,
+        execution_context,
+        horizon=horizon,
+        signal_start=policy.discovery[0],
+        signal_end=policy.discovery[1],
+    )
+    validation_rank_ic = evaluate_production_rank_ic(
+        values,
+        execution_context,
+        horizon=horizon,
+        signal_start=policy.validation[0],
+        signal_end=policy.validation[1],
+    )
     return {
         "selected_direction": direction,
         "selected_horizon": horizon,
@@ -454,12 +468,14 @@ def evaluate_production_fixed_values(
         "discovery": {
             "direction": direction,
             "horizon": horizon,
+            "rank_ic": discovery_rank_ic,
             "real": _summary(discovery_real),
             "stress": _summary(discovery_stress),
         },
         "validation": {
             "direction": direction,
             "horizon": horizon,
+            "rank_ic": validation_rank_ic,
             "real": _summary(validation_real),
             "stress": _summary(validation_stress),
             "yearly_real": _yearly_summary(validation_real),
@@ -528,8 +544,16 @@ def _summary(result: ProductionLongOnlyResult) -> dict[str, Any]:
         "average_selected_count": strategy.average_selected_count,
         "average_hhi": strategy.average_hhi,
         "blocked_exit_count": strategy.blocked_exit_count,
+        "blocked_exit_order_count": strategy.blocked_exit_order_count,
+        "blocked_entry_count": strategy.blocked_entry_count,
+        "blocked_entry_order_count": strategy.blocked_entry_order_count,
+        "scheduled_rebalance_count": strategy.scheduled_rebalance_count,
+        "partial_rebalance_count": strategy.partial_rebalance_count,
         "forced_writeoff": strategy.forced_writeoff,
+        "terminal_residual_value": strategy.terminal_residual_value,
         "total_cost": strategy.total_cost,
+        "average_planned_turnover": strategy.average_planned_turnover,
+        "average_target_tracking_error": strategy.average_target_tracking_error,
         "minimum_cash": min(strategy.minimum_cash_by_sleeve),
     }
 

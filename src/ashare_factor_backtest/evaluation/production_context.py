@@ -31,7 +31,8 @@ INDEX_MEMBERSHIP_VIEWS = {
 }
 
 PRODUCTION_FACTOR_EVALUATION_SEMANTICS = (
-    "confirmed_suspension_carry_mark_flow_pit_cross_section_mask_numba_r2_v6"
+    "confirmed_suspension_carry_mark_flow_pit_cross_section_mask_"
+    "dual_price_partial_net_r4_v8"
 )
 
 
@@ -515,7 +516,9 @@ def build_production_year_frame(
     work["volume_shares"] = numeric["vol"] * 100.0
     work["amount_cny"] = numeric["amount"] * 1_000.0
     for name in ("open", "high", "low", "close"):
+        work[f"raw_{name}"] = numeric[name]
         work[f"hfq_{name}"] = numeric[name] * numeric["adj_factor"]
+    work["adj_factor"] = numeric["adj_factor"]
     work["hfq_up_limit"] = (
         pd.to_numeric(work["up_limit"], errors="coerce") * numeric["adj_factor"]
     )
@@ -542,6 +545,11 @@ def build_production_year_frame(
         "trade_date",
         "exchange",
         "market",
+        "raw_open",
+        "raw_high",
+        "raw_low",
+        "raw_close",
+        "adj_factor",
         "hfq_open",
         "hfq_high",
         "hfq_low",

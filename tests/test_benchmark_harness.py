@@ -5,6 +5,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import pytest
 
 
 def _result(name: str) -> dict[str, object]:
@@ -138,6 +139,8 @@ def test_complete_backtest_comparison_requires_parity_before_speed_claim(
         "factor": np.arange(6, dtype=float).reshape(3, 2),
         "gross_returns": np.array([0.0, 0.01, -0.02]),
         "net_returns": np.array([0.0, 0.009, -0.021]),
+        "turnover_rates": np.array([0.0, 0.4, 0.2]),
+        "cost_rates": np.array([0.0, 0.001, 0.001]),
     }
     np.savez_compressed(ours / "outputs.npz", **arrays)
     np.savez_compressed(qlib / "outputs.npz", **arrays)
@@ -161,6 +164,7 @@ def test_complete_backtest_comparison_requires_parity_before_speed_claim(
     assert rejected["comparable"] is False
     assert rejected["speed_claim_allowed"] is False
     assert rejected["qlib_over_ours_wall_ratio"] is None
+    assert rejected["first_mismatches"]["net_returns"]["position"] == 2
 
 
 def test_complete_backtest_comparison_rejects_different_environments(
@@ -178,6 +182,8 @@ def test_complete_backtest_comparison_rejects_different_environments(
         "factor": np.ones((2, 2)),
         "gross_returns": np.zeros(2),
         "net_returns": np.zeros(2),
+        "turnover_rates": np.zeros(2),
+        "cost_rates": np.zeros(2),
     }
     np.savez_compressed(ours / "outputs.npz", **arrays)
     np.savez_compressed(qlib / "outputs.npz", **arrays)
@@ -190,6 +196,81 @@ def test_complete_backtest_comparison_rejects_different_environments(
 
     with np.testing.assert_raises_regex(ValueError, "environments differ: python"):
         compare(ours, qlib, tmp_path / "summary.json")
+
+
+def test_target_delta_plan_retains_matching_positions_without_round_trip(
+    monkeypatch,
+) -> None:
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1]))
+    from benchmarks.ashare_factor_backtest.net_rebalance import plan_target_delta_values
+
+    plan = plan_target_delta_values(
+        current_values={"A": 50.0, "B": 50.0},
+        cash=0.0,
+        target_weights={"A": 0.5, "B": 0.5},
+        buy_cost=0.001,
+        sell_cost=0.002,
+    )
+
+    assert plan.sell_values == {}
+    assert plan.buy_values == {}
+    assert plan.retained == ("A", "B")
+    assert plan.post_trade_cash == 0.0
+
+
+def test_target_delta_plan_sells_only_excess_and_scales_buys_pro_rata(
+    monkeypatch,
+) -> None:
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1]))
+    from benchmarks.ashare_factor_backtest.net_rebalance import plan_target_delta_values
+
+    plan = plan_target_delta_values(
+        current_values={"A": 60.0, "B": 40.0},
+        cash=0.0,
+        target_weights={"A": 0.5, "C": 0.5},
+        buy_cost=0.001,
+        sell_cost=0.002,
+    )
+
+    assert plan.sell_values == {"A": 10.0, "B": 40.0}
+    assert plan.buy_values["C"] == pytest.approx(49.9 * 0.999)
+    assert plan.retained == ("A",)
+    assert plan.post_trade_cash == pytest.approx(0.0, abs=1e-12)
+    assert plan.sell_fee == pytest.approx(0.1)
+    assert plan.buy_fee == pytest.approx(plan.buy_values["C"] * 0.001 / 0.999)
+
+
+def test_qlib_open_cost_converts_cash_spend_cost_to_traded_value_cost(
+    monkeypatch,
+) -> None:
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1]))
+    from benchmarks.ashare_factor_backtest.net_rebalance import qlib_open_cost
+
+    assert qlib_open_cost(0.001) == pytest.approx(0.001 / 0.999)
+
+
+def test_target_delta_plan_treats_large_account_roundoff_as_zero(monkeypatch) -> None:
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1]))
+    from benchmarks.ashare_factor_backtest.net_rebalance import plan_target_delta_values
+
+    plan = plan_target_delta_values(
+        current_values={"A": 60_000_000.0, "B": 40_000_000.0},
+        cash=0.0,
+        target_weights={"A": 0.5, "C": 0.5},
+        buy_cost=0.0003,
+        sell_cost=0.0012,
+    )
+
+    assert plan.post_trade_cash == 0.0
+
+    carried = plan_target_delta_values(
+        current_values={"A": 50_000_000.0, "C": 49_985_010.0},
+        cash=-1e-8,
+        target_weights={"A": 0.5, "C": 0.5},
+        buy_cost=0.0003,
+        sell_cost=0.0012,
+    )
+    assert carried.post_trade_cash >= 0.0
 
 
 def test_archived_complete_backtest_claim_matches_versioned_evidence() -> None:

@@ -31,12 +31,20 @@ BENCHMARK_TARGET = (
 ENTRYPOINTS = ("cli/public_main.py",)
 BENCHMARK_MODULES = (
     "__init__.py",
+    "common_backtest.py",
+    "compare_common_backtest.py",
     "contract.py",
     "cross_framework.py",
+    "full_backtest.py",
     "prepare_cross_framework.py",
+    "prepare_full_backtest.py",
+    "run_common_backtest_ours.py",
+    "run_common_backtest_qlib.py",
     "run_cross_framework_ours.py",
+    "run_full_backtest_ours.py",
     "run_qlib_baseline.py",
     "compare_cross_framework.py",
+    "compare_full_research_evidence.py",
     "render_cross_framework_report.py",
 )
 PRIVATE_NAMESPACE = "src.astock_research"

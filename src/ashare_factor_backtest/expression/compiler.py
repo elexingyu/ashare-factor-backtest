@@ -20,6 +20,9 @@ from ashare_factor_backtest.expression.model import (
 from ashare_factor_backtest.expression.parser import parse_expression
 
 
+HFQ_CROSS_SECTION_WARNING = "hfq_price_level_is_not_cross_sectionally_comparable"
+
+
 @dataclass(frozen=True)
 class _Semantic:
     node: ExprNode
@@ -30,6 +33,7 @@ class _Semantic:
     unit_lineage: str
     fields: frozenset[str]
     warnings: tuple[str, ...] = ()
+    hfq_scale_sensitive: bool = False
 
 
 def compile_expression(
@@ -37,6 +41,10 @@ def compile_expression(
 ) -> CompiledExpression:
     parsed = parse_expression(text)
     semantic = _compile_node(parsed, operators, fields, text)
+    warnings = list(semantic.warnings)
+    if semantic.hfq_scale_sensitive:
+        warnings.append(HFQ_CROSS_SECTION_WARNING)
+    warnings = list(dict.fromkeys(warnings))
     canonical = canonical_expression(semantic.node)
     payload = json.dumps(
         {
@@ -58,7 +66,7 @@ def compile_expression(
         semantic.price_basis,
         semantic.unit_lineage,
         tuple(sorted(semantic.fields)),
-        semantic.warnings,
+        tuple(warnings),
     )
 
 
@@ -96,9 +104,17 @@ def _compile_node(
         return _Semantic(
             node, spec.value_type, 0, 0, spec.price_basis, spec.unit_lineage,
             frozenset((spec.name,)),
+            hfq_scale_sensitive=(
+                spec.price_basis is PriceBasis.HFQ_PIT
+                and spec.unit_lineage == "price"
+            ),
         )
     if isinstance(node, ConstantNode):
-        value_type = ValueType.SCALAR_INT if isinstance(node.value, int) else ValueType.SCALAR_FLOAT
+        value_type = (
+            ValueType.SCALAR_INT
+            if isinstance(node.value, int)
+            else ValueType.SCALAR_FLOAT
+        )
         return _Semantic(node, value_type, 0, 0, None, "scalar", frozenset())
 
     spec = operators.resolve(node.operator)
@@ -154,6 +170,11 @@ def _compile_node(
             canonical_children[index] = child
     normalized = CallNode(spec.name, tuple(child.node for child in canonical_children))
     lookback = _lookback(spec.lookback_rule, children)
+    warnings = [warning for child in children for warning in child.warnings]
+    if spec.category == "cross_section" and any(
+        child.hfq_scale_sensitive for child in children
+    ):
+        warnings.append(HFQ_CROSS_SECTION_WARNING)
     return _Semantic(
         normalized,
         spec.output_type,
@@ -162,8 +183,56 @@ def _compile_node(
         basis,
         unit,
         frozenset().union(*(child.fields for child in children)),
-        tuple(warning for child in children for warning in child.warnings),
+        tuple(dict.fromkeys(warnings)),
+        _hfq_scale_sensitive(spec.name, spec.category, children),
     )
+
+
+def _hfq_scale_sensitive(
+    name: str,
+    category: str,
+    children: tuple[_Semantic, ...],
+) -> bool:
+    sensitive = tuple(child.hfq_scale_sensitive for child in children)
+    if not any(sensitive):
+        return False
+    if category == "cross_section":
+        return False
+    if name in {
+        "sign",
+        "ts_pct_change",
+        "ts_rank",
+        "ts_zscore",
+        "ts_corr",
+        "ts_scale",
+        "ts_skew",
+        "ts_kurt",
+        "ts_r2",
+        "ts_argmin",
+        "ts_argmax",
+    }:
+        return False
+    if name == "div":
+        panel_children = tuple(
+            child for child in children if child.value_type is ValueType.PANEL_FLOAT
+        )
+        if (
+            len(panel_children) == 2
+            and all(child.hfq_scale_sensitive for child in panel_children)
+            and panel_children[0].unit_lineage == panel_children[1].unit_lineage
+        ):
+            return False
+    if name == "ts_beta":
+        panel_children = tuple(
+            child for child in children if child.value_type is ValueType.PANEL_FLOAT
+        )
+        if (
+            len(panel_children) == 2
+            and all(child.hfq_scale_sensitive for child in panel_children)
+            and panel_children[0].unit_lineage == panel_children[1].unit_lineage
+        ):
+            return False
+    return True
 
 
 def _lookback(rule: str, children: tuple[_Semantic, ...]) -> int:

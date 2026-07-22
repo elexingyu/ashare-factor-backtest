@@ -21,6 +21,10 @@ from benchmarks.ashare_factor_backtest.common_backtest import (
     write_arrays,
     write_json,
 )
+from benchmarks.ashare_factor_backtest.net_rebalance import (
+    plan_target_delta_values,
+    qlib_open_cost,
+)
 
 
 def run(
@@ -89,7 +93,7 @@ def run(
             benchmark=benchmark,
             exchange_kwargs={
                 "deal_price": "$open",
-                "open_cost": float(contract["buy_cost"]),
+                "open_cost": qlib_open_cost(float(contract["buy_cost"])),
                 "close_cost": float(contract["sell_cost"]),
                 "min_cost": 0.0,
                 "limit_threshold": None,
@@ -113,6 +117,7 @@ def run(
             "return_dates_ns": np.asarray(report.index.view("i8"), dtype=np.int64),
             "gross_returns": gross,
             "net_returns": net,
+            "turnover_rates": report["turnover"].to_numpy(dtype=float),
             "cost_rates": cost,
         }
         evidence = {
@@ -123,7 +128,8 @@ def run(
             "target_selection_digest": target_selection_digest(
                 factor.loc[:effective_end], top_fraction=float(contract["top_fraction"])
             ),
-            "execution_adapter": "full_liquidation_rebuy_matching_contract",
+            "execution_adapter": "target_delta_continuous_value_v2",
+            "turnover_coordinate": "traded_security_value_over_previous_portfolio_value",
             "effective_end": effective_end.date().isoformat(),
         }
         timings = {
@@ -192,7 +198,7 @@ def _strategy(
     from qlib.contrib.strategy.order_generator import OrderGenerator
     from qlib.contrib.strategy.signal_strategy import WeightStrategyBase
 
-    class FullRebalanceOrderGenerator(OrderGenerator):
+    class TargetDeltaOrderGenerator(OrderGenerator):
         def generate_order_list_from_target_weight_position(
             self,
             current,
@@ -206,41 +212,43 @@ def _strategy(
         ):
             del risk_degree, pred_start_time, pred_end_time
             current_amounts = current.get_stock_amount_dict()
+            symbols = sorted(set(current_amounts) | set(target_weight_position or {}))
+            prices = {}
+            for stock_id in symbols:
+                price = trade_exchange.get_deal_price(
+                    stock_id, trade_start_time, trade_end_time, direction=OrderDir.BUY
+                )
+                prices[stock_id] = float(price)
+            plan = plan_target_delta_values(
+                current_values={
+                    stock_id: float(amount) * prices[stock_id]
+                    for stock_id, amount in current_amounts.items()
+                },
+                cash=float(current.get_cash()),
+                target_weights=target_weight_position or {},
+                buy_cost=buy_cost,
+                sell_cost=sell_cost,
+            )
             sell_orders = [
                 Order(
                     stock_id=stock_id,
-                    amount=amount,
+                    amount=value / prices[stock_id],
                     direction=OrderDir.SELL,
                     start_time=trade_start_time,
                     end_time=trade_end_time,
                 )
-                for stock_id, amount in current_amounts.items()
-                if amount > 0.0
+                for stock_id, value in plan.sell_values.items()
             ]
-            current_stock_value = trade_exchange.calculate_amount_position_value(
-                current_amounts,
-                start_time=trade_start_time,
-                end_time=trade_end_time,
-                only_tradable=False,
-            )
-            available_after_sales = current.get_cash() + current_stock_value * (1.0 - sell_cost)
-            buy_budget = available_after_sales / (1.0 + buy_cost)
-            buy_orders = []
-            for stock_id, weight in (target_weight_position or {}).items():
-                price = trade_exchange.get_deal_price(
-                    stock_id, trade_start_time, trade_end_time, direction=OrderDir.BUY
+            buy_orders = [
+                Order(
+                    stock_id=stock_id,
+                    amount=value / prices[stock_id],
+                    direction=OrderDir.BUY,
+                    start_time=trade_start_time,
+                    end_time=trade_end_time,
                 )
-                amount = buy_budget * float(weight) / float(price)
-                if amount > 0.0:
-                    buy_orders.append(
-                        Order(
-                            stock_id=stock_id,
-                            amount=amount,
-                            direction=OrderDir.BUY,
-                            start_time=trade_start_time,
-                            end_time=trade_end_time,
-                        )
-                    )
+                for stock_id, value in plan.buy_values.items()
+            ]
             return sell_orders + buy_orders
 
     class EqualWeightTopFraction(WeightStrategyBase):
@@ -260,7 +268,7 @@ def _strategy(
     return EqualWeightTopFraction(
         signal=signal,
         risk_degree=1.0,
-        order_generator_cls_or_obj=FullRebalanceOrderGenerator(),
+        order_generator_cls_or_obj=TargetDeltaOrderGenerator(),
     )
 
 

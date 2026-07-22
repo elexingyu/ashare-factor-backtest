@@ -38,8 +38,11 @@ def _execution_frame() -> pd.DataFrame:
                 ["2024-01-02", "2024-01-02", "2024-01-03", "2024-01-03"]
             ),
             "hfq_open": [10.0, 20.0, 11.0, 19.0],
+            "raw_open": [5.0, 10.0, 5.5, 9.5],
             "signal_eligible": [True, True, True, False],
             "is_suspended": [False, False, False, False],
+            "up_limit": [5.5, 11.0, 6.05, 10.45],
+            "down_limit": [4.5, 9.0, 4.95, 8.55],
             "hfq_up_limit": [11.0, 22.0, 12.1, 20.9],
             "hfq_down_limit": [9.0, 18.0, 9.9, 17.1],
         }
@@ -65,6 +68,10 @@ def test_execution_accumulator_requires_complete_unique_capture() -> None:
     np.testing.assert_array_equal(
         context.valuation_open,
         np.asarray([[10.0, 20.0], [11.0, 19.0]], dtype=np.float32),
+    )
+    np.testing.assert_array_equal(
+        context.execution_open,
+        np.asarray([[5.0, 10.0], [5.5, 9.5]], dtype=np.float32),
     )
     np.testing.assert_array_equal(
         context.signal_eligible,
@@ -129,6 +136,7 @@ def test_captured_execution_context_matches_legacy_builder(
     np.testing.assert_array_equal(captured.dates, legacy.dates)
     np.testing.assert_array_equal(captured.codes, legacy.codes)
     np.testing.assert_array_equal(captured.valuation_open, legacy.valuation_open)
+    np.testing.assert_array_equal(captured.execution_open, legacy.execution_open)
     np.testing.assert_array_equal(captured.buyable, legacy.buyable)
     np.testing.assert_array_equal(captured.sellable, legacy.sellable)
     np.testing.assert_array_equal(captured.signal_eligible, legacy.signal_eligible)

@@ -15,7 +15,13 @@ from ashare_factor_backtest.evaluation.production_chunked_evaluator import Frame
 from ashare_factor_backtest.evaluation.production_universe_readiness import YearChunk
 
 
-_EXECUTION_PANEL_NAMES = ("raw_open", "buyable", "sellable", "eligible")
+_EXECUTION_PANEL_NAMES = (
+    "execution_open",
+    "valuation_open",
+    "buyable",
+    "sellable",
+    "eligible",
+)
 
 
 @dataclass(frozen=True)
@@ -26,11 +32,15 @@ class ProductionExecutionContext:
     buyable: np.ndarray
     sellable: np.ndarray
     signal_eligible: np.ndarray
+    execution_open: np.ndarray | None = None
 
     def __post_init__(self) -> None:
+        if self.execution_open is None:
+            object.__setattr__(self, "execution_open", self.valuation_open.copy())
         shape = (len(self.dates), len(self.codes))
         for name in (
             "valuation_open",
+            "execution_open",
             "buyable",
             "sellable",
             "signal_eligible",
@@ -113,8 +123,8 @@ class ChunkedProductionExecutionAccumulator:
                 raise ValueError(f"production execution chunks duplicate dates in {name}")
             combined[name] = panel
         return _from_panels(
-            combined["raw_open"].index,
-            combined["raw_open"].columns,
+            combined["valuation_open"].index,
+            combined["valuation_open"].columns,
             combined,
             price_storage_dtype=self._price_storage_dtype,
         )
@@ -202,6 +212,7 @@ def slice_production_execution_context(
         buyable=context.buyable[selected],
         sellable=context.sellable[selected],
         signal_eligible=context.signal_eligible[selected],
+        execution_open=context.execution_open[selected],
     )
 
 
@@ -217,12 +228,12 @@ def build_production_execution_context(
     target_dates = (
         pd.DatetimeIndex(pd.to_datetime(list(dates))).sort_values()
         if dates is not None
-        else panels["raw_open"].index.sort_values()
+        else panels["valuation_open"].index.sort_values()
     )
     target_codes = (
         pd.Index(sorted(str(code) for code in codes))
         if codes is not None
-        else panels["raw_open"].columns.sort_values()
+        else panels["valuation_open"].columns.sort_values()
     )
     aligned = {
         name: panel.reindex(index=target_dates, columns=target_codes)
@@ -246,7 +257,8 @@ def build_chunked_production_execution_context(
     if not chunks:
         raise ValueError("production execution chunks must not be empty")
     collected: dict[str, list[pd.DataFrame]] = {
-        "raw_open": [],
+        "execution_open": [],
+        "valuation_open": [],
         "buyable": [],
         "sellable": [],
         "eligible": [],
@@ -258,7 +270,7 @@ def build_chunked_production_execution_context(
             chunk.calculation_end,
             eligibility_column=eligibility_column,
         )
-        mask = panels["raw_open"].index.to_series().between(
+        mask = panels["valuation_open"].index.to_series().between(
             chunk.calculation_start, chunk.calculation_end
         )
         for name, panel in panels.items():
@@ -278,8 +290,8 @@ def build_chunked_production_execution_context(
         if panel.index.duplicated().any():
             raise ValueError(f"production execution chunks duplicate dates in {name}")
         combined[name] = panel
-    dates = combined["raw_open"].index
-    codes = combined["raw_open"].columns
+    dates = combined["valuation_open"].index
+    codes = combined["valuation_open"].columns
     return _from_panels(
         dates,
         codes,
@@ -331,7 +343,7 @@ def _select_chunk_panels(
     chunk: YearChunk,
     panels: dict[str, pd.DataFrame],
 ) -> dict[str, pd.DataFrame]:
-    mask = panels["raw_open"].index.to_series().between(
+    mask = panels["valuation_open"].index.to_series().between(
         chunk.calculation_start,
         chunk.calculation_end,
     )
@@ -341,7 +353,7 @@ def _select_chunk_panels(
         name: panel.loc[mask].copy()
         for name, panel in panels.items()
     }
-    reference = selected["raw_open"]
+    reference = selected["valuation_open"]
     for name, panel in selected.items():
         if not panel.index.equals(reference.index) or not panel.columns.equals(
             reference.columns
@@ -363,7 +375,8 @@ def _load_execution_panels(
             frame_loader(start, end), eligibility_column=eligibility_column
         )
     collected: dict[str, list[pd.DataFrame]] = {
-        "raw_open": [],
+        "execution_open": [],
+        "valuation_open": [],
         "buyable": [],
         "sellable": [],
         "eligible": [],
@@ -406,20 +419,31 @@ def _execution_panels(
     if work["trade_date"].isna().any():
         raise ValueError("production execution frame contains invalid dates")
     work["ts_code"] = work["ts_code"].astype(str)
-    raw_open = _pivot(work, "hfq_open", numeric=True)
-    up_limit = _pivot(work, "hfq_up_limit", numeric=True)
-    down_limit = _pivot(work, "hfq_down_limit", numeric=True)
+    valuation_open = _pivot(work, "hfq_open", numeric=True)
+    raw_contract = {"raw_open", "up_limit", "down_limit"}
+    if raw_contract.issubset(work.columns):
+        execution_open = _pivot(work, "raw_open", numeric=True)
+        up_limit = _pivot(work, "up_limit", numeric=True)
+        down_limit = _pivot(work, "down_limit", numeric=True)
+    else:
+        execution_open = valuation_open
+        up_limit = _pivot(work, "hfq_up_limit", numeric=True)
+        down_limit = _pivot(work, "hfq_down_limit", numeric=True)
     suspended = _pivot(work, "is_suspended", numeric=False)
     eligible = _pivot(work, eligibility_column, numeric=False).eq(True)
-    known_open = raw_open.notna() & raw_open.gt(0)
+    known_open = execution_open.notna() & execution_open.gt(0)
     not_suspended = suspended.eq(False)
     return {
-        "raw_open": raw_open,
-        "buyable": known_open & not_suspended & up_limit.notna() & raw_open.lt(up_limit),
+        "execution_open": execution_open,
+        "valuation_open": valuation_open,
+        "buyable": known_open
+        & not_suspended
+        & up_limit.notna()
+        & execution_open.lt(up_limit),
         "sellable": known_open
         & not_suspended
         & down_limit.notna()
-        & raw_open.gt(down_limit),
+        & execution_open.gt(down_limit),
         "eligible": eligible,
     }
 
@@ -434,8 +458,8 @@ def _from_panels(
     dtype = np.dtype(price_storage_dtype)
     if dtype not in {np.dtype(np.float32), np.dtype(np.float64)}:
         raise ValueError("production execution price storage must be float32 or float64")
-    raw_open = panels["raw_open"].astype(float)
-    valuation = raw_open.ffill().to_numpy(dtype=dtype)
+    execution_open = panels["execution_open"].astype(float).to_numpy(dtype=dtype)
+    valuation = panels["valuation_open"].astype(float).ffill().to_numpy(dtype=dtype)
     return ProductionExecutionContext(
         dates=pd.DatetimeIndex(dates),
         codes=pd.Index(codes),
@@ -445,6 +469,7 @@ def _from_panels(
         signal_eligible=panels["eligible"]
         .astype("boolean")
         .to_numpy(dtype=bool, na_value=False),
+        execution_open=execution_open,
     )
 
 

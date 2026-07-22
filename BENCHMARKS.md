@@ -1,5 +1,7 @@
 # Benchmark Methodology
 
+> The complete-backtest/Qlib evidence below is archived for v0.1. Version 0.2 replaced full liquidation and rebuy with per-security target-delta rebalancing. The expression microbenchmark remains applicable, but the complete-backtest speed ratio must not be attributed to v0.2 until a new parity run is published.
+
 Performance claims are accepted only when both engines use the same deterministic source values, mapped expression semantics, valid-window masks, Python environment, process count and output contract. Cross-framework speed is reported only after numerical parity passes. The raw evidence is versioned under `benchmarks/results/`.
 
 ## Complete Backtest Benchmark

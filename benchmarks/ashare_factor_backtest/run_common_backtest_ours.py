@@ -109,7 +109,7 @@ def run(
             decision_start=str(manifest["start_date"]),
             decision_end=effective_end.date().isoformat(),
             top_fraction=float(contract["top_fraction"]),
-            record_events=False,
+            record_events=True,
         )
         rank_ic = evaluate_production_rank_ic(
             factor,
@@ -119,13 +119,42 @@ def run(
             signal_end=effective_end.date().isoformat(),
         )
         execution_seconds = perf_counter() - execution_start
+        gross_returns = np.asarray(portfolio.strategy.gross_returns)
+        net_returns = np.asarray(portfolio.strategy.net_returns)
+        cost_rates = gross_returns - net_returns
+        turnover_by_date = {}
+        buy_cost = float(contract["buy_cost"])
+        for event in portfolio.strategy.order_events:
+            cash_spend_notional = event.sell_notional + event.buy_notional
+            if event.actual_turnover > 0.0 and cash_spend_notional > 0.0:
+                pretrade_value = cash_spend_notional / event.actual_turnover
+                traded_security_value = (
+                    event.sell_notional + event.buy_notional * (1.0 - buy_cost)
+                )
+                turnover_by_date[event.entry_date.value] = (
+                    traded_security_value / pretrade_value
+                )
+            else:
+                turnover_by_date[event.entry_date.value] = 0.0
+        turnover_rates = np.asarray(
+            [
+                turnover_by_date.get(value.value, 0.0) * (1.0 + gross_returns[position])
+                for position, value in enumerate(portfolio.strategy.return_dates)
+            ],
+            dtype=np.float64,
+        )
+        sell_cost = float(contract["sell_cost"])
+        if len(turnover_rates) and sell_cost:
+            turnover_rates[-1] = cost_rates[-1] / sell_cost
         arrays = {
             "factor": factor.to_numpy(dtype=np.float64),
             "return_dates_ns": np.asarray(
                 [value.value for value in portfolio.strategy.return_dates], dtype=np.int64
             ),
-            "gross_returns": np.asarray(portfolio.strategy.gross_returns),
-            "net_returns": np.asarray(portfolio.strategy.net_returns),
+            "gross_returns": gross_returns,
+            "net_returns": net_returns,
+            "turnover_rates": turnover_rates,
+            "cost_rates": cost_rates,
             "benchmark_returns": np.asarray(portfolio.benchmark.net_returns),
             "excess_returns": np.asarray(portfolio.excess_returns),
         }
@@ -139,6 +168,8 @@ def run(
             "target_selection_digest": target_selection_digest(
                 factor.loc[:effective_end], top_fraction=float(contract["top_fraction"])
             ),
+            "execution_adapter": "target_delta_continuous_value_v2",
+            "turnover_coordinate": "traded_security_value_over_previous_portfolio_value",
             "effective_end": effective_end.date().isoformat(),
         }
         timings = {

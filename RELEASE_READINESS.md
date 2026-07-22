@@ -1,6 +1,15 @@
 # Release Readiness
 
-## Passed
+## Version 0.2 Status
+
+- Local tests, lint and source/wheel builds pass for the per-security target-delta execution contract and explicit raw/adjusted price coordinates.
+- Regression coverage includes retained overlapping holdings, independent partial fills, blocked residual positions, terminal residual valuation and randomized wealth conservation.
+- The three real PIT CSI500 anchor expressions were rerun under execution semantics v7; all three selected a different direction or horizon than the v0.1 contract, so v0.1 research selections are legacy evidence only. Semantics v8 adds raw order/tradability coordinates without changing the continuous-value portfolio model: a real CSI500 `ts_pct_change(close,1)` regression compared 649 numeric screen fields with a maximum absolute difference of `1.875e-13`.
+- The v0.1 complete-backtest/Qlib speed ratio is archived. A new parity benchmark is required before publishing a complete-backtest speed claim for v0.2.
+- A freshly built 0.2.0 wheel was installed in an isolated Python 3.13 environment; `doctor` and the bundled demo `evaluate --through screen` completed under semantics v8 with the raw/adjusted price split and execution diagnostics present.
+- GitHub Actions remains a release gate for v0.2; the version is not released yet.
+
+## Version 0.1 Historical Evidence
 
 - Public runtime import closure contains no private search modules, credentials or personal absolute paths.
 - Standalone wheel installs outside the private monorepo and completes `doctor`, `compile` and rolling demo evaluation.
@@ -22,4 +31,4 @@
 
 Publish to PyPI only after confirming the desired name is still available and configuring a trusted publisher or scoped project token.
 
-Search/generation, multi-factor combination, live trading and private data remain explicitly outside v0.1.
+Search/generation, multi-factor combination, live trading and private data remain explicitly outside v0.2.

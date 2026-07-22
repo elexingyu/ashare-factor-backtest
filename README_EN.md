@@ -14,7 +14,7 @@ An A-share single-factor backtesting engine designed for AI agents and automated
 
 General-purpose backtesting frameworks commonly leave data preparation, historical universes, adjustment policy, price limits, suspensions and reporting conventions to each user. This project makes those error-prone A-share rules reusable contracts. A person or AI agent can submit a WorldQuant-like factor expression without rebuilding the same backtest plumbing for every experiment.
 
-It is not a factor search engine and does not promise to discover profitable factors. Version 0.1 focuses on turning one existing expression into a fast, reproducible and auditable single-factor backtest.
+It is not a factor search engine and does not promise to discover profitable factors. Version 0.2 focuses on turning one existing expression into a fast, reproducible and auditable single-factor backtest.
 
 ## Quick Start
 
@@ -40,23 +40,32 @@ The bundled dataset is entirely synthetic. It covers a listing boundary, an ST i
 
 - **Expression compilation:** allowlisted fields and operators reject unknown fields, invalid parameters and forward-looking references.
 - **A-share point-in-time semantics:** factor observation, historical universe membership and next-open execution are kept distinct.
-- **Adjustment/execution separation:** adjusted series may drive factor values while executable trading and returns retain the corresponding real-price semantics.
-- **Trading constraints:** listing status, ST, suspension, open price limits, two-sided costs and long-only portfolios.
+- **Dual price coordinates:** factor values and continuous valuation use point-in-time back-adjusted series, while tradability and order prices use raw opens and raw exchange limits.
+- **Adjustment-scale warnings:** back-adjusted prices are suitable for returns, ratios and time-series normalization; the compiler warns when raw price levels, averages or spreads can contaminate cross-sectional selection.
+- **Trading constraints:** listing status, ST, suspension, open price limits, per-security partial fills, net rebalancing, two-sided costs and long-only portfolios.
 - **Rolling evaluation:** train/test evidence, Rank IC, strategy and benchmark metrics, excess metrics and coverage diagnostics.
 - **Reproducible artifacts:** expression, data identity, job contract and evaluation semantics jointly identify reusable results.
 - **AI-first interface:** `capabilities`, `schema`, `doctor`, `compile` and `evaluate` expose a versioned JSON protocol.
 
 ## Scope
 
-Version 0.1 includes expression evaluation, data contracts, single-factor quantile backtesting, A-share execution constraints and rolling evidence.
+Version 0.2 includes expression evaluation, data contracts, single-factor quantile backtesting, A-share execution constraints and rolling evidence.
 
-The first release deliberately excludes factor generation/search, multi-factor portfolio optimization, live trading, private market data and a general event-driven order system. Those systems can call this engine from above without becoming part of its trusted single-factor evaluation core.
+The current release deliberately excludes factor generation/search, multi-factor portfolio optimization, live trading, private market data and a general event-driven order system. Those systems can call this engine from above without becoming part of its trusted single-factor evaluation core.
+
+## Execution Contract
+
+A signal is frozen on day `T` and executed at the `T+1` open. Each sleeve trades only the delta between current holdings and the new equal-weight target: overlapping names are retained; executable sell deltas proceed; suspended or limit-down sells remain as residual positions without cancelling other orders; and only realized cash funds buyable target deficits. Reports include planned and actual turnover, blocked buy/sell orders, target-tracking error and terminal residual value.
+
+This is an A-share execution-constraint proxy with raw order coordinates and a dividend-reinvestment total-return valuation proxy, not a broker-level share ledger. It does not yet store actual share counts, so board lots, per-order minimum commissions, corporate-action cash/share flows, queue priority and order-book impact remain outside the current public scope.
 
 ## Performance Evidence
 
 Every performance claim uses deterministic synthetic data, a clean source revision and archived JSON evidence. The comparison program emits a speed ratio only when both engines use the same Python environment and pass pre-registered parity checks for factor values, daily selections, returns, Sharpe and Rank IC.
 
 ### Complete Single-Factor Backtest vs Qlib
+
+> **Archived evidence:** the comparison below belongs to the v0.1 full-liquidation-and-rebuy contract. Version 0.2 uses per-security net rebalancing, so `31.77x` is not a current-version speed claim. It remains historical engineering evidence until the 0.2 parity benchmark is rerun.
 
 The common workload contains 500 securities, 1,500 dates and one five-day price-change expression. Both engines start from persistent data, calculate the factor, select a daily cross-section, rebalance at the next open, charge two-sided costs, liquidate at the end and write NAV, return, drawdown, turnover, Rank IC and artifact outputs. Each engine uses one warmup followed by five measured single-process runs.
 

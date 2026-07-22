@@ -29,6 +29,17 @@ class ProductionOrderEvent:
     filled: tuple[str, ...]
     unfilled: tuple[str, ...]
     cash_slots: int
+    retained: tuple[str, ...] = ()
+    bought: tuple[str, ...] = ()
+    sold: tuple[str, ...] = ()
+    blocked_sells: tuple[str, ...] = ()
+    blocked_buys: tuple[str, ...] = ()
+    residual: tuple[str, ...] = ()
+    buy_notional: float = 0.0
+    sell_notional: float = 0.0
+    planned_turnover: float = 0.0
+    actual_turnover: float = 0.0
+    target_tracking_error: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -46,6 +57,34 @@ class ProductionPortfolioResult:
     average_selected_count: float
     average_hhi: float
     minimum_cash_by_sleeve: tuple[float, ...]
+    scheduled_rebalance_count: int = 0
+    partial_rebalance_count: int = 0
+    blocked_exit_order_count: int = 0
+    blocked_entry_count: int = 0
+    blocked_entry_order_count: int = 0
+    average_planned_turnover: float = 0.0
+    average_target_tracking_error: float = 0.0
+    terminal_residual_value: float = 0.0
+
+
+@dataclass(frozen=True)
+class _RebalanceOutcome:
+    cash: float
+    buy_fee: float
+    sell_fee: float
+    buy_notional: float
+    sell_notional: float
+    planned_notional: float
+    tracking_error: float
+    retained: np.ndarray
+    bought: np.ndarray
+    sold: np.ndarray
+    blocked_sells: np.ndarray
+    blocked_buys: np.ndarray
+    residual: np.ndarray
+    filled: np.ndarray
+    unfilled: np.ndarray
+    status: str
 
 
 @dataclass(frozen=True)
@@ -209,6 +248,102 @@ def evaluate_production_staggered_long_only_context(
     )
 
 
+def _rebalance_sleeve(
+    holdings: np.ndarray,
+    cash: float,
+    targets: np.ndarray,
+    *,
+    buyable: np.ndarray,
+    sellable: np.ndarray,
+    buy_cost: float,
+    sell_cost: float,
+) -> _RebalanceOutcome:
+    """Trade executable target-weight deltas while preserving blocked residuals."""
+    tolerance = 1e-15
+    before = holdings.copy()
+    sleeve_wealth = float(before.sum() + cash)
+    desired = np.zeros_like(holdings)
+    if len(targets) and sleeve_wealth > 0.0:
+        desired[targets] = sleeve_wealth / len(targets)
+
+    requested_sells = np.maximum(before - desired, 0.0)
+    requested_sell_indexes = np.flatnonzero(requested_sells > tolerance)
+    sold = requested_sell_indexes[sellable[requested_sell_indexes]]
+    blocked_sells = requested_sell_indexes[~sellable[requested_sell_indexes]]
+    sell_amounts = requested_sells[sold]
+    sell_notional = float(sell_amounts.sum())
+    sell_fee = sell_notional * sell_cost
+    holdings[sold] -= sell_amounts
+    cash += sell_notional - sell_fee
+
+    deficits = np.maximum(desired - holdings, 0.0)
+    requested_buy_indexes = np.flatnonzero(deficits > tolerance)
+    executable_buys = requested_buy_indexes[buyable[requested_buy_indexes]]
+    blocked_buys = requested_buy_indexes[~buyable[requested_buy_indexes]]
+    requested_budgets = deficits[requested_buy_indexes] / (1.0 - buy_cost)
+    executable_budgets = deficits[executable_buys] / (1.0 - buy_cost)
+    executable_total = float(executable_budgets.sum())
+    scale = min(1.0, cash / executable_total) if executable_total > 0.0 else 0.0
+    spent = executable_budgets * scale
+    bought = executable_buys[spent > tolerance]
+    spent = spent[spent > tolerance]
+    buy_notional = float(spent.sum())
+    holdings[bought] += spent * (1.0 - buy_cost)
+    cash -= buy_notional
+    if -1e-12 < cash < 0.0:
+        cash = 0.0
+    buy_fee = buy_notional * buy_cost
+
+    target_mask = np.zeros(len(holdings), dtype=bool)
+    target_mask[targets] = True
+    held = holdings > tolerance
+    retained = np.flatnonzero(target_mask & (before > tolerance) & held)
+    residual = np.flatnonzero(~target_mask & held)
+    filled = np.flatnonzero(target_mask & held)
+    unfilled = np.flatnonzero(target_mask & ~held)
+    posttrade_wealth = float(holdings.sum() + cash)
+    if posttrade_wealth > 0.0:
+        actual_weights = holdings / posttrade_wealth
+        target_weights = np.zeros_like(holdings)
+        if len(targets):
+            target_weights[targets] = 1.0 / len(targets)
+        tracking_error = 0.5 * (
+            float(np.abs(actual_weights - target_weights).sum())
+            + abs(cash / posttrade_wealth)
+        )
+    else:
+        tracking_error = 0.0
+    planned_notional = float(requested_sells.sum() + requested_budgets.sum())
+    actual_notional = sell_notional + buy_notional
+    partial = bool(len(blocked_sells) or len(blocked_buys) or len(unfilled))
+    if partial:
+        status = "partial_fill"
+    elif actual_notional <= tolerance and len(filled):
+        status = "retained"
+    elif len(filled):
+        status = "filled"
+    else:
+        status = "cash"
+    return _RebalanceOutcome(
+        cash=float(cash),
+        buy_fee=buy_fee,
+        sell_fee=sell_fee,
+        buy_notional=buy_notional,
+        sell_notional=sell_notional,
+        planned_notional=planned_notional,
+        tracking_error=tracking_error,
+        retained=retained,
+        bought=bought,
+        sold=sold,
+        blocked_sells=blocked_sells,
+        blocked_buys=blocked_buys,
+        residual=residual,
+        filled=filled,
+        unfilled=unfilled,
+        status=status,
+    )
+
+
 def _simulate(
     *,
     factor: np.ndarray,
@@ -250,11 +385,19 @@ def _simulate(
     net_returns: list[float] = []
     events: list[ProductionOrderEvent] = []
     turnovers: list[float] = []
+    planned_turnovers: list[float] = []
+    tracking_errors: list[float] = []
     coverages: list[float] = []
     selected_counts: list[int] = []
     hhis: list[float] = []
     blocked_exit_count = 0
+    blocked_exit_order_count = 0
+    blocked_entry_count = 0
+    blocked_entry_order_count = 0
+    scheduled_rebalance_count = 0
+    partial_rebalance_count = 0
     forced_writeoff = 0.0
+    terminal_residual_value = 0.0
     total_cost = 0.0
 
     first_signal_position = int(dates.searchsorted(start, side="left"))
@@ -304,71 +447,73 @@ def _simulate(
                 if record_events
                 else ()
             )
-            current_holdings = np.flatnonzero(holdings[sleeve] > 0.0)
-            if len(current_holdings) and not sellable[position, current_holdings].all():
-                blocked_exit_count += 1
-                if record_events:
-                    events.append(
-                        ProductionOrderEvent(
-                            signal_date=signal_date,
-                            entry_date=entry_date,
-                            sleeve=sleeve,
-                            status="blocked_exit",
-                            frozen=frozen,
-                            filled=(),
-                            unfilled=frozen,
-                            cash_slots=len(frozen),
-                        )
-                    )
-            else:
-                sell_notional = float(holdings[sleeve].sum())
-                sell_fee = sell_notional * sell_cost
-                if sell_notional:
-                    cash[sleeve] += sell_notional - sell_fee
-                    holdings[sleeve] = 0.0
-                available_cash = float(cash[sleeve])
-                filled_indexes = targets[buyable[position, targets]] if len(targets) else targets
-                if len(targets):
-                    slot = available_cash / len(targets)
-                    if len(filled_indexes):
-                        holdings[sleeve, filled_indexes] = slot * (1.0 - buy_cost)
-                        cash[sleeve] -= slot * len(filled_indexes)
-                    buy_fee = slot * len(filled_indexes) * buy_cost
-                else:
-                    buy_fee = 0.0
-                cash[sleeve] = max(0.0, float(cash[sleeve]))
-                if scored_entry:
-                    total_cost += sell_fee + buy_fee
-                traded = sell_notional + (
-                    available_cash / len(targets) * len(filled_indexes)
-                    if len(targets)
+            outcome = _rebalance_sleeve(
+                holdings[sleeve],
+                float(cash[sleeve]),
+                targets,
+                buyable=buyable[position],
+                sellable=sellable[position],
+                buy_cost=buy_cost,
+                sell_cost=sell_cost,
+            )
+            cash[sleeve] = outcome.cash
+            actual_notional = outcome.sell_notional + outcome.buy_notional
+            if scored_entry:
+                scheduled_rebalance_count += 1
+                total_cost += outcome.sell_fee + outcome.buy_fee
+                turnovers.append(
+                    actual_notional / pretrade_total if pretrade_total > 0 else 0.0
+                )
+                planned_turnovers.append(
+                    outcome.planned_notional / pretrade_total
+                    if pretrade_total > 0
                     else 0.0
                 )
-                if scored_entry:
-                    turnovers.append(
-                        traded / pretrade_total if pretrade_total > 0 else 0.0
+                tracking_errors.append(outcome.tracking_error)
+                if len(outcome.blocked_sells):
+                    blocked_exit_count += 1
+                    blocked_exit_order_count += len(outcome.blocked_sells)
+                if len(outcome.blocked_buys):
+                    blocked_entry_count += 1
+                    blocked_entry_order_count += len(outcome.blocked_buys)
+                if outcome.status == "partial_fill":
+                    partial_rebalance_count += 1
+            initialized[sleeve] = True
+            if record_events:
+                def names(indexes: np.ndarray) -> tuple[str, ...]:
+                    return tuple(str(codes[index]) for index in indexes)
+
+                events.append(
+                    ProductionOrderEvent(
+                        signal_date=signal_date,
+                        entry_date=entry_date,
+                        sleeve=sleeve,
+                        status=outcome.status,
+                        frozen=frozen,
+                        filled=names(outcome.filled),
+                        unfilled=names(outcome.unfilled),
+                        cash_slots=len(outcome.unfilled),
+                        retained=names(outcome.retained),
+                        bought=names(outcome.bought),
+                        sold=names(outcome.sold),
+                        blocked_sells=names(outcome.blocked_sells),
+                        blocked_buys=names(outcome.blocked_buys),
+                        residual=names(outcome.residual),
+                        buy_notional=outcome.buy_notional,
+                        sell_notional=outcome.sell_notional,
+                        planned_turnover=(
+                            outcome.planned_notional / pretrade_total
+                            if pretrade_total > 0
+                            else 0.0
+                        ),
+                        actual_turnover=(
+                            actual_notional / pretrade_total
+                            if pretrade_total > 0
+                            else 0.0
+                        ),
+                        target_tracking_error=outcome.tracking_error,
                     )
-                initialized[sleeve] = True
-                if record_events:
-                    filled = tuple(str(codes[index]) for index in filled_indexes)
-                    filled_set = set(filled_indexes.tolist())
-                    unfilled = tuple(
-                        str(codes[index])
-                        for index in targets
-                        if index not in filled_set
-                    )
-                    events.append(
-                        ProductionOrderEvent(
-                            signal_date=signal_date,
-                            entry_date=entry_date,
-                            sleeve=sleeve,
-                            status="filled" if filled else "cash",
-                            frozen=frozen,
-                            filled=filled,
-                            unfilled=unfilled,
-                            cash_slots=len(unfilled),
-                        )
-                    )
+                )
             if scored_entry:
                 valid_signal = (
                     np.isfinite(factor[signal_position]) & eligible[signal_position]
@@ -400,8 +545,8 @@ def _simulate(
                 cash[sleeve] += sell_notional - fee
                 if scored_entry:
                     total_cost += fee
-                forced_writeoff += float(holdings[sleeve, blocked].sum())
-                holdings[sleeve, held] = 0.0
+                terminal_residual_value += float(holdings[sleeve, blocked].sum())
+                holdings[sleeve, tradable] = 0.0
 
         minimum_cash = np.minimum(minimum_cash, cash)
         if (cash < -1e-12).any():
@@ -430,6 +575,18 @@ def _simulate(
         average_selected_count=float(np.mean(selected_counts)) if selected_counts else 0.0,
         average_hhi=float(np.mean(hhis)) if hhis else 0.0,
         minimum_cash_by_sleeve=tuple(float(value) for value in minimum_cash),
+        scheduled_rebalance_count=scheduled_rebalance_count,
+        partial_rebalance_count=partial_rebalance_count,
+        blocked_exit_order_count=blocked_exit_order_count,
+        blocked_entry_count=blocked_entry_count,
+        blocked_entry_order_count=blocked_entry_order_count,
+        average_planned_turnover=(
+            float(np.mean(planned_turnovers)) if planned_turnovers else 0.0
+        ),
+        average_target_tracking_error=(
+            float(np.mean(tracking_errors)) if tracking_errors else 0.0
+        ),
+        terminal_residual_value=terminal_residual_value,
     )
 
 

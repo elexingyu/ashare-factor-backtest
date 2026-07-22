@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.0 - Unreleased
+
+- Replace whole-sleeve liquidation and rebuy with per-security target-delta rebalancing.
+- Retain overlapping holdings without synthetic round trips or duplicate fees.
+- Continue executable orders when another security is suspended or limit-down, while carrying the blocked position as an explicit residual.
+- Preserve unsellable terminal holdings at marked value instead of writing them down to zero.
+- Report retained, bought, sold, blocked and residual names plus planned/actual turnover and target-tracking error.
+- Preserve raw OHLC and adjustment factors beside point-in-time back-adjusted OHLC.
+- Use raw opens and raw exchange limits for order/tradability coordinates while retaining continuous adjusted opens for fast valuation.
+- Emit a machine-readable warning when scale-dependent back-adjusted price levels enter cross-sectional selection, while leaving scale-invariant return and ratio expressions unaffected.
+- Version the new execution semantics so v0.1 artifacts cannot be reused silently.
+- Archive the v0.1 full-backtest/Qlib timing claim until a 0.2 parity benchmark is complete.
+
 ## 0.1.2 - 2026-07-22
 
 - Reuse the factor data pass to build A-share execution matrices without a second persistent-data read.
