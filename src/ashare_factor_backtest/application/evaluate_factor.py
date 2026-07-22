@@ -21,7 +21,7 @@ from ashare_factor_backtest.evaluation.production_context import (
     PRODUCTION_FACTOR_EVALUATION_SEMANTICS,
 )
 from ashare_factor_backtest.evaluation.production_execution_context import (
-    build_chunked_production_execution_context,
+    ExecutionCapturingFrameLoader,
 )
 from ashare_factor_backtest.evaluation.production_rolling import (
     audit_production_rolling,
@@ -63,11 +63,17 @@ class FactorEvaluationService:
         if job.research is None:
             raise ValueError("factor evaluation requires a research contract")
         prepare_seconds = perf_counter() - prepare_start
+        capturing_loader = ExecutionCapturingFrameLoader(
+            prepared.frame_loader,
+            prepared.chunks,
+            price_storage_dtype="float32",
+            eligibility_column=job.view,
+        )
         factor_start = perf_counter()
         evaluated = evaluate_expression_by_year(
             expression,
             chunks=prepared.chunks,
-            frame_loader=prepared.frame_loader,
+            frame_loader=capturing_loader,
             dataset_version=f"{job.dataset_version}_{prepared.job_identity[:16]}",
             view=job.view,
             cache_max_bytes=job.evaluation.cache_mib * 1024 * 1024,
@@ -78,12 +84,7 @@ class FactorEvaluationService:
             raise ValueError("expression lookback exceeds production job max_lookback")
         factor_seconds = perf_counter() - factor_start
         execution_start = perf_counter()
-        execution = build_chunked_production_execution_context(
-            chunks=prepared.chunks,
-            frame_loader=prepared.frame_loader,
-            price_storage_dtype="float32",
-            eligibility_column=job.view,
-        )
+        execution = capturing_loader.execution_context()
         execution_seconds = perf_counter() - execution_start
         common: dict[str, object] = {
             "canonical": evaluated.canonical,
