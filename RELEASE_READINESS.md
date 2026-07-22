@@ -7,7 +7,7 @@
 - The three real PIT CSI500 anchor expressions were rerun under execution semantics v7; all three selected a different direction or horizon than the v0.1 contract, so v0.1 research selections are legacy evidence only. Semantics v8 adds raw order/tradability coordinates without changing the continuous-value portfolio model: a real CSI500 `ts_pct_change(close,1)` regression compared 649 numeric screen fields with a maximum absolute difference of `1.875e-13`.
 - The v0.2 target-delta complete-backtest benchmark passed all 11 parity checks against Qlib `d5379c5`. Clean commit `9eda124` measured a 1.330 s median and 568 MiB peak RSS versus Qlib's 19.070 s and 1,038 MiB, a `14.34x` wall-time ratio. The v0.1 `31.77x` full-liquidation result remains historical evidence only.
 - A freshly built 0.2.0 wheel was installed in an isolated Python 3.13 environment; `doctor` and the bundled demo `evaluate --through screen` completed under semantics v8 with the raw/adjusted price split and execution diagnostics present.
-- GitHub Actions remains a release gate for v0.2; the version is not released yet.
+- GitHub Actions run `29919533330` passed test, lint, source/wheel build and clean-wheel smoke jobs on Linux with Python 3.11, 3.12 and 3.13. Version 0.2.0 is ready for release.
 
 ## Version 0.1 Historical Evidence
 

@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.0 - Unreleased
+## 0.2.0 - 2026-07-22
 
 - Replace whole-sleeve liquidation and rebuy with per-security target-delta rebalancing.
 - Retain overlapping holdings without synthetic round trips or duplicate fees.

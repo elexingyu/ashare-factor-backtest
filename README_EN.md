@@ -8,6 +8,8 @@
 
 An A-share single-factor backtesting engine designed for AI agents and automated research workflows. Given an expression and a data job, the CLI performs safe compilation, applies A-share trading constraints, runs rolling evaluation and returns stable machine-readable results.
 
+**Performance summary:** on the fixed complete single-factor workload with 500 securities and 1,500 dates, the project measured `1.330 s` versus Qlib's `19.070 s`, or **`14.34x`** faster. The ratio is emitted only after all 11 parity checks pass. See [Performance Evidence](#performance-evidence).
+
 > This project is research software, not investment advice. Backtests and synthetic examples do not establish future profitability.
 
 ## Why This Project Exists
