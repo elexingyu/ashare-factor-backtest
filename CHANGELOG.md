@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.1 - 2026-07-29
+
+- Add the optional `audit-causality` command and a compact
+  `causality-certificate.v1` artifact.
+- Detect expression implementations whose historical values change when future
+  rows are removed, without adding work to ordinary `evaluate` calls.
+- Add a regression fixture that proves a deliberately hidden one-row lead is
+  rejected while a backward-only rolling expression remains invariant.
+
 ## 0.2.0 - 2026-07-22
 
 - Replace whole-sleeve liquidation and rebuy with per-security target-delta rebalancing.

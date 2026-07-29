@@ -9,6 +9,7 @@ import sys
 import uuid
 from typing import Sequence
 
+from ashare_factor_backtest.application.audit_causality import CausalityAuditService
 from ashare_factor_backtest.application.compile_expression import CompileExpressionService
 from ashare_factor_backtest.application.evaluate_factor import FactorEvaluationService
 from ashare_factor_backtest.expression.errors import ExpressionError
@@ -22,7 +23,14 @@ from ashare_factor_backtest.protocol.errors import (
 
 
 PUBLIC_PROTOCOL_VERSION = "ashare-backtest.protocol.v1"
-PUBLIC_COMMANDS = ("capabilities", "schema", "doctor", "compile", "evaluate")
+PUBLIC_COMMANDS = (
+    "capabilities",
+    "schema",
+    "doctor",
+    "compile",
+    "audit-causality",
+    "evaluate",
+)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -34,6 +42,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     run_id = args.run_id or uuid.uuid4().hex
     try:
+        exit_code = EXIT_OK
         service = CompileExpressionService()
         if args.command == "capabilities":
             envelope = _envelope(
@@ -84,6 +93,28 @@ def main(argv: Sequence[str] | None = None) -> int:
                 warnings=warnings,
                 next_actions=("evaluate",),
             )
+        elif args.command == "audit-causality":
+            with redirect_stdout(sys.stderr):
+                result, warnings = CausalityAuditService().audit(
+                    Path(args.job),
+                    args.expression,
+                    work_root=Path(args.work_root),
+                )
+            passed = bool(result["passed"])
+            envelope = _envelope(
+                "audit-causality",
+                "ok" if passed else "error",
+                run_id,
+                result,
+                warnings=warnings,
+                next_actions=(
+                    ("evaluate",)
+                    if passed
+                    else ("inspect_certificate", "fix_expression_or_operator")
+                ),
+            )
+            if not passed:
+                exit_code = EXIT_INTERNAL_ERROR
         else:
             with redirect_stdout(sys.stderr):
                 result, warnings = FactorEvaluationService().evaluate(
@@ -101,7 +132,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 next_actions=("inspect_artifact",),
             )
         _emit(envelope)
-        return EXIT_OK
+        return exit_code
     except ExpressionError as error:
         _emit(
             _envelope(
@@ -154,6 +185,11 @@ def _parser() -> argparse.ArgumentParser:
     )
     evaluate_parser.add_argument("--work-root", required=True)
     _common_arguments(evaluate_parser)
+    audit_parser = subparsers.add_parser("audit-causality")
+    audit_parser.add_argument("--job", required=True)
+    audit_parser.add_argument("expression")
+    audit_parser.add_argument("--work-root", required=True)
+    _common_arguments(audit_parser)
     return parser
 
 

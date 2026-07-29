@@ -26,6 +26,11 @@
 uv sync --locked --all-groups
 uv run ashare-backtest doctor --json
 uv run ashare-backtest compile 'cs_rank(ts_pct_change(close,5))' --json
+uv run ashare-backtest audit-causality \
+  --job examples/demo_daily/job.yaml \
+  'cs_rank(ts_pct_change(close,5))' \
+  --work-root /tmp/ashare-factor-demo \
+  --json
 uv run ashare-backtest evaluate \
   --job examples/demo_daily/job.yaml \
   'cs_rank(ts_pct_change(close,5))' \
@@ -41,13 +46,20 @@ CLI 每次只向标准输出写一行 JSON，适合由 Codex、Claude Code、流
 ## 核心能力
 
 - **表达式编译：** 字段和算子采用白名单；拒绝未知字段、非法参数和前视引用。
+- **因果审计：** 独立的截断一致性检查会重新计算历史前缀；如果增加未来数据会改变
+  过去的因子值，命令失败并保存机器可读凭证。
 - **A 股时间点语义：** 区分因子观察时点、股票池历史与下一开盘执行，避免使用未来成分股或未来行情。
 - **双价格坐标：** 因子与连续估值使用当时可构造的后复权序列；能否成交和下单价格使用未复权开盘及未复权涨跌停价。
 - **复权尺度警告：** 后复权价格适合收益、比率和时间序列标准化；直接价格、均价或价差用于横截面选股时，编译器会报告机器可读警告。
 - **交易约束：** 支持上市状态、ST、停牌、开盘涨跌停、逐股票部分成交、净额换仓、费用和只做多组合。
 - **滚动检验：** 输出训练段和测试段证据、Rank IC、策略与基准指标、超额指标及覆盖率。
 - **可复现产物：** 表达式、数据身份、任务配置和评价语义共同决定产物身份，便于缓存、审计和复跑。
-- **AI 友好接口：** `capabilities`、`schema`、`doctor`、`compile` 和 `evaluate` 均提供版本化 JSON 协议。
+- **AI 友好接口：** `capabilities`、`schema`、`doctor`、`compile`、
+  `audit-causality` 和 `evaluate` 均提供版本化 JSON 协议。
+
+`audit-causality` 是发布或接入新算子时使用的独立检查，不会拖慢普通 `evaluate`。
+它验证表达式执行是否依赖未来行，但不能证明上游数据供应商没有把事后修订值写进历史；
+因此凭证表述为 `prefix_invariance_verified`，而不是“保证不存在任何未来函数”。
 
 ## 项目边界
 

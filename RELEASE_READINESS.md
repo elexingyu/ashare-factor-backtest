@@ -1,5 +1,19 @@
 # Release Readiness
 
+## Version 0.2.1 Status
+
+- Add one optional `audit-causality` command without changing the ordinary
+  `evaluate` path or the v0.2 execution contract.
+- The prefix-invariance regression catches a deliberately hidden one-row lead
+  and accepts a backward-only rolling expression.
+- The bundled demo compares 512 factor cells with zero mismatches in about
+  0.20 seconds and writes a compact `causality-certificate.v1` artifact.
+- Package tests (`30 passed`), Ruff, source build and wheel build pass on the
+  release candidate.
+- The built `0.2.1` wheel was installed into a clean Python 3.13 environment;
+  `doctor` and the bundled `audit-causality` demo both returned successful
+  machine-protocol responses.
+
 ## Version 0.2 Status
 
 - Local tests, lint and source/wheel builds pass for the per-security target-delta execution contract and explicit raw/adjusted price coordinates.

@@ -26,6 +26,11 @@ The project builds as a standalone wheel. From this directory, run:
 uv sync --locked --all-groups
 uv run ashare-backtest doctor --json
 uv run ashare-backtest compile 'cs_rank(ts_pct_change(close,5))' --json
+uv run ashare-backtest audit-causality \
+  --job examples/demo_daily/job.yaml \
+  'cs_rank(ts_pct_change(close,5))' \
+  --work-root /tmp/ashare-factor-demo \
+  --json
 uv run ashare-backtest evaluate \
   --job examples/demo_daily/job.yaml \
   'cs_rank(ts_pct_change(close,5))' \
@@ -41,13 +46,23 @@ The bundled dataset is entirely synthetic. It covers a listing boundary, an ST i
 ## Core Capabilities
 
 - **Expression compilation:** allowlisted fields and operators reject unknown fields, invalid parameters and forward-looking references.
+- **Causality audit:** an independent prefix-invariance check recomputes a historical
+  prefix. The command fails and saves a machine-readable certificate if adding future
+  rows changes past factor values.
 - **A-share point-in-time semantics:** factor observation, historical universe membership and next-open execution are kept distinct.
 - **Dual price coordinates:** factor values and continuous valuation use point-in-time back-adjusted series, while tradability and order prices use raw opens and raw exchange limits.
 - **Adjustment-scale warnings:** back-adjusted prices are suitable for returns, ratios and time-series normalization; the compiler warns when raw price levels, averages or spreads can contaminate cross-sectional selection.
 - **Trading constraints:** listing status, ST, suspension, open price limits, per-security partial fills, net rebalancing, two-sided costs and long-only portfolios.
 - **Rolling evaluation:** train/test evidence, Rank IC, strategy and benchmark metrics, excess metrics and coverage diagnostics.
 - **Reproducible artifacts:** expression, data identity, job contract and evaluation semantics jointly identify reusable results.
-- **AI-first interface:** `capabilities`, `schema`, `doctor`, `compile` and `evaluate` expose a versioned JSON protocol.
+- **AI-first interface:** `capabilities`, `schema`, `doctor`, `compile`,
+  `audit-causality` and `evaluate` expose a versioned JSON protocol.
+
+`audit-causality` is an independent release-time or new-operator check and does not
+slow down ordinary `evaluate` calls. It verifies that expression execution does not
+depend on future rows; it cannot prove that an upstream provider did not place revised
+data into history. The certificate therefore says `prefix_invariance_verified`, not
+"all look-ahead bias is impossible."
 
 ## Scope
 
