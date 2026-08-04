@@ -171,7 +171,7 @@ def _compile_node(
     normalized = CallNode(spec.name, tuple(child.node for child in canonical_children))
     lookback = _lookback(spec.lookback_rule, children)
     warnings = [warning for child in children for warning in child.warnings]
-    if spec.category == "cross_section" and any(
+    if spec.category in {"cross_section", "group_cross_section"} and any(
         child.hfq_scale_sensitive for child in children
     ):
         warnings.append(HFQ_CROSS_SECTION_WARNING)
@@ -196,7 +196,7 @@ def _hfq_scale_sensitive(
     sensitive = tuple(child.hfq_scale_sensitive for child in children)
     if not any(sensitive):
         return False
-    if category == "cross_section":
+    if category in {"cross_section", "group_cross_section"}:
         return False
     if name in {
         "sign",
@@ -210,6 +210,9 @@ def _hfq_scale_sensitive(
         "ts_r2",
         "ts_argmin",
         "ts_argmax",
+        "ts_gaussianize",
+        "ts_longest_signed_run",
+        "ts_change_rate",
     }:
         return False
     if name == "div":
@@ -266,13 +269,15 @@ def _output_unit(name: str, children: tuple[_Semantic, ...], text: str) -> str:
         return panel_branches[0] if panel_branches else "ratio"
     if name == "trade_when":
         return children[1].unit_lineage
-    if name == "cs_residual":
+    if name in {"cs_residual", "ts_regression_residual"}:
         return children[0].unit_lineage
     if name in {"gt", "ge", "lt", "le"}:
         return "boolean"
     if name in {
-        "sign", "cs_rank", "cs_zscore", "ts_pct_change", "ts_rank", "ts_zscore",
-        "ts_corr", "ts_scale", "ts_skew", "ts_kurt", "ts_r2"
+        "sign", "cs_rank", "cs_zscore", "group_rank", "group_zscore",
+        "ts_pct_change", "ts_last_pct_change",
+        "ts_rank", "ts_zscore", "ts_corr", "ts_scale", "ts_skew", "ts_kurt",
+        "ts_r2", "ts_gaussianize", "ts_longest_signed_run", "ts_change_rate"
     }:
         return "ratio"
     if name == "signed_power":
@@ -284,16 +289,19 @@ def _output_unit(name: str, children: tuple[_Semantic, ...], text: str) -> str:
         return f"{panel_units[0]}/observation"
     if name == "ts_product":
         return "ratio" if panel_units[0] == "ratio" else f"product({panel_units[0]})"
-    if name in {"ts_argmin", "ts_argmax"}:
+    if name in {"ts_argmin", "ts_argmax", "ts_days_since_change"}:
         return "observation_offset"
     if name == "ts_beta" and len(panel_units) == 2:
         return "ratio" if panel_units[0] == panel_units[1] else f"{panel_units[0]}/{panel_units[1]}"
     if name == "ts_cov" and len(panel_units) == 2:
         return "*".join(sorted(panel_units))
     if name in {
-        "add", "sub", "panel_min", "panel_max", "neg", "abs", "signed_log", "signed_sqrt", "cs_demean",
-        "cs_winsorize", "ts_delay", "ts_delta", "ts_sum", "ts_mean", "ts_std",
+        "add", "sub", "panel_min", "panel_max", "neg", "abs", "signed_log", "signed_sqrt",
+        "cs_demean", "group_demean",
+        "cs_winsorize", "ts_delay", "ts_delta", "ts_last_change", "ts_sum",
+        "ts_mean", "ts_std",
         "ts_min", "ts_max", "ts_ema", "ts_decay_linear",
+        "ts_median", "ts_mean_abs_dev",
     }:
         return panel_units[0] if panel_units else "scalar"
     if name == "div":

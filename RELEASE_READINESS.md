@@ -1,5 +1,16 @@
 # Release Readiness
 
+## Version 0.2.2 Status
+
+- Reconcile the v0.2.1 prefix-invariance audit with the current canonical dynamic
+  universe, temporal category and expanded operator implementation.
+- Add `inspect-job` as the stable pre-evaluation identity handshake for external
+  factor-search Agents, without adding an Agent dependency to this package.
+- Verify that copying the same job and assets to another installation directory keeps
+  both contract and job identities unchanged.
+- Release verification must include package tests, Ruff, source/wheel builds, a clean
+  wheel install, `inspect-job`, `audit-causality` and rolling `evaluate` smoke tests.
+
 ## Version 0.2.1 Status
 
 - Add one optional `audit-causality` command without changing the ordinary

@@ -21,7 +21,10 @@ from ashare_factor_backtest.expression.parser import referenced_fields
 from ashare_factor_backtest.evaluation.production_chunked_evaluator import (
     evaluate_expression_by_year,
 )
-from ashare_factor_backtest.evaluation.production_context import INDEX_MEMBERSHIP_VIEWS
+from ashare_factor_backtest.evaluation.production_context import (
+    DYNAMIC_UNIVERSE_VIEWS,
+    INDEX_MEMBERSHIP_VIEWS,
+)
 from ashare_factor_backtest.evaluation.production_frame_loader import (
     BatchedProductionFrameLoader,
 )
@@ -36,7 +39,9 @@ from ashare_factor_backtest.evaluation.policies import ProductionSelectionNullPo
 from ashare_factor_backtest.evaluation.production_universe_readiness import YearChunk
 
 
-_PLAIN_VIEWS = frozenset({"signal_eligible", "mainboard", "liquid_20m"})
+_PLAIN_VIEWS = frozenset(
+    {"signal_eligible", "mainboard", "liquid_20m", *DYNAMIC_UNIVERSE_VIEWS}
+)
 _INDEX_VIEWS = dict(INDEX_MEMBERSHIP_VIEWS)
 
 
@@ -110,17 +115,13 @@ class ProductionJob:
     @property
     def contract_identity(self) -> str:
         payload = {
-            "data": {
-                "bars_dir": str(self.data.bars_dir),
-                "index_membership": (
-                    str(self.data.index_membership)
-                    if self.data.index_membership is not None
-                    else None
-                ),
-                "market_states_dir": str(self.data.market_states_dir),
-                "st_intervals": str(self.data.st_intervals),
-                "stock_master": str(self.data.stock_master),
-                "trade_calendar": str(self.data.trade_calendar),
+            "data_bindings": {
+                "bars": True,
+                "index_membership": self.data.index_membership is not None,
+                "market_states": True,
+                "st_intervals": True,
+                "stock_master": True,
+                "trade_calendar": True,
             },
             "dataset_version": self.dataset_version,
             "evaluation": {
@@ -133,10 +134,8 @@ class ProductionJob:
                 "symbol_cap": self.evaluation.symbol_cap,
             },
             "job_id": self.job_id,
-            "plugins": [
-                {"fields": list(item.fields), "manifest": str(item.manifest)}
-                for item in self.plugins
-            ],
+            "identity_schema": "production-job-identity.v2",
+            "plugins": [{"fields": list(item.fields)} for item in self.plugins],
             "schema_version": "production-job.v1",
             "universe": {"index_code": self.index_code, "view": self.view},
         }
@@ -552,7 +551,10 @@ class ProductionJobService:
         selected_plugin_fields = {
             field
             for binding in job.plugins
-            for field in requested.intersection(binding.fields)
+            for field in (
+                requested.intersection(binding.fields)
+                | ({job.view} if job.view in binding.fields else set())
+            )
         }
         symbols, index_views = _resolve_job_symbols(job)
         warnings = list(inspect_warnings)
@@ -721,7 +723,14 @@ class ProductionJobService:
         identity_payload = {
             "assets": asset_identities,
             "contract_identity": job.contract_identity,
-            "plugins": plugin_rows,
+            "plugins": [
+                {
+                    "dataset": row["dataset"],
+                    "fields": row["fields"],
+                    "manifest_identity": row["manifest_identity"],
+                }
+                for row in plugin_rows
+            ],
         }
         job_identity = hashlib.sha256(
             json.dumps(identity_payload, sort_keys=True, separators=(",", ":")).encode(
@@ -772,6 +781,8 @@ class ProductionJobService:
             used = requested.intersection(binding.fields)
             if used:
                 selected_plugin_fields.update(used)
+            if job.view in binding.fields:
+                selected_plugin_fields.add(job.view)
 
         master_codes = tuple(
             sorted(

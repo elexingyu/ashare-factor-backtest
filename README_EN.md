@@ -26,6 +26,7 @@ The project builds as a standalone wheel. From this directory, run:
 uv sync --locked --all-groups
 uv run ashare-backtest doctor --json
 uv run ashare-backtest compile 'cs_rank(ts_pct_change(close,5))' --json
+uv run ashare-backtest inspect-job --job examples/demo_daily/job.yaml --json
 uv run ashare-backtest audit-causality \
   --job examples/demo_daily/job.yaml \
   'cs_rank(ts_pct_change(close,5))' \
@@ -50,13 +51,25 @@ The bundled dataset is entirely synthetic. It covers a listing boundary, an ST i
   prefix. The command fails and saves a machine-readable certificate if adding future
   rows changes past factor values.
 - **A-share point-in-time semantics:** factor observation, historical universe membership and next-open execution are kept distinct.
+- **Temporal category plugin:** external entity/category/effective-date/expiry-date
+  tables can be materialized as PIT fields. Missing, overlapping or multiply assigned
+  observations fail closed; vendor-specific industry data is not coupled to the core.
+- **Optional within-group operators:** the Python extension surface provides
+  `group_demean`, `group_rank` and `group_zscore` for comparisons within each PIT
+  category. Categories have a distinct type and cannot be accidentally treated as
+  continuous values by an AI-generated expression. These operators are not yet part
+  of the default CLI catalog.
 - **Dual price coordinates:** factor values and continuous valuation use point-in-time back-adjusted series, while tradability and order prices use raw opens and raw exchange limits.
 - **Adjustment-scale warnings:** back-adjusted prices are suitable for returns, ratios and time-series normalization; the compiler warns when raw price levels, averages or spreads can contaminate cross-sectional selection.
 - **Trading constraints:** listing status, ST, suspension, open price limits, per-security partial fills, net rebalancing, two-sided costs and long-only portfolios.
 - **Rolling evaluation:** train/test evidence, Rank IC, strategy and benchmark metrics, excess metrics and coverage diagnostics.
 - **Reproducible artifacts:** expression, data identity, job contract and evaluation semantics jointly identify reusable results.
-- **AI-first interface:** `capabilities`, `schema`, `doctor`, `compile`,
+- **AI-first interface:** `capabilities`, `schema`, `doctor`, `compile`, `inspect-job`,
   `audit-causality` and `evaluate` expose a versioned JSON protocol.
+
+`inspect-job` returns the engine version, protocol, data-asset identities, universe,
+and execution-contract identity before evaluation. An external Agent can therefore
+freeze a reusable experiment identity without importing internal Python modules.
 
 `audit-causality` is an independent release-time or new-operator check and does not
 slow down ordinary `evaluate` calls. It verifies that expression execution does not

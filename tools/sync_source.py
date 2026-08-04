@@ -28,7 +28,10 @@ BENCHMARK_TARGET = (
     if IS_MONOREPO
     else PACKAGE_ROOT / "benchmarks" / "ashare_factor_backtest"
 )
-ENTRYPOINTS = ("cli/public_main.py",)
+ENTRYPOINTS = (
+    "cli/public_main.py",
+    "plugins/temporal_category.py",
+)
 BENCHMARK_MODULES = (
     "__init__.py",
     "common_backtest.py",
@@ -36,6 +39,7 @@ BENCHMARK_MODULES = (
     "contract.py",
     "cross_framework.py",
     "full_backtest.py",
+    "net_rebalance.py",
     "prepare_cross_framework.py",
     "prepare_full_backtest.py",
     "run_common_backtest_ours.py",

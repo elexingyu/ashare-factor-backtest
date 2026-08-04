@@ -10,10 +10,7 @@ import numpy as np
 import pandas as pd
 
 from ashare_factor_backtest.expression.catalog import FieldCatalog, OperatorCatalog
-from ashare_factor_backtest.expression.evaluator import (
-    BatchEvaluator,
-    EvaluationContext,
-)
+from ashare_factor_backtest.expression.evaluator import BatchEvaluator, EvaluationContext
 
 
 class FactorValueResult(Protocol):

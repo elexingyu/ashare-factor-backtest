@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 import hashlib
 import json
+from math import ceil
 
 import numpy as np
 import pandas as pd
@@ -29,6 +30,7 @@ INDEX_MEMBERSHIP_VIEWS = {
     "csi500_pit": "000905.SH",
     "csi1000_pit": "000852.SH",
 }
+DYNAMIC_UNIVERSE_VIEWS = {"dynamic_small_liquid"}
 
 PRODUCTION_FACTOR_EVALUATION_SEMANTICS = (
     "confirmed_suspension_carry_mark_flow_pit_cross_section_mask_"
@@ -68,6 +70,60 @@ def attach_index_membership_views(
             codes=codes,
         ).to_numpy(copy=False)
         result[str(view)] = eligible & mask[row_dates, row_codes]
+    return result
+
+
+def attach_dynamic_small_cap_view(
+    frame: pd.DataFrame,
+    *,
+    view: str = "dynamic_small_liquid",
+    target_count: int = 1_000,
+    liquidity_tail_fraction: float = 0.10,
+) -> pd.DataFrame:
+    required = {
+        "ts_code",
+        "trade_date",
+        "signal_eligible",
+        "trailing_20d_median_amount_cny",
+        "log_total_mv",
+    }
+    missing = sorted(required.difference(frame.columns))
+    if missing:
+        raise ValueError(f"production frame is missing: {', '.join(missing)}")
+    if view not in DYNAMIC_UNIVERSE_VIEWS:
+        raise ValueError(f"unsupported dynamic universe view: {view}")
+    if target_count <= 0 or not 0.0 <= liquidity_tail_fraction < 1.0:
+        raise ValueError("dynamic universe selection contract is invalid")
+    if frame.duplicated(["trade_date", "ts_code"]).any():
+        raise ValueError("production frame contains duplicate date/ts_code keys")
+
+    result = frame.copy()
+    result[view] = False
+    market_cap = pd.to_numeric(result["log_total_mv"], errors="coerce")
+    liquidity = pd.to_numeric(
+        result["trailing_20d_median_amount_cny"], errors="coerce"
+    )
+    eligible = (
+        result["signal_eligible"].eq(True)
+        & np.isfinite(market_cap)
+        & np.isfinite(liquidity)
+        & liquidity.gt(0)
+    )
+    for _, indices in result.loc[eligible].groupby("trade_date", sort=True).groups.items():
+        candidates = result.loc[indices, ["ts_code"]].assign(
+            _market_cap=market_cap.loc[indices],
+            _liquidity=liquidity.loc[indices],
+        )
+        candidates = candidates.sort_values(
+            ["_liquidity", "ts_code"], kind="mergesort"
+        )
+        drop_count = min(
+            len(candidates), ceil(len(candidates) * liquidity_tail_fraction)
+        )
+        selected = candidates.iloc[drop_count:].sort_values(
+            ["_market_cap", "ts_code"], kind="mergesort"
+        ).head(target_count)
+        result.loc[selected.index, view] = True
     return result
 
 
@@ -160,7 +216,13 @@ def _production_field_panels(
     additional_field_specs: Mapping[str, FieldSpec] | None = None,
     initial_price_values: Mapping[str, pd.Series] | None = None,
 ) -> tuple[dict[str, pd.DataFrame], pd.DataFrame]:
-    views = {"signal_eligible", "mainboard", "liquid_20m", *INDEX_MEMBERSHIP_VIEWS}
+    views = {
+        "signal_eligible",
+        "mainboard",
+        "liquid_20m",
+        *INDEX_MEMBERSHIP_VIEWS,
+        *DYNAMIC_UNIVERSE_VIEWS,
+    }
     if view not in views:
         raise ValueError(f"unsupported production universe view: {view}")
     required = {

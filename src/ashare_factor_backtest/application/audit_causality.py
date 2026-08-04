@@ -13,9 +13,7 @@ from typing import Any
 import pandas as pd
 
 from ashare_factor_backtest.application.production_job import ProductionJobService
-from ashare_factor_backtest.expression.causality import (
-    compare_prefix_results,
-)
+from ashare_factor_backtest.expression.causality import compare_prefix_results
 from ashare_factor_backtest.expression.parser import referenced_fields
 from ashare_factor_backtest.evaluation.production_chunked_evaluator import (
     evaluate_expression_by_year,
@@ -48,9 +46,7 @@ class CausalityAuditService:
         prepare_seconds = perf_counter() - prepare_start
         common = {
             "frame_loader": prepared.frame_loader,
-            "dataset_version": (
-                f"{prepared.job.dataset_version}_{prepared.job_identity[:16]}"
-            ),
+            "dataset_version": f"{prepared.job.dataset_version}_{prepared.job_identity[:16]}",
             "view": prepared.job.view,
             "cache_max_bytes": prepared.job.evaluation.cache_mib * 1024 * 1024,
             "required_fields": set(referenced_fields(expression)),
@@ -74,11 +70,7 @@ class CausalityAuditService:
         prefix_seconds = perf_counter() - prefix_start
 
         compare_start = perf_counter()
-        report = compare_prefix_results(
-            full,
-            prefix,
-            cutoff=cutoff,
-        )
+        report = compare_prefix_results(full, prefix, cutoff=cutoff)
         compare_seconds = perf_counter() - compare_start
         certificate = {
             "schema_version": "causality-certificate.v1",
@@ -96,11 +88,7 @@ class CausalityAuditService:
                 "utf-8"
             )
         ).hexdigest()
-        target = (
-            Path(work_root).resolve()
-            / "causality"
-            / f"{identity}.json"
-        )
+        target = Path(work_root).resolve() / "causality" / f"{identity}.json"
         certificate["certificate_identity"] = identity
         _atomic_json(target, certificate)
         result = {
@@ -128,12 +116,11 @@ def _truncate_chunks(
     for chunk in chunks:
         if chunk.calculation_start > cutoff:
             break
-        calculation_end = min(chunk.calculation_end, cutoff)
         truncated.append(
             YearChunk(
                 year=chunk.year,
                 calculation_start=chunk.calculation_start,
-                calculation_end=calculation_end,
+                calculation_end=min(chunk.calculation_end, cutoff),
                 load_start=chunk.load_start,
                 load_end=min(chunk.load_end, cutoff),
                 max_lookback=chunk.max_lookback,

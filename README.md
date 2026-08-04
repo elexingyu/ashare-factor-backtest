@@ -26,6 +26,7 @@
 uv sync --locked --all-groups
 uv run ashare-backtest doctor --json
 uv run ashare-backtest compile 'cs_rank(ts_pct_change(close,5))' --json
+uv run ashare-backtest inspect-job --job examples/demo_daily/job.yaml --json
 uv run ashare-backtest audit-causality \
   --job examples/demo_daily/job.yaml \
   'cs_rank(ts_pct_change(close,5))' \
@@ -49,13 +50,21 @@ CLI 每次只向标准输出写一行 JSON，适合由 Codex、Claude Code、流
 - **因果审计：** 独立的截断一致性检查会重新计算历史前缀；如果增加未来数据会改变
   过去的因子值，命令失败并保存机器可读凭证。
 - **A 股时间点语义：** 区分因子观察时点、股票池历史与下一开盘执行，避免使用未来成分股或未来行情。
+- **历史分类插件：** 可把实体、类别、生效日和失效日组成的外部分类表物化为
+  PIT 字段；缺失、重叠或同日多重归属会 fail closed，申万等具体数据不绑定在核心中。
+- **可选组内相对算子：** Python 扩展接口提供 `group_demean`、`group_rank` 和
+  `group_zscore`，支持按当日 PIT 分类做横截面比较；类别具有独立类型，不能被 AI
+  当作连续数值误用。它们目前不进入默认 CLI 算子目录。
 - **双价格坐标：** 因子与连续估值使用当时可构造的后复权序列；能否成交和下单价格使用未复权开盘及未复权涨跌停价。
 - **复权尺度警告：** 后复权价格适合收益、比率和时间序列标准化；直接价格、均价或价差用于横截面选股时，编译器会报告机器可读警告。
 - **交易约束：** 支持上市状态、ST、停牌、开盘涨跌停、逐股票部分成交、净额换仓、费用和只做多组合。
 - **滚动检验：** 输出训练段和测试段证据、Rank IC、策略与基准指标、超额指标及覆盖率。
 - **可复现产物：** 表达式、数据身份、任务配置和评价语义共同决定产物身份，便于缓存、审计和复跑。
-- **AI 友好接口：** `capabilities`、`schema`、`doctor`、`compile`、
+- **AI 友好接口：** `capabilities`、`schema`、`doctor`、`compile`、`inspect-job`、
   `audit-causality` 和 `evaluate` 均提供版本化 JSON 协议。
+
+`inspect-job` 在回测前返回引擎版本、协议、数据资产身份、股票池和执行合同身份。上层 Agent 可用
+这些字段生成实验哈希并安全复用结果，而不需要导入本项目内部 Python 模块。
 
 `audit-causality` 是发布或接入新算子时使用的独立检查，不会拖慢普通 `evaluate`。
 它验证表达式执行是否依赖未来行，但不能证明上游数据供应商没有把事后修订值写进历史；

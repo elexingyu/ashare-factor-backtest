@@ -82,7 +82,11 @@ class ProductionFrameLoader:
                 field, manifest = contracts[name]
                 self.additional_field_specs[name] = FieldSpec(
                     name=name,
-                    value_type=ValueType.PANEL_FLOAT,
+                    value_type=(
+                        ValueType.PANEL_CATEGORY
+                        if field.unit_lineage == "category"
+                        else ValueType.PANEL_FLOAT
+                    ),
                     available_at=(
                         f"day+{field.available_at.day_offset}_"
                         f"{field.available_at.time.isoformat(timespec='minutes')}"

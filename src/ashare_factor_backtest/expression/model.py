@@ -16,6 +16,7 @@ _NAME = re.compile(r"^[a-z][a-z0-9_]*$")
 class ValueType(str, Enum):
     PANEL_FLOAT = "panel_float"
     PANEL_BOOL = "panel_bool"
+    PANEL_CATEGORY = "panel_category"
     SCALAR_INT = "scalar_int"
     SCALAR_FLOAT = "scalar_float"
 

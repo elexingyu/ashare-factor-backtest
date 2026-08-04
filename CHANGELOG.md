@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.2 - 2026-08-04
+
+- Reconcile the optional prefix-invariance audit with the newer dynamic-universe,
+  temporal-category and expanded production-operator implementation.
+- Add the machine-readable `inspect-job` command so external Agents can freeze the
+  engine version, protocol, job identity, data assets and execution contract before
+  reserving an experiment.
+- Make contract and job identities portable across installation directories by
+  hashing data content and semantics rather than absolute local paths.
+- Preserve the one-way integration boundary: factor-search Agents may call this CLI,
+  while this package remains independent of all search and Agent implementations.
+
 ## 0.2.1 - 2026-07-29
 
 - Add the optional `audit-causality` command and a compact

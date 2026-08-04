@@ -12,6 +12,7 @@ from typing import Sequence
 from ashare_factor_backtest.application.audit_causality import CausalityAuditService
 from ashare_factor_backtest.application.compile_expression import CompileExpressionService
 from ashare_factor_backtest.application.evaluate_factor import FactorEvaluationService
+from ashare_factor_backtest.application.production_job import ProductionJobService
 from ashare_factor_backtest.expression.errors import ExpressionError
 from ashare_factor_backtest.protocol.envelope import MachineEnvelope
 from ashare_factor_backtest.protocol.errors import (
@@ -23,11 +24,13 @@ from ashare_factor_backtest.protocol.errors import (
 
 
 PUBLIC_PROTOCOL_VERSION = "ashare-backtest.protocol.v1"
+PUBLIC_ENGINE_VERSION = "0.2.2"
 PUBLIC_COMMANDS = (
     "capabilities",
     "schema",
     "doctor",
     "compile",
+    "inspect-job",
     "audit-causality",
     "evaluate",
 )
@@ -51,6 +54,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 run_id,
                 {
                     "commands": list(PUBLIC_COMMANDS),
+                    "engine_version": PUBLIC_ENGINE_VERSION,
                     "excluded_capabilities": [
                         "factor_search",
                         "multi_factor_portfolio",
@@ -92,6 +96,21 @@ def main(argv: Sequence[str] | None = None) -> int:
                 result,
                 warnings=warnings,
                 next_actions=("evaluate",),
+            )
+        elif args.command == "inspect-job":
+            with redirect_stdout(sys.stderr):
+                result, warnings = ProductionJobService().inspect(Path(args.job))
+            envelope = _envelope(
+                "inspect-job",
+                "ok",
+                run_id,
+                {
+                    **result,
+                    "engine_version": PUBLIC_ENGINE_VERSION,
+                    "machine_protocol": PUBLIC_PROTOCOL_VERSION,
+                },
+                warnings=warnings,
+                next_actions=("compile", "audit-causality", "evaluate"),
             )
         elif args.command == "audit-causality":
             with redirect_stdout(sys.stderr):
@@ -177,6 +196,9 @@ def _parser() -> argparse.ArgumentParser:
     compile_parser = subparsers.add_parser("compile")
     compile_parser.add_argument("expression")
     _common_arguments(compile_parser)
+    inspect_parser = subparsers.add_parser("inspect-job")
+    inspect_parser.add_argument("--job", required=True)
+    _common_arguments(inspect_parser)
     evaluate_parser = subparsers.add_parser("evaluate")
     evaluate_parser.add_argument("--job", required=True)
     evaluate_parser.add_argument("expression")

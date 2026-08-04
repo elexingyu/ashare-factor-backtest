@@ -65,6 +65,8 @@ class ProductionPortfolioResult:
     average_planned_turnover: float = 0.0
     average_target_tracking_error: float = 0.0
     terminal_residual_value: float = 0.0
+    return_start_invested_fractions: tuple[float, ...] = ()
+    posttrade_invested_fractions: tuple[float, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -101,6 +103,8 @@ def evaluate_production_staggered_long_only(
     *,
     direction: Direction,
     horizon: int,
+    rebalance_stride: int = 1,
+    formation_rule: str = "session_stride",
     buy_cost: float,
     sell_cost: float,
     decision_start: str,
@@ -123,6 +127,8 @@ def evaluate_production_staggered_long_only(
         context,
         direction=direction,
         horizon=horizon,
+        rebalance_stride=rebalance_stride,
+        formation_rule=formation_rule,
         buy_cost=buy_cost,
         sell_cost=sell_cost,
         decision_start=decision_start,
@@ -143,6 +149,8 @@ def evaluate_production_staggered_long_only_context(
     *,
     direction: Direction,
     horizon: int,
+    rebalance_stride: int = 1,
+    formation_rule: str = "session_stride",
     buy_cost: float,
     sell_cost: float,
     decision_start: str,
@@ -155,17 +163,26 @@ def evaluate_production_staggered_long_only_context(
     benchmark_result: ProductionPortfolioResult | None = None,
     quantile_index: int | None = None,
     quantile_count: int = 5,
+    score_initialization_ramp: bool = False,
 ) -> ProductionLongOnlyResult:
     if direction not in {"high", "low"}:
         raise ValueError("direction must be high or low")
     if horizon <= 0:
         raise ValueError("horizon must be positive")
+    if isinstance(rebalance_stride, bool) or not isinstance(rebalance_stride, int):
+        raise TypeError("rebalance_stride must be an integer")
+    if rebalance_stride <= 0:
+        raise ValueError("rebalance_stride must be positive")
+    if formation_rule not in {"session_stride", "month_end"}:
+        raise ValueError("formation_rule must be session_stride or month_end")
     if not 0 <= buy_cost < 1 or not 0 <= sell_cost < 1:
         raise ValueError("buy and sell costs must be in [0, 1)")
     if not 0 < top_fraction <= 1:
         raise ValueError("top_fraction must be in (0, 1]")
     if top_n is not None and top_n <= 0:
         raise ValueError("top_n must be positive")
+    if not isinstance(score_initialization_ramp, bool):
+        raise TypeError("score_initialization_ramp must be boolean")
     if quantile_index is not None:
         if quantile_count < 3 or not 0 <= quantile_index < quantile_count:
             raise ValueError("quantile selector is outside the frozen partition")
@@ -194,6 +211,8 @@ def evaluate_production_staggered_long_only_context(
         "sellable": context.sellable,
         "eligible": context.signal_eligible,
         "horizon": horizon,
+        "rebalance_stride": rebalance_stride,
+        "formation_rule": formation_rule,
         "buy_cost": buy_cost,
         "sell_cost": sell_cost,
         "start": trade_start,
@@ -203,6 +222,7 @@ def evaluate_production_staggered_long_only_context(
         "record_events": record_events,
         "quantile_index": quantile_index,
         "quantile_count": quantile_count,
+        "score_initialization_ramp": score_initialization_ramp,
     }
     strategy = _simulate(
         factor=factor_array,
@@ -212,10 +232,19 @@ def evaluate_production_staggered_long_only_context(
         benchmark=False,
         **common,
     )
-    expected_score_dates = tuple(
-        pd.Timestamp(value)
-        for value in dates[(dates >= metric_start) & (dates <= metric_end)]
-    )
+    if score_initialization_ramp:
+        first_signal_position = int(dates.searchsorted(trade_start, side="left"))
+        first_return_position = max(1, first_signal_position + 1)
+        expected_score_dates = tuple(
+            pd.Timestamp(value)
+            for value in dates[first_return_position:]
+            if metric_start <= pd.Timestamp(value) <= metric_end
+        )
+    else:
+        expected_score_dates = tuple(
+            pd.Timestamp(value)
+            for value in dates[(dates >= metric_start) & (dates <= metric_end)]
+        )
     if strict_score_window and strategy.return_dates != expected_score_dates:
         raise ValueError(
             "score window is not fully initialized; provide enough warmup history"
@@ -355,6 +384,8 @@ def _simulate(
     eligible: np.ndarray,
     direction: Direction,
     horizon: int,
+    rebalance_stride: int,
+    formation_rule: str,
     buy_cost: float,
     sell_cost: float,
     start: pd.Timestamp,
@@ -367,6 +398,7 @@ def _simulate(
     record_events: bool,
     quantile_index: int | None,
     quantile_count: int,
+    score_initialization_ramp: bool,
 ) -> ProductionPortfolioResult:
     end_positions = np.flatnonzero(dates <= end)
     if not len(end_positions):
@@ -390,6 +422,8 @@ def _simulate(
     coverages: list[float] = []
     selected_counts: list[int] = []
     hhis: list[float] = []
+    return_start_invested_fractions: list[float] = []
+    posttrade_invested_fractions: list[float] = []
     blocked_exit_count = 0
     blocked_exit_order_count = 0
     blocked_entry_count = 0
@@ -399,6 +433,7 @@ def _simulate(
     forced_writeoff = 0.0
     terminal_residual_value = 0.0
     total_cost = 0.0
+    monthly_formation_count = 0
 
     first_signal_position = int(dates.searchsorted(start, side="left"))
     # Before the first scheduled signal every sleeve is cash, so replaying the
@@ -407,6 +442,11 @@ def _simulate(
     for position in range(first_position, end_position + 1):
         # Compact production contexts may store prices as float32; all portfolio
         # arithmetic remains float64 to limit storage rounding to the input boundary.
+        return_start_invested_fraction = (
+            float(holdings.sum() / previous_total)
+            if previous_total > 0.0
+            else 0.0
+        )
         previous_prices = np.asarray(valuation[position - 1], dtype=np.float64)
         current_prices = np.asarray(valuation[position], dtype=np.float64)
         ratio = np.ones(columns, dtype=float)
@@ -427,10 +467,27 @@ def _simulate(
         # On the terminal valuation date the portfolio is liquidated at the open.
         # Opening a fresh sleeve immediately before that liquidation would only
         # manufacture a round-trip cost with zero holding time.
-        scheduled = start <= signal_date <= end and position < end_position
+        signal_offset = signal_position - first_signal_position
+        schedule_match = (
+            signal_offset % rebalance_stride == 0
+            if formation_rule == "session_stride"
+            else signal_date.month != entry_date.month
+        )
+        scheduled = (
+            start <= signal_date <= end
+            and schedule_match
+            and position < end_position
+        )
         scored_entry = score_start <= entry_date <= score_end
         if scheduled:
-            sleeve = signal_position % horizon
+            formation_position = (
+                signal_offset // rebalance_stride
+                if formation_rule == "session_stride"
+                else monthly_formation_count
+            )
+            if formation_rule == "month_end":
+                monthly_formation_count += 1
+            sleeve = formation_position % horizon
             targets = _targets(
                 factor[signal_position],
                 eligible[signal_position],
@@ -553,10 +610,18 @@ def _simulate(
             raise RuntimeError("production evaluator created negative sleeve cash")
         posttrade_total = float(holdings.sum() + cash.sum())
         net_return = posttrade_total / previous_total - 1.0
-        if initialized.all() and scored_entry:
+        if (score_initialization_ramp or initialized.all()) and scored_entry:
             return_dates.append(entry_date)
             gross_returns.append(gross_return)
             net_returns.append(net_return)
+            return_start_invested_fractions.append(
+                return_start_invested_fraction
+            )
+            posttrade_invested_fractions.append(
+                float(holdings.sum() / posttrade_total)
+                if posttrade_total > 0.0
+                else 0.0
+            )
         previous_total = posttrade_total
 
     if not net_returns:
@@ -587,6 +652,10 @@ def _simulate(
             float(np.mean(tracking_errors)) if tracking_errors else 0.0
         ),
         terminal_residual_value=terminal_residual_value,
+        return_start_invested_fractions=tuple(
+            return_start_invested_fractions
+        ),
+        posttrade_invested_fractions=tuple(posttrade_invested_fractions),
     )
 
 
@@ -622,9 +691,11 @@ def _targets(
         )
         return indexes[bands == quantile_index]
     oriented = signal[indexes] if direction == "high" else -signal[indexes]
-    count = max(1, int(math.ceil(len(indexes) * top_fraction)))
-    if top_n is not None:
-        count = min(count, top_n)
+    count = (
+        min(len(indexes), top_n)
+        if top_n is not None
+        else max(1, int(math.ceil(len(indexes) * top_fraction)))
+    )
     order = np.argsort(-oriented, kind="stable")[:count]
     return indexes[order]
 

@@ -160,7 +160,10 @@ class BatchEvaluator:
         if function is None:
             raise ExpressionError("UNKNOWN_OPERATOR", f"operator has no implementation: {node.operator}", expression)
         spec = self.operators.resolve(node.operator)
-        if spec.category == "cross_section" and universe_mask is not None:
+        if (
+            spec.category in {"cross_section", "group_cross_section"}
+            and universe_mask is not None
+        ):
             arguments = [
                 argument.where(universe_mask)
                 if isinstance(argument, pd.DataFrame)
@@ -196,10 +199,16 @@ def _validate_context(context: EvaluationContext, catalog: FieldCatalog) -> pd.D
             raise ValueError(f"field {name} must be a DataFrame")
         if not panel.index.equals(template.index) or not panel.columns.equals(template.columns):
             raise ValueError("all field panels must be exactly aligned")
+        spec = catalog.resolve(name)
         try:
             values = panel.to_numpy(dtype=float, na_value=np.nan)
         except (TypeError, ValueError) as error:
-            raise ValueError(f"field {name} must be numeric") from error
+            label = (
+                "numeric category codes"
+                if spec.value_type is ValueType.PANEL_CATEGORY
+                else "numeric"
+            )
+            raise ValueError(f"field {name} must contain {label}") from error
         if np.isinf(values).any():
             raise ValueError(f"field {name} contains infinity")
     if not context.universe_size.index.equals(template.index):

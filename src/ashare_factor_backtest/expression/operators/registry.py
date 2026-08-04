@@ -10,7 +10,14 @@ from typing import Callable, Mapping
 
 from ashare_factor_backtest.expression.catalog import OperatorCatalog
 from ashare_factor_backtest.expression.model import OperatorSpec, TypeConstraint, ValueType
-from ashare_factor_backtest.expression.operators import arithmetic, conditional, cross_section, pairwise, time_series
+from ashare_factor_backtest.expression.operators import (
+    arithmetic,
+    conditional,
+    cross_section,
+    group_cross_section,
+    pairwise,
+    time_series,
+)
 
 
 WINDOWS = (1, 2, 3, 5, 10, 20, 40, 60, 120, 252)
@@ -56,12 +63,53 @@ def build_production_path_operator_catalog() -> tuple[
     )
 
 
+def build_production_event_operator_catalog() -> tuple[
+    OperatorCatalog, Mapping[str, Callable[..., object]]
+]:
+    return _build_operator_catalog(
+        "astock_formula_ops_v8_production_event",
+        include_stateful=False,
+        include_path=False,
+        include_event=True,
+        rank_function=cross_section.cs_rank_stable,
+    )
+
+
+def build_experimental_operator_catalog() -> tuple[
+    OperatorCatalog, Mapping[str, Callable[..., object]]
+]:
+    return _build_operator_catalog(
+        "astock_formula_ops_v9_experimental_robust_path",
+        include_stateful=False,
+        include_path=True,
+        include_event=True,
+        include_experimental=True,
+        rank_function=cross_section.cs_rank_stable,
+    )
+
+
+def build_experimental_group_operator_catalog() -> tuple[
+    OperatorCatalog, Mapping[str, Callable[..., object]]
+]:
+    return _build_operator_catalog(
+        "astock_formula_ops_v10_experimental_group",
+        include_stateful=False,
+        include_path=False,
+        include_event=True,
+        include_group=True,
+        rank_function=cross_section.cs_rank_stable,
+    )
+
+
 def resolve_production_operator_catalog(
     version: str,
 ) -> Callable[[], tuple[OperatorCatalog, Mapping[str, Callable[..., object]]]]:
     builders = {
         "astock_formula_ops_v6_production": build_production_operator_catalog,
         "astock_formula_ops_v7_production_path": build_production_path_operator_catalog,
+        "astock_formula_ops_v8_production_event": (
+            build_production_event_operator_catalog
+        ),
     }
     try:
         return builders[version]
@@ -74,6 +122,9 @@ def _build_operator_catalog(
     *,
     include_stateful: bool,
     include_path: bool,
+    include_event: bool = False,
+    include_experimental: bool = False,
+    include_group: bool = False,
     rank_function: Callable[..., object] = cross_section.cs_rank,
 ) -> tuple[OperatorCatalog, Mapping[str, Callable[..., object]]]:
     catalog = OperatorCatalog(version)
@@ -87,6 +138,7 @@ def _build_operator_catalog(
     integer = ValueType.SCALAR_INT
     scalar = ValueType.SCALAR_FLOAT
     boolean = ValueType.PANEL_BOOL
+    category = ValueType.PANEL_CATEGORY
     number = (panel, integer, scalar)
     for name, aliases, function, commutative in (
         ("add", (), arithmetic.add, True), ("sub", (), arithmetic.sub, False),
@@ -140,6 +192,22 @@ def _build_operator_catalog(
         ),
         cross_section.cs_residual,
     )
+    if include_group:
+        for name, function in (
+            ("group_demean", group_cross_section.group_demean),
+            ("group_rank", group_cross_section.group_rank),
+            ("group_zscore", group_cross_section.group_zscore),
+        ):
+            add(
+                _spec(
+                    name,
+                    (),
+                    "group_cross_section",
+                    (panel, category),
+                    panel,
+                ),
+                function,
+            )
 
     unary_windows = (
         ("ts_delay", ("delay", "ref"), time_series.ts_delay, "delay"),
@@ -171,6 +239,24 @@ def _build_operator_catalog(
             ),
             function,
         )
+    if include_event:
+        for name, function in (
+            ("ts_last_change", time_series.ts_last_change),
+            ("ts_last_pct_change", time_series.ts_last_pct_change),
+            ("ts_days_since_change", time_series.ts_days_since_change),
+        ):
+            add(
+                _spec(
+                    name,
+                    (),
+                    "event_state",
+                    (panel, integer),
+                    panel,
+                    domain=((1, WINDOWS[1:]),),
+                    rule="rolling",
+                ),
+                function,
+            )
     if include_path:
         for name, function in (
             ("ts_path_efficiency", time_series.ts_path_efficiency),
@@ -189,6 +275,63 @@ def _build_operator_catalog(
                 ),
                 function,
             )
+
+    if include_experimental:
+        from ashare_factor_backtest.expression.operators import (
+            experimental_time_series,
+        )
+
+        for name, function, category in (
+            (
+                "ts_median",
+                experimental_time_series.ts_median,
+                "robust_distribution",
+            ),
+            (
+                "ts_mean_abs_dev",
+                experimental_time_series.ts_mean_abs_dev,
+                "robust_distribution",
+            ),
+            (
+                "ts_gaussianize",
+                experimental_time_series.ts_gaussianize,
+                "distribution_transform",
+            ),
+            (
+                "ts_longest_signed_run",
+                experimental_time_series.ts_longest_signed_run,
+                "path",
+            ),
+            (
+                "ts_change_rate",
+                experimental_time_series.ts_change_rate,
+                "path",
+            ),
+        ):
+            add(
+                _spec(
+                    name,
+                    (),
+                    category,
+                    (panel, integer),
+                    panel,
+                    domain=((1, WINDOWS[1:]),),
+                    rule="rolling",
+                ),
+                function,
+            )
+        add(
+            _spec(
+                "ts_regression_residual",
+                (),
+                "pairwise",
+                (panel, panel, integer),
+                panel,
+                domain=((2, WINDOWS[1:]),),
+                rule="rolling",
+            ),
+            experimental_time_series.ts_regression_residual,
+        )
 
     for name, aliases, function in (
         ("ts_corr", ("correlation",), pairwise.ts_corr),
@@ -299,6 +442,8 @@ def _example(
             panels_seen += 1
         elif value_type is ValueType.PANEL_BOOL:
             arguments.append("gt(close,open)")
+        elif value_type is ValueType.PANEL_CATEGORY:
+            arguments.append("industry_group")
         elif value_type is ValueType.SCALAR_INT:
             arguments.append("20")
         else:
