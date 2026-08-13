@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.8 - 2026-08-13
+
+- Extend the return-blind `audit-factor` artifact with daily measurement-book
+  preconditions: scored breadth, zero-exposure dates, and net/gross invariants.
+- Keep the extension free of target, return, IC, Sharpe and PnL evidence so an external
+  Agent can complete Stage 1R Phase A before unsealing returns.
+
 ## 0.2.7 - 2026-08-13
 
 - Correct immutable daily measurement so zero-exposure trading days contribute zero

@@ -30,6 +30,11 @@ def test_factor_validity_uses_pit_universe_and_is_return_blind(tmp_path: Path) -
     assert result["coverage"]["factor_coverage"] == 1.0
     assert result["checks"]["causality"]["passed"] is True
     assert result["checks"]["target_separation"]["passed"] is True
+    book = result["measurement_book_preconditions"]
+    assert book["calendar_days"] > 0
+    assert book["median_scored_count"] > 0
+    assert book["maximum_absolute_net_exposure"] < 1e-12
+    assert book["maximum_active_gross_deviation"] < 1e-12
     assert Path(result["artifact_path"]).is_file()
     assert warnings
 

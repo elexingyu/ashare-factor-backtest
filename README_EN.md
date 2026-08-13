@@ -73,8 +73,9 @@ The bundled dataset is entirely synthetic. It covers a listing boundary, an ST i
   rows changes past factor values.
 - **Return-blind factor validity audit:** `audit-factor` reports expression identity,
   coverage inside the PIT universe, field clocks, target-column separation and prefix
-  invariance without reading returns, targets, IC or portfolio results. An external
-  Agent remains responsible for its own Stage 0 thresholds.
+  invariance without reading returns, targets, IC or portfolio results. It also reports
+  daily breadth, zero-exposure frequency and net/gross invariants for a data-first
+  robustness phase. An external Agent remains responsible for all research thresholds.
 - **Immutable daily-factor measurement:** `measure-factor` uses a predeclared direction
   to produce a continuous-rank, zero-net, unit-gross daily factor series with IC,
   turnover, fixed Top20%, quintiles, horizon curves, yearly and rolling monitoring.

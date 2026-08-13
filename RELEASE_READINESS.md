@@ -1,6 +1,14 @@
 # Release Readiness
 
-## Version 0.2.7 Status
+## Version 0.2.8 Status
+
+- Add return-blind daily book preconditions to `audit-factor` for data-first robustness
+  workflows without importing Agent or admission policy.
+- Verify that the audit reports breadth, zero-exposure frequency, zero net exposure and
+  unit active gross exposure while `return_data_read` remains false.
+- Verify package tests, Ruff, source sync, source/wheel builds and clean-wheel smoke.
+
+## Version 0.2.7 Historical Status
 
 - Correct the zero-exposure calendar-day return rule without imputing missing returns
   for nonzero held books.

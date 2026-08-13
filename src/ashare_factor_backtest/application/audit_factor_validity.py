@@ -26,6 +26,9 @@ from ashare_factor_backtest.evaluation.production_context import (
     build_production_evaluation_context_from_batches,
     price_carry_state_before,
 )
+from ashare_factor_backtest.evaluation.daily_factor_measurement import (
+    continuous_rank_weights,
+)
 
 
 _FORBIDDEN_COLUMNS = frozenset(
@@ -70,6 +73,7 @@ class FactorValidityAuditService:
         unit_lineage: str | None = None
         field_semantics: dict[str, dict[str, object]] = {}
         initial_price_values = None
+        daily_book_rows: list[dict[str, object]] = []
 
         evaluation_start = perf_counter()
         for position, chunk in enumerate(prepared.chunks):
@@ -162,6 +166,25 @@ class FactorValidityAuditService:
                 yearly_fields[name] = _ratio(count, denominator)
                 all_inputs &= finite
             all_inputs_count = int(all_inputs.sum())
+            value_array = values.to_numpy(dtype=float, na_value=np.nan)
+            for date_position, trade_date in enumerate(in_period.index):
+                valid = universe[date_position] & factor_finite[date_position]
+                weights = continuous_rank_weights(
+                    np.where(valid, value_array[date_position], np.nan)
+                )
+                gross = float(np.abs(weights).sum())
+                daily_book_rows.append(
+                    {
+                        "trade_date": pd.Timestamp(trade_date),
+                        "eligible_count": int(universe[date_position].sum()),
+                        "scored_count": int(valid.sum()),
+                        "coverage": _ratio(
+                            int(valid.sum()), int(universe[date_position].sum())
+                        ),
+                        "gross_exposure": gross,
+                        "net_exposure": float(weights.sum()),
+                    }
+                )
             totals["universe"] += denominator
             totals["all_inputs_finite"] += all_inputs_count
             totals["factor_finite"] += factor_finite_count
@@ -205,6 +228,7 @@ class FactorValidityAuditService:
             _available_by_signal_close(value["available_at"])
             for value in field_semantics.values()
         )
+        book_preconditions = _book_preconditions(daily_book_rows)
         report = {
             "schema_version": "ashare-factor-validity-audit.v1",
             "status": (
@@ -279,6 +303,7 @@ class FactorValidityAuditService:
                 },
                 "by_year": yearly,
             },
+            "measurement_book_preconditions": book_preconditions,
             "timings_seconds": {
                 "validity_evaluation": evaluation_seconds,
                 "causality": causality["timings_seconds"]["total"],
@@ -306,6 +331,9 @@ class FactorValidityAuditService:
                 "field_semantics": report["field_semantics"],
                 "checks": identity_checks,
                 "coverage": report["coverage"],
+                "measurement_book_preconditions": report[
+                    "measurement_book_preconditions"
+                ],
             }
         )
         target = Path(work_root).resolve() / "factor_validity" / f"{identity}.json"
@@ -333,6 +361,49 @@ def _available_by_signal_close(value: object) -> bool:
 
 def _ratio(numerator: int, denominator: int) -> float:
     return float(numerator / denominator) if denominator else 0.0
+
+
+def _book_preconditions(rows: list[dict[str, object]]) -> dict[str, object]:
+    frame = pd.DataFrame(rows)
+    if frame.empty:
+        return {
+            "calendar_days": 0,
+            "median_scored_count": None,
+            "p10_scored_count": None,
+            "zero_exposure_days": 0,
+            "zero_exposure_ratio": None,
+            "maximum_absolute_net_exposure": None,
+            "maximum_active_gross_deviation": None,
+            "by_year": [],
+        }
+
+    def summarize(piece: pd.DataFrame) -> dict[str, object]:
+        gross = piece["gross_exposure"].to_numpy(dtype=float)
+        active = gross > 0.0
+        return {
+            "calendar_days": int(len(piece)),
+            "coverage_mean": float(piece["coverage"].mean()),
+            "coverage_minimum": float(piece["coverage"].min()),
+            "median_scored_count": float(piece["scored_count"].median()),
+            "p10_scored_count": float(piece["scored_count"].quantile(0.10)),
+            "zero_exposure_days": int((~active).sum()),
+            "zero_exposure_ratio": float((~active).mean()),
+            "maximum_absolute_net_exposure": float(
+                piece["net_exposure"].abs().max()
+            ),
+            "maximum_active_gross_deviation": (
+                float(np.max(np.abs(gross[active] - 1.0)))
+                if active.any()
+                else None
+            ),
+        }
+
+    overall = summarize(frame)
+    overall["by_year"] = [
+        {"year": int(year), **summarize(piece)}
+        for year, piece in frame.groupby(frame["trade_date"].dt.year, sort=True)
+    ]
+    return overall
 
 
 def _identity(payload: Mapping[str, object]) -> str:
