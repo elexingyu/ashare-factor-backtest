@@ -13,7 +13,7 @@ from ashare_factor_backtest.evaluation.production_execution_context import (
 )
 
 
-MEASUREMENT_ENGINE_VERSION = "ashare-daily-factor-measurement.v1"
+MEASUREMENT_ENGINE_VERSION = "ashare-daily-factor-measurement.v2"
 TRADING_DAYS_PER_YEAR = 242
 TOP_FRACTION = 0.20
 HAC_LAG = 20
@@ -72,6 +72,7 @@ def measure_daily_factor(
         base_valid = eligible[signal_position] & np.isfinite(scores)
         directed_scores = np.where(base_valid, sign * scores, np.nan)
         weights = continuous_rank_weights(directed_scores)
+        gross_exposure = float(np.abs(weights).sum())
         weight_digest.update(np.asarray(weights, dtype="<f8").tobytes())
         period_returns = _asset_return(opens[entry_position], opens[exit_position])
         intraday_returns = _asset_return(opens[entry_position], closes[entry_position])
@@ -108,6 +109,7 @@ def measure_daily_factor(
             "eligible_count": int(eligible[signal_position].sum()),
             "scored_count": int(base_valid.sum()),
             "coverage": _ratio(int(base_valid.sum()), int(eligible[signal_position].sum())),
+            "gross_exposure": gross_exposure,
             "rank_ic": rank_ic,
             "rank_ic_count": rank_count,
             "factor_return": factor_return,
@@ -202,6 +204,7 @@ def _summarize_measurement(
     weight_hash: str,
 ) -> dict[str, Any]:
     returns = trace["factor_return"].to_numpy(dtype=float)
+    active = trace["gross_exposure"].to_numpy(dtype=float) > 0.0
     rank_ic = trace["rank_ic"].to_numpy(dtype=float)
     turnover = trace["target_weight_turnover"].to_numpy(dtype=float)
     membership_turnover = trace["top20_membership_turnover"].to_numpy(dtype=float)
@@ -237,6 +240,7 @@ def _summarize_measurement(
         "direction": direction,
         "trading_days_per_year": TRADING_DAYS_PER_YEAR,
         "factor_return": summarize_daily_returns(returns),
+        "active_day_factor_return": summarize_daily_returns(returns[active]),
         "rank_ic": _series_summary(finite_ic),
         "target_weight_turnover": _distribution_summary(turnover),
         "top20_membership_turnover": _distribution_summary(membership_turnover),
@@ -269,7 +273,8 @@ def _summarize_measurement(
             "mean": float(trace["coverage"].mean()),
             "minimum": float(trace["coverage"].min()),
             "calendar_days": int(len(trace)),
-            "active_return_days": int(np.isfinite(returns).sum()),
+            "finite_calendar_return_days": int(np.isfinite(returns).sum()),
+            "active_book_days": int(active.sum()),
         },
         "extreme_abs_return_top10_share": extreme_share,
         "weight_sha256": weight_hash,
@@ -423,7 +428,9 @@ def _asset_return(entry: np.ndarray, exit_price: np.ndarray) -> np.ndarray:
 
 def _weighted_return(weights: np.ndarray, returns: np.ndarray) -> float:
     held = np.abs(weights) > 0.0
-    if int(held.sum()) < 2 or not np.isfinite(returns[held]).all():
+    if not held.any():
+        return 0.0
+    if not np.isfinite(returns[held]).all():
         return np.nan
     return float(np.dot(weights[held], returns[held]))
 

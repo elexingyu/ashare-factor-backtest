@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.7 - 2026-08-13
+
+- Correct immutable daily measurement so zero-exposure trading days contribute zero
+  return to the calendar-day series instead of being dropped.
+- Keep nonzero books with missing held-security returns explicitly missing; add
+  `gross_exposure`, active-book counts and active-day return diagnostics so callers can
+  distinguish no position from unavailable valuation evidence.
+- Add job `evidence_mode` and `symbol_cap` to immutable measurement metadata. The
+  corrected full demo replay did not change its previously reported return statistics.
+
 ## 0.2.6 - 2026-08-13
 
 - Add `measure-factor`, an immutable daily factor measurement for external Agents.

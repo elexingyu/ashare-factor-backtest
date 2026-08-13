@@ -1,6 +1,16 @@
 # Release Readiness
 
-## Version 0.2.6 Status
+## Version 0.2.7 Status
+
+- Correct the zero-exposure calendar-day return rule without imputing missing returns
+  for nonzero held books.
+- Version the measurement engine as v2, retain v1 artifacts, and replay the complete
+  demo configuration; the demo statistics remain unchanged because its two missing
+  dates were held-price gaps rather than zero books.
+- Verify source sync, package tests, Ruff, source/wheel builds and a clean-wheel
+  `measure-factor` smoke before release.
+
+## Version 0.2.6 Historical Status
 
 - Add `measure-factor` with an explicit direction and immutable daily measurement
   contract, separate from executable-account and admission logic.

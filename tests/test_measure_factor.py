@@ -3,8 +3,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import numpy as np
+
 from ashare_factor_backtest.application.measure_factor import FactorMeasurementService
 from ashare_factor_backtest.cli.public_main import main
+from ashare_factor_backtest.evaluation.daily_factor_measurement import _weighted_return
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -70,3 +73,14 @@ def test_public_cli_exposes_daily_measurement(tmp_path: Path, capsys) -> None:
     assert payload["status"] == "ok"
     assert payload["data"]["promotion_authority"] is False
     assert payload["data"]["summary"]["factor_return"]["observations"] > 0
+
+
+def test_zero_book_and_missing_held_return_are_distinct() -> None:
+    assert _weighted_return(
+        np.asarray([0.0, 0.0]), np.asarray([np.nan, np.nan])
+    ) == 0.0
+    assert np.isnan(
+        _weighted_return(
+            np.asarray([0.5, -0.5]), np.asarray([0.01, np.nan])
+        )
+    )

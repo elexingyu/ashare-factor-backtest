@@ -80,6 +80,9 @@ The bundled dataset is entirely synthetic. It covers a listing boundary, an ST i
   turnover, fixed Top20%, quintiles, horizon curves, yearly and rolling monitoring.
   It applies no cost, account, or admission gate, so an Agent can profile and later
   judge the exact same artifact.
+- **Explicit calendar-day semantics:** zero-exposure trading days contribute zero to the
+  primary series, while missing returns for nonzero held books remain missing and are
+  disclosed through active-book and finite-return-day counts.
 - **A-share point-in-time semantics:** factor observation, historical universe membership and next-open execution are kept distinct.
 - **Temporal category plugin:** external entity/category/effective-date/expiry-date
   tables can be materialized as PIT fields. Missing, overlapping or multiply assigned

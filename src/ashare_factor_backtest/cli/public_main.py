@@ -32,7 +32,7 @@ from ashare_factor_backtest.protocol.errors import (
 
 
 PUBLIC_PROTOCOL_VERSION = "ashare-backtest.protocol.v1"
-PUBLIC_ENGINE_VERSION = "0.2.6"
+PUBLIC_ENGINE_VERSION = "0.2.7"
 PUBLIC_COMMANDS = (
     "capabilities",
     "schema",

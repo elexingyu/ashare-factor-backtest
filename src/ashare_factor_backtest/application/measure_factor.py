@@ -123,6 +123,12 @@ class FactorMeasurementService:
                 "universe_view": prepared.job.view,
                 "evaluation_start": prepared.job.evaluation.start.isoformat(),
                 "evaluation_end": prepared.job.evaluation.end.isoformat(),
+                "evidence_mode": (
+                    prepared.job.research.evidence_mode
+                    if prepared.job.research is not None
+                    else "unspecified"
+                ),
+                "symbol_cap": prepared.job.evaluation.symbol_cap,
             },
             "summary": summary,
             "artifacts": {
