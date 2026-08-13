@@ -38,6 +38,16 @@ uv run ashare-backtest evaluate \
   --through rolling \
   --work-root /tmp/ashare-factor-demo \
   --json
+
+cat > /tmp/ashare-expressions.json <<'JSON'
+{"schema":"ashare-factor-expression-batch.v1","expressions":["ts_pct_change(close,5)","cs_rank(ts_pct_change(close,5))"]}
+JSON
+uv run ashare-backtest evaluate-batch \
+  --job examples/demo_daily/job.yaml \
+  --expressions-file /tmp/ashare-expressions.json \
+  --through rolling \
+  --work-root /tmp/ashare-factor-batch \
+  --json
 ```
 
 Each CLI invocation writes exactly one JSON line to standard output, making it suitable for Codex, Claude Code, CI pipelines and other programs. Diagnostics go to standard error and do not corrupt the machine protocol.
@@ -63,6 +73,13 @@ The bundled dataset is entirely synthetic. It covers a listing boundary, an ST i
 - **Adjustment-scale warnings:** back-adjusted prices are suitable for returns, ratios and time-series normalization; the compiler warns when raw price levels, averages or spreads can contaminate cross-sectional selection.
 - **Trading constraints:** listing status, ST, suspension, open price limits, per-security partial fills, net rebalancing, two-sided costs and long-only portfolios.
 - **Rolling evaluation:** train/test evidence, Rank IC, strategy and benchmark metrics, excess metrics and coverage diagnostics.
+- **Shared-context batch evaluation:** `evaluate-batch` lets a small frozen expression
+  batch share market-data and execution-context reads while preserving independent
+  screen, rolling, rejection and artifact evidence for every expression. It is not a
+  candidate selector or multi-factor combiner.
+- **Daily-factor mode:** `daily_factor` evaluates daily portfolio rebalancing and
+  turnover in one account while treating additional horizons only as alpha-decay
+  diagnostics, rather than binding a factor to a fixed holding period.
 - **Reproducible artifacts:** expression, data identity, job contract and evaluation semantics jointly identify reusable results.
 - **AI-first interface:** `capabilities`, `schema`, `doctor`, `compile`, `inspect-job`,
   `audit-causality` and `evaluate` expose a versioned JSON protocol.

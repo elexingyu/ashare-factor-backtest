@@ -5,6 +5,9 @@ from pathlib import Path
 import pandas as pd
 
 from ashare_factor_backtest.application.evaluate_factor import FactorEvaluationService
+from ashare_factor_backtest.application.evaluate_factor_batch import (
+    FactorBatchEvaluationService,
+)
 from ashare_factor_backtest.evaluation.production_frame_loader import (
     BatchedProductionFrameLoader,
 )
@@ -60,3 +63,42 @@ def test_public_evaluation_reads_each_chunk_once(tmp_path, monkeypatch) -> None:
     )
 
     assert len(requests) == 1
+
+
+def test_public_batch_shares_chunk_load_and_matches_single_metrics(
+    tmp_path, monkeypatch
+) -> None:
+    requests: list[tuple[pd.Timestamp, pd.Timestamp]] = []
+    original = BatchedProductionFrameLoader.iter_frames
+
+    def counted(self, load_start, load_end):
+        requests.append((pd.Timestamp(load_start), pd.Timestamp(load_end)))
+        yield from original(self, load_start, load_end)
+
+    monkeypatch.setattr(BatchedProductionFrameLoader, "iter_frames", counted)
+    expressions = (
+        "ts_pct_change(close,5)",
+        "cs_rank(ts_pct_change(close,5))",
+    )
+    batch, _ = FactorBatchEvaluationService().evaluate(
+        ROOT / "examples" / "demo_daily" / "job.yaml",
+        expressions,
+        through="screen",
+        work_root=tmp_path / "batch",
+    )
+
+    assert len(requests) == 1
+    rows = batch["candidates"]
+    assert isinstance(rows, list)
+    monkeypatch.setattr(BatchedProductionFrameLoader, "iter_frames", original)
+    singles = [
+        FactorEvaluationService().screen(
+            ROOT / "examples" / "demo_daily" / "job.yaml",
+            expression,
+            work_root=tmp_path / f"single-{position}",
+        )[0]
+        for position, expression in enumerate(expressions)
+    ]
+    assert [row["screen"] for row in rows] == [
+        result["screen"] for result in singles
+    ]

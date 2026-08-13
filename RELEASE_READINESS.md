@@ -1,5 +1,16 @@
 # Release Readiness
 
+## Version 0.2.4 Status
+
+- Publish `evaluate-batch` as a versioned JSON command while preserving the
+  single-expression economic contract and per-candidate artifacts.
+- Verify that a two-expression batch reads the synthetic production chunk once and
+  reproduces both single-expression screen results exactly.
+- Verify that `daily_factor` uses one daily account sleeve and treats 5/10/20/60-day
+  horizons as decay diagnostics rather than fixed holding periods.
+- Verify package tests, Ruff, source/wheel builds, clean-wheel CLI commands, and the
+  external Agent subprocess adapter before pushing the standalone repository.
+
 ## Version 0.2.2 Status
 
 - Reconcile the v0.2.1 prefix-invariance audit with the current canonical dynamic

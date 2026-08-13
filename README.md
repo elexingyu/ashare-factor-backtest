@@ -38,6 +38,16 @@ uv run ashare-backtest evaluate \
   --through rolling \
   --work-root /tmp/ashare-factor-demo \
   --json
+
+cat > /tmp/ashare-expressions.json <<'JSON'
+{"schema":"ashare-factor-expression-batch.v1","expressions":["ts_pct_change(close,5)","cs_rank(ts_pct_change(close,5))"]}
+JSON
+uv run ashare-backtest evaluate-batch \
+  --job examples/demo_daily/job.yaml \
+  --expressions-file /tmp/ashare-expressions.json \
+  --through rolling \
+  --work-root /tmp/ashare-factor-batch \
+  --json
 ```
 
 CLI 每次只向标准输出写一行 JSON，适合由 Codex、Claude Code、流水线或其他程序直接调用。诊断日志写到标准错误，不会污染机器协议。
@@ -59,6 +69,10 @@ CLI 每次只向标准输出写一行 JSON，适合由 Codex、Claude Code、流
 - **复权尺度警告：** 后复权价格适合收益、比率和时间序列标准化；直接价格、均价或价差用于横截面选股时，编译器会报告机器可读警告。
 - **交易约束：** 支持上市状态、ST、停牌、开盘涨跌停、逐股票部分成交、净额换仓、费用和只做多组合。
 - **滚动检验：** 输出训练段和测试段证据、Rank IC、策略与基准指标、超额指标及覆盖率。
+- **共享上下文批量评价：** `evaluate-batch` 让一小批冻结表达式共享行情和成交上下文读取，
+  但每条表达式仍独立生成筛选、滚动、拒绝原因和产物；它不是候选筛选器或多因子组合器。
+- **每日因子模式：** `daily_factor` 以每日更新的单账户评价收益和换手，同时把多期限参数仅用于
+  Alpha decay 诊断，避免把单因子人为绑定到固定持有期。
 - **可复现产物：** 表达式、数据身份、任务配置和评价语义共同决定产物身份，便于缓存、审计和复跑。
 - **AI 友好接口：** `capabilities`、`schema`、`doctor`、`compile`、`inspect-job`、
   `audit-causality` 和 `evaluate` 均提供版本化 JSON 协议。

@@ -295,7 +295,29 @@ def _parse_research(
         raise ValueError(
             "production screen discovery must end before validation starts"
         )
-    horizons = _positive_int_tuple(screen_raw, "horizons")
+    mode_raw = screen_raw.get("mode", "staggered_horizon")
+    if not isinstance(mode_raw, str):
+        raise ValueError("production screen mode must be text")
+    mode = mode_raw.strip()
+    if mode == "daily_factor":
+        if "horizons" in screen_raw:
+            raise ValueError(
+                "daily_factor screen must use decay_horizons, not holding horizons"
+            )
+        horizons = (1,)
+    else:
+        horizons = _positive_int_tuple(screen_raw, "horizons")
+    fixed_direction_raw = screen_raw.get("fixed_direction")
+    fixed_direction = (
+        None
+        if fixed_direction_raw is None
+        else str(fixed_direction_raw).strip()
+    )
+    decay_horizons = (
+        _positive_int_tuple(screen_raw, "decay_horizons")
+        if "decay_horizons" in screen_raw
+        else ()
+    )
     minimum_coverage = _unit_interval(
         screen_raw, "minimum_coverage", include_zero=False
     )
@@ -314,6 +336,9 @@ def _parse_research(
         discovery=discovery,
         validation=validation,
         horizons=horizons,
+        mode=mode,
+        fixed_direction=fixed_direction,
+        decay_horizons=decay_horizons,
         minimum_coverage=minimum_coverage,
         minimum_periods=minimum_periods,
         top_fraction=top_fraction,
@@ -456,8 +481,11 @@ def production_research_contract(
             ],
         },
         "screen": {
+            "decay_horizons": list(screen.decay_horizons),
             "discovery": list(screen.discovery),
+            "fixed_direction": screen.fixed_direction,
             "horizons": list(screen.horizons),
+            "mode": screen.mode,
             "minimum_coverage": screen.minimum_coverage,
             "minimum_periods": screen.minimum_periods,
             "real_buy_cost": screen.real_buy_cost,

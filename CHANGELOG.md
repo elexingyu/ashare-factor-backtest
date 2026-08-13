@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.4 - 2026-08-13
+
+- Add the versioned `evaluate-batch` command for Agent-owned expression batches.
+  Candidates share one data and execution-context pass while retaining independent
+  screen, rolling, rejection and artifact evidence.
+- Add the `daily_factor` research mode so daily portfolio rebalancing is not
+  conflated with diagnostic factor-decay horizons.
+- Expose job-bound field catalogs, including validated PIT plugin fields, during
+  compilation without loading return data.
+- Keep factor generation, candidate selection, Alpha Library management and
+  multi-factor portfolio construction outside this package.
+
 ## 0.2.2 - 2026-08-04
 
 - Reconcile the optional prefix-invariance audit with the newer dynamic-universe,

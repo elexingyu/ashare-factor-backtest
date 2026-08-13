@@ -40,6 +40,9 @@ class ProductionScreenPolicy:
     discovery: tuple[str, str]
     validation: tuple[str, str]
     horizons: tuple[int, ...] = (5, 20, 60)
+    mode: str = "staggered_horizon"
+    fixed_direction: str | None = None
+    decay_horizons: tuple[int, ...] = ()
     minimum_coverage: float = 0.70
     minimum_periods: int = 504
     top_fraction: float = 0.20
@@ -51,6 +54,17 @@ class ProductionScreenPolicy:
     def __post_init__(self) -> None:
         if not self.horizons or any(value <= 0 for value in self.horizons):
             raise ValueError("production screen horizons must be positive")
+        if self.mode not in {"staggered_horizon", "daily_factor"}:
+            raise ValueError("production screen mode is unsupported")
+        if self.fixed_direction not in {None, "high", "low"}:
+            raise ValueError("production screen fixed_direction must be high or low")
+        if any(value <= 0 for value in self.decay_horizons):
+            raise ValueError("production screen decay_horizons must be positive")
+        if self.mode == "daily_factor":
+            if self.horizons != (1,):
+                raise ValueError("daily_factor mode requires one daily account sleeve")
+            if self.fixed_direction is None:
+                raise ValueError("daily_factor mode requires a frozen direction")
         if not 0 < self.minimum_coverage <= 1 or self.minimum_periods <= 0:
             raise ValueError("production screen coverage and periods must be positive")
         if self.discovery[0] > self.discovery[1] or self.validation[0] > self.validation[1]:
@@ -117,6 +131,14 @@ def screen_production_values(
     | None = None,
 ) -> dict[str, Any]:
     """Apply the frozen production selection contract to an existing factor panel."""
+
+    if policy.mode == "daily_factor":
+        return evaluate_production_daily_factor_values(
+            values,
+            execution_context,
+            policy=policy,
+            benchmark_cache=benchmark_cache,
+        )
 
     if _discovery_average_coverage(values, execution_context, policy) < policy.minimum_coverage:
         raise ValueError("no discovery variant satisfies coverage and period gates")
@@ -258,6 +280,54 @@ def screen_production_values(
             "yearly_stress": _yearly_summary(validation_stress),
         },
     }
+
+
+def evaluate_production_daily_factor_values(
+    values: pd.DataFrame,
+    execution_context: ProductionExecutionContext,
+    *,
+    policy: ProductionScreenPolicy,
+    benchmark_cache: dict[tuple[Any, ...], ProductionPortfolioResult] | None = None,
+) -> dict[str, Any]:
+    """Evaluate a daily target portfolio; horizons are decay diagnostics only."""
+    if policy.mode != "daily_factor" or policy.fixed_direction is None:
+        raise ValueError("daily factor evaluation requires its frozen policy mode")
+    report = evaluate_production_fixed_values(
+        values,
+        execution_context,
+        policy=policy,
+        direction=policy.fixed_direction,
+        horizon=1,
+        benchmark_cache=benchmark_cache,
+    )
+    diagnostic_horizons = policy.decay_horizons or (1, 5, 20, 60)
+    report["evaluation_mode"] = "daily_factor"
+    report["portfolio_construction"] = {
+        "signal_refresh": "daily",
+        "target_refresh": "daily",
+        "account_sleeves": 1,
+        "fixed_holding_period_days": None,
+        "turnover_semantics": "net_target_change",
+    }
+    report["selected_horizon"] = None
+    report["decay_horizons"] = list(diagnostic_horizons)
+    for segment, window in (
+        ("discovery", policy.discovery),
+        ("validation", policy.validation),
+    ):
+        report[segment]["horizon"] = None
+        report[segment].pop("rank_ic", None)
+        report[segment]["rank_ic_decay"] = {
+            str(horizon): evaluate_production_rank_ic(
+                values,
+                execution_context,
+                horizon=horizon,
+                signal_start=window[0],
+                signal_end=window[1],
+            )
+            for horizon in diagnostic_horizons
+        }
+    return report
 
 
 def screen_production_stress_values(

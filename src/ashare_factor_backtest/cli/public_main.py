@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 from contextlib import redirect_stdout
+import json
 from pathlib import Path
 import sys
 import uuid
@@ -12,6 +13,9 @@ from typing import Sequence
 from ashare_factor_backtest.application.audit_causality import CausalityAuditService
 from ashare_factor_backtest.application.compile_expression import CompileExpressionService
 from ashare_factor_backtest.application.evaluate_factor import FactorEvaluationService
+from ashare_factor_backtest.application.evaluate_factor_batch import (
+    FactorBatchEvaluationService,
+)
 from ashare_factor_backtest.application.production_job import ProductionJobService
 from ashare_factor_backtest.expression.errors import ExpressionError
 from ashare_factor_backtest.protocol.envelope import MachineEnvelope
@@ -24,7 +28,7 @@ from ashare_factor_backtest.protocol.errors import (
 
 
 PUBLIC_PROTOCOL_VERSION = "ashare-backtest.protocol.v1"
-PUBLIC_ENGINE_VERSION = "0.2.2"
+PUBLIC_ENGINE_VERSION = "0.2.4"
 PUBLIC_COMMANDS = (
     "capabilities",
     "schema",
@@ -33,6 +37,7 @@ PUBLIC_COMMANDS = (
     "inspect-job",
     "audit-causality",
     "evaluate",
+    "evaluate-batch",
 )
 
 
@@ -61,7 +66,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                         "live_trading",
                     ],
                     "machine_protocol": PUBLIC_PROTOCOL_VERSION,
-                    "scope": "single_factor_evaluation",
+                    "scope": "factor_evaluation",
                 },
                 next_actions=("schema", "doctor"),
             )
@@ -70,7 +75,11 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "schema",
                 "ok",
                 run_id,
-                service.schema(),
+                (
+                    service.schema()
+                    if args.job is None
+                    else service.schema_for_job(Path(args.job))
+                ),
                 next_actions=("compile",),
             )
         elif args.command == "doctor":
@@ -87,7 +96,11 @@ def main(argv: Sequence[str] | None = None) -> int:
                 next_actions=("compile",),
             )
         elif args.command == "compile":
-            result = service.execute(args.expression)
+            result = (
+                service.execute(args.expression)
+                if args.job is None
+                else service.execute_for_job(args.expression, Path(args.job))
+            )
             warnings = tuple(result.pop("warnings"))
             envelope = _envelope(
                 "compile",
@@ -134,7 +147,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             if not passed:
                 exit_code = EXIT_INTERNAL_ERROR
-        else:
+        elif args.command == "evaluate":
             with redirect_stdout(sys.stderr):
                 result, warnings = FactorEvaluationService().evaluate(
                     Path(args.job),
@@ -149,6 +162,23 @@ def main(argv: Sequence[str] | None = None) -> int:
                 _compact_evaluation_receipt(result),
                 warnings=warnings,
                 next_actions=("inspect_artifact",),
+            )
+        else:
+            expressions = _load_expression_batch(Path(args.expressions_file))
+            with redirect_stdout(sys.stderr):
+                result, warnings = FactorBatchEvaluationService().evaluate(
+                    Path(args.job),
+                    expressions,
+                    through=args.through,
+                    work_root=Path(args.work_root),
+                )
+            envelope = _envelope(
+                f"evaluate-batch.{args.through}",
+                "ok",
+                run_id,
+                _compact_batch_evaluation_receipt(result),
+                warnings=warnings,
+                next_actions=("inspect_artifacts",),
             )
         _emit(envelope)
         return exit_code
@@ -190,11 +220,15 @@ def main(argv: Sequence[str] | None = None) -> int:
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="ashare-backtest")
     subparsers = parser.add_subparsers(dest="command", required=True)
-    for command in ("capabilities", "schema", "doctor"):
+    for command in ("capabilities", "doctor"):
         child = subparsers.add_parser(command)
         _common_arguments(child)
+    schema_parser = subparsers.add_parser("schema")
+    schema_parser.add_argument("--job")
+    _common_arguments(schema_parser)
     compile_parser = subparsers.add_parser("compile")
     compile_parser.add_argument("expression")
+    compile_parser.add_argument("--job")
     _common_arguments(compile_parser)
     inspect_parser = subparsers.add_parser("inspect-job")
     inspect_parser.add_argument("--job", required=True)
@@ -207,6 +241,14 @@ def _parser() -> argparse.ArgumentParser:
     )
     evaluate_parser.add_argument("--work-root", required=True)
     _common_arguments(evaluate_parser)
+    batch_parser = subparsers.add_parser("evaluate-batch")
+    batch_parser.add_argument("--job", required=True)
+    batch_parser.add_argument("--expressions-file", required=True)
+    batch_parser.add_argument(
+        "--through", choices=("screen", "rolling"), default="rolling"
+    )
+    batch_parser.add_argument("--work-root", required=True)
+    _common_arguments(batch_parser)
     audit_parser = subparsers.add_parser("audit-causality")
     audit_parser.add_argument("--job", required=True)
     audit_parser.add_argument("expression")
@@ -250,6 +292,38 @@ def _compact_evaluation_receipt(data: dict[str, object]) -> dict[str, object]:
     if isinstance(rolling, dict):
         receipt["rolling_summary"] = rolling.get("summary", {})
     return receipt
+
+
+def _compact_batch_evaluation_receipt(
+    data: dict[str, object],
+) -> dict[str, object]:
+    receipt = {key: value for key, value in data.items() if key != "candidates"}
+    candidates = data.get("candidates")
+    if not isinstance(candidates, list):
+        raise ValueError("batch evaluation candidates must be an array")
+    if any(not isinstance(candidate, dict) for candidate in candidates):
+        raise ValueError("batch evaluation candidate must be an object")
+    receipt["candidates"] = [
+        _compact_evaluation_receipt(candidate) for candidate in candidates
+    ]
+    return receipt
+
+
+def _load_expression_batch(path: Path) -> tuple[str, ...]:
+    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError("expression batch must be a JSON object")
+    if payload.get("schema") != "ashare-factor-expression-batch.v1":
+        raise ValueError("unsupported expression batch schema")
+    raw = payload.get("expressions")
+    if not isinstance(raw, list) or not raw:
+        raise ValueError("expression batch must contain expressions")
+    expressions = tuple(str(expression).strip() for expression in raw)
+    if any(not expression for expression in expressions):
+        raise ValueError("expression batch contains an empty expression")
+    if len(expressions) != len(set(expressions)):
+        raise ValueError("expression batch expressions must be unique")
+    return expressions
 
 
 if __name__ == "__main__":
