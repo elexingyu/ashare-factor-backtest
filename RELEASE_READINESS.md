@@ -1,5 +1,14 @@
 # Release Readiness
 
+## Version 0.2.5 Status
+
+- Add `audit-factor` as a return-blind public command whose coverage denominator is
+  the job's actual PIT universe rather than a rectangular panel.
+- Bind the compact artifact to expression, job, data assets, coverage and causality
+  certificate identities without importing any search or Agent code.
+- Verify package tests, Ruff, source sync, source/wheel builds and a clean-wheel
+  `audit-factor` smoke before release.
+
 ## Version 0.2.4 Status
 
 - Publish `evaluate-batch` as a versioned JSON command while preserving the

@@ -11,6 +11,9 @@ import uuid
 from typing import Sequence
 
 from ashare_factor_backtest.application.audit_causality import CausalityAuditService
+from ashare_factor_backtest.application.audit_factor_validity import (
+    FactorValidityAuditService,
+)
 from ashare_factor_backtest.application.compile_expression import CompileExpressionService
 from ashare_factor_backtest.application.evaluate_factor import FactorEvaluationService
 from ashare_factor_backtest.application.evaluate_factor_batch import (
@@ -28,13 +31,14 @@ from ashare_factor_backtest.protocol.errors import (
 
 
 PUBLIC_PROTOCOL_VERSION = "ashare-backtest.protocol.v1"
-PUBLIC_ENGINE_VERSION = "0.2.4"
+PUBLIC_ENGINE_VERSION = "0.2.5"
 PUBLIC_COMMANDS = (
     "capabilities",
     "schema",
     "doctor",
     "compile",
     "inspect-job",
+    "audit-factor",
     "audit-causality",
     "evaluate",
     "evaluate-batch",
@@ -123,8 +127,30 @@ def main(argv: Sequence[str] | None = None) -> int:
                     "machine_protocol": PUBLIC_PROTOCOL_VERSION,
                 },
                 warnings=warnings,
-                next_actions=("compile", "audit-causality", "evaluate"),
+                next_actions=("compile", "audit-factor", "audit-causality", "evaluate"),
             )
+        elif args.command == "audit-factor":
+            with redirect_stdout(sys.stderr):
+                result, warnings = FactorValidityAuditService().audit(
+                    Path(args.job),
+                    args.expression,
+                    work_root=Path(args.work_root),
+                )
+            passed = result["status"] == "factor_validity_verified"
+            envelope = _envelope(
+                "audit-factor",
+                "ok" if passed else "error",
+                run_id,
+                result,
+                warnings=warnings,
+                next_actions=(
+                    ("apply_caller_stage0_contract",)
+                    if passed
+                    else ("inspect_artifact", "fix_data_or_expression")
+                ),
+            )
+            if not passed:
+                exit_code = EXIT_INTERNAL_ERROR
         elif args.command == "audit-causality":
             with redirect_stdout(sys.stderr):
                 result, warnings = CausalityAuditService().audit(
@@ -233,6 +259,11 @@ def _parser() -> argparse.ArgumentParser:
     inspect_parser = subparsers.add_parser("inspect-job")
     inspect_parser.add_argument("--job", required=True)
     _common_arguments(inspect_parser)
+    factor_audit_parser = subparsers.add_parser("audit-factor")
+    factor_audit_parser.add_argument("--job", required=True)
+    factor_audit_parser.add_argument("expression")
+    factor_audit_parser.add_argument("--work-root", required=True)
+    _common_arguments(factor_audit_parser)
     evaluate_parser = subparsers.add_parser("evaluate")
     evaluate_parser.add_argument("--job", required=True)
     evaluate_parser.add_argument("expression")

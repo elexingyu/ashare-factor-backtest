@@ -27,6 +27,11 @@ uv sync --locked --all-groups
 uv run ashare-backtest doctor --json
 uv run ashare-backtest compile 'cs_rank(ts_pct_change(close,5))' --json
 uv run ashare-backtest inspect-job --job examples/demo_daily/job.yaml --json
+uv run ashare-backtest audit-factor \
+  --job examples/demo_daily/job.yaml \
+  'cs_rank(ts_pct_change(close,5))' \
+  --work-root /tmp/ashare-factor-demo \
+  --json
 uv run ashare-backtest audit-causality \
   --job examples/demo_daily/job.yaml \
   'cs_rank(ts_pct_change(close,5))' \
@@ -60,6 +65,10 @@ The bundled dataset is entirely synthetic. It covers a listing boundary, an ST i
 - **Causality audit:** an independent prefix-invariance check recomputes a historical
   prefix. The command fails and saves a machine-readable certificate if adding future
   rows changes past factor values.
+- **Return-blind factor validity audit:** `audit-factor` reports expression identity,
+  coverage inside the PIT universe, field clocks, target-column separation and prefix
+  invariance without reading returns, targets, IC or portfolio results. An external
+  Agent remains responsible for its own Stage 0 thresholds.
 - **A-share point-in-time semantics:** factor observation, historical universe membership and next-open execution are kept distinct.
 - **Temporal category plugin:** external entity/category/effective-date/expiry-date
   tables can be materialized as PIT fields. Missing, overlapping or multiply assigned
@@ -82,11 +91,15 @@ The bundled dataset is entirely synthetic. It covers a listing boundary, an ST i
   diagnostics, rather than binding a factor to a fixed holding period.
 - **Reproducible artifacts:** expression, data identity, job contract and evaluation semantics jointly identify reusable results.
 - **AI-first interface:** `capabilities`, `schema`, `doctor`, `compile`, `inspect-job`,
-  `audit-causality` and `evaluate` expose a versioned JSON protocol.
+  `audit-factor`, `audit-causality` and `evaluate` expose a versioned JSON protocol.
 
 `inspect-job` returns the engine version, protocol, data-asset identities, universe,
 and execution-contract identity before evaluation. An external Agent can therefore
 freeze a reusable experiment identity without importing internal Python modules.
+
+`audit-factor` measures coverage against the job's actual PIT-universe cells rather
+than the full rectangular security panel. It reports testability facts and deliberately
+contains no Alpha, return or library-admission threshold.
 
 `audit-causality` is an independent release-time or new-operator check and does not
 slow down ordinary `evaluate` calls. It verifies that expression execution does not

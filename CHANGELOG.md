@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.5 - 2026-08-13
+
+- Add the public return-blind `audit-factor` command for external research Agents.
+- Report expression and data identities, field clocks, coverage inside the actual PIT
+  universe, target-column isolation and prefix invariance in one compact artifact.
+- Keep Alpha thresholds, factor search, research-stage decisions and library admission
+  outside the backtester.
+
 ## 0.2.4 - 2026-08-13
 
 - Add the versioned `evaluate-batch` command for Agent-owned expression batches.
