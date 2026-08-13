@@ -1,5 +1,14 @@
 # Release Readiness
 
+## Version 0.2.6 Status
+
+- Add `measure-factor` with an explicit direction and immutable daily measurement
+  contract, separate from executable-account and admission logic.
+- Persist and hash the daily trace and Top20% membership artifacts; verify deterministic
+  reuse and Agent Candidate Profile integration.
+- Verify package tests, Ruff, source sync, source/wheel builds and a clean-wheel
+  `measure-factor` smoke before release.
+
 ## Version 0.2.5 Status
 
 - Add `audit-factor` as a return-blind public command whose coverage denominator is

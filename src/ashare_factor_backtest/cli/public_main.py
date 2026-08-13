@@ -19,6 +19,7 @@ from ashare_factor_backtest.application.evaluate_factor import FactorEvaluationS
 from ashare_factor_backtest.application.evaluate_factor_batch import (
     FactorBatchEvaluationService,
 )
+from ashare_factor_backtest.application.measure_factor import FactorMeasurementService
 from ashare_factor_backtest.application.production_job import ProductionJobService
 from ashare_factor_backtest.expression.errors import ExpressionError
 from ashare_factor_backtest.protocol.envelope import MachineEnvelope
@@ -31,7 +32,7 @@ from ashare_factor_backtest.protocol.errors import (
 
 
 PUBLIC_PROTOCOL_VERSION = "ashare-backtest.protocol.v1"
-PUBLIC_ENGINE_VERSION = "0.2.5"
+PUBLIC_ENGINE_VERSION = "0.2.6"
 PUBLIC_COMMANDS = (
     "capabilities",
     "schema",
@@ -40,6 +41,7 @@ PUBLIC_COMMANDS = (
     "inspect-job",
     "audit-factor",
     "audit-causality",
+    "measure-factor",
     "evaluate",
     "evaluate-batch",
 )
@@ -189,6 +191,26 @@ def main(argv: Sequence[str] | None = None) -> int:
                 warnings=warnings,
                 next_actions=("inspect_artifact",),
             )
+        elif args.command == "measure-factor":
+            with redirect_stdout(sys.stderr):
+                result, warnings = FactorMeasurementService().measure(
+                    Path(args.job),
+                    args.expression,
+                    direction=args.direction,
+                    horizons=_integer_list(args.horizons, "horizons"),
+                    rolling_windows=_integer_list(
+                        args.rolling_windows, "rolling-windows"
+                    ),
+                    work_root=Path(args.work_root),
+                )
+            envelope = _envelope(
+                "measure-factor",
+                "ok",
+                run_id,
+                result,
+                warnings=warnings,
+                next_actions=("render_candidate_profile", "apply_stage_1_contract"),
+            )
         else:
             expressions = _load_expression_batch(Path(args.expressions_file))
             with redirect_stdout(sys.stderr):
@@ -272,6 +294,14 @@ def _parser() -> argparse.ArgumentParser:
     )
     evaluate_parser.add_argument("--work-root", required=True)
     _common_arguments(evaluate_parser)
+    measure_parser = subparsers.add_parser("measure-factor")
+    measure_parser.add_argument("--job", required=True)
+    measure_parser.add_argument("expression")
+    measure_parser.add_argument("--direction", choices=("high", "low"), required=True)
+    measure_parser.add_argument("--horizons", default="1,2,3,5,10,20,60")
+    measure_parser.add_argument("--rolling-windows", default="252,504")
+    measure_parser.add_argument("--work-root", required=True)
+    _common_arguments(measure_parser)
     batch_parser = subparsers.add_parser("evaluate-batch")
     batch_parser.add_argument("--job", required=True)
     batch_parser.add_argument("--expressions-file", required=True)
@@ -355,6 +385,16 @@ def _load_expression_batch(path: Path) -> tuple[str, ...]:
     if len(expressions) != len(set(expressions)):
         raise ValueError("expression batch expressions must be unique")
     return expressions
+
+
+def _integer_list(value: str, label: str) -> tuple[int, ...]:
+    try:
+        parsed = tuple(int(item.strip()) for item in value.split(",") if item.strip())
+    except ValueError as error:
+        raise ValueError(f"{label} must be comma-separated integers") from error
+    if not parsed:
+        raise ValueError(f"{label} must not be empty")
+    return parsed
 
 
 if __name__ == "__main__":

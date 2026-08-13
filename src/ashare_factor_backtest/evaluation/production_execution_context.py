@@ -18,6 +18,7 @@ from ashare_factor_backtest.evaluation.production_universe_readiness import Year
 _EXECUTION_PANEL_NAMES = (
     "execution_open",
     "valuation_open",
+    "valuation_close",
     "buyable",
     "sellable",
     "eligible",
@@ -33,14 +34,18 @@ class ProductionExecutionContext:
     sellable: np.ndarray
     signal_eligible: np.ndarray
     execution_open: np.ndarray | None = None
+    valuation_close: np.ndarray | None = None
 
     def __post_init__(self) -> None:
         if self.execution_open is None:
             object.__setattr__(self, "execution_open", self.valuation_open.copy())
+        if self.valuation_close is None:
+            object.__setattr__(self, "valuation_close", self.valuation_open.copy())
         shape = (len(self.dates), len(self.codes))
         for name in (
             "valuation_open",
             "execution_open",
+            "valuation_close",
             "buyable",
             "sellable",
             "signal_eligible",
@@ -213,6 +218,7 @@ def slice_production_execution_context(
         sellable=context.sellable[selected],
         signal_eligible=context.signal_eligible[selected],
         execution_open=context.execution_open[selected],
+        valuation_close=context.valuation_close[selected],
     )
 
 
@@ -259,6 +265,7 @@ def build_chunked_production_execution_context(
     collected: dict[str, list[pd.DataFrame]] = {
         "execution_open": [],
         "valuation_open": [],
+        "valuation_close": [],
         "buyable": [],
         "sellable": [],
         "eligible": [],
@@ -377,6 +384,7 @@ def _load_execution_panels(
     collected: dict[str, list[pd.DataFrame]] = {
         "execution_open": [],
         "valuation_open": [],
+        "valuation_close": [],
         "buyable": [],
         "sellable": [],
         "eligible": [],
@@ -420,6 +428,11 @@ def _execution_panels(
         raise ValueError("production execution frame contains invalid dates")
     work["ts_code"] = work["ts_code"].astype(str)
     valuation_open = _pivot(work, "hfq_open", numeric=True)
+    valuation_close = (
+        _pivot(work, "hfq_close", numeric=True)
+        if "hfq_close" in work.columns
+        else valuation_open.copy()
+    )
     raw_contract = {"raw_open", "up_limit", "down_limit"}
     if raw_contract.issubset(work.columns):
         execution_open = _pivot(work, "raw_open", numeric=True)
@@ -436,6 +449,7 @@ def _execution_panels(
     return {
         "execution_open": execution_open,
         "valuation_open": valuation_open,
+        "valuation_close": valuation_close,
         "buyable": known_open
         & not_suspended
         & up_limit.notna()
@@ -460,6 +474,9 @@ def _from_panels(
         raise ValueError("production execution price storage must be float32 or float64")
     execution_open = panels["execution_open"].astype(float).to_numpy(dtype=dtype)
     valuation = panels["valuation_open"].astype(float).ffill().to_numpy(dtype=dtype)
+    valuation_close = (
+        panels["valuation_close"].astype(float).ffill().to_numpy(dtype=dtype)
+    )
     return ProductionExecutionContext(
         dates=pd.DatetimeIndex(dates),
         codes=pd.Index(codes),
@@ -470,6 +487,7 @@ def _from_panels(
         .astype("boolean")
         .to_numpy(dtype=bool, na_value=False),
         execution_open=execution_open,
+        valuation_close=valuation_close,
     )
 
 

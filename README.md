@@ -32,6 +32,12 @@ uv run ashare-backtest audit-factor \
   'cs_rank(ts_pct_change(close,5))' \
   --work-root /tmp/ashare-factor-demo \
   --json
+uv run ashare-backtest measure-factor \
+  --job examples/demo_daily/job.yaml \
+  'cs_rank(ts_pct_change(close,5))' \
+  --direction high \
+  --work-root /tmp/ashare-factor-demo \
+  --json
 uv run ashare-backtest audit-causality \
   --job examples/demo_daily/job.yaml \
   'cs_rank(ts_pct_change(close,5))' \
@@ -67,6 +73,9 @@ CLI 每次只向标准输出写一行 JSON，适合由 Codex、Claude Code、流
 - **收益隔离的因子有效性审计：** `audit-factor` 在不读取收益、目标、IC 或组合结果的前提下，
   一次性报告表达式身份、PIT 股票池覆盖、字段时钟、目标列隔离和前缀不变性，供上层 Agent
   执行自己的 Stage 0 门槛。
+- **不可变每日因子测量：** `measure-factor` 以预先指定方向生成连续秩、零净敞口、单位总敞口的
+  每日因子收益，并保存 IC、换手、固定 Top20%、五分组、期限曲线、逐年和滚动监控。它不包含
+  成本、真实账户或入库门槛，同一产物可由上层 Agent 先做画像、再执行自己的裁决。
 - **A 股时间点语义：** 区分因子观察时点、股票池历史与下一开盘执行，避免使用未来成分股或未来行情。
 - **历史分类插件：** 可把实体、类别、生效日和失效日组成的外部分类表物化为
   PIT 字段；缺失、重叠或同日多重归属会 fail closed，申万等具体数据不绑定在核心中。
@@ -83,7 +92,7 @@ CLI 每次只向标准输出写一行 JSON，适合由 Codex、Claude Code、流
   Alpha decay 诊断，避免把单因子人为绑定到固定持有期。
 - **可复现产物：** 表达式、数据身份、任务配置和评价语义共同决定产物身份，便于缓存、审计和复跑。
 - **AI 友好接口：** `capabilities`、`schema`、`doctor`、`compile`、`inspect-job`、
-  `audit-factor`、`audit-causality` 和 `evaluate` 均提供版本化 JSON 协议。
+  `audit-factor`、`measure-factor`、`audit-causality` 和 `evaluate` 均提供版本化 JSON 协议。
 
 `inspect-job` 在回测前返回引擎版本、协议、数据资产身份、股票池和执行合同身份。上层 Agent 可用
 这些字段生成实验哈希并安全复用结果，而不需要导入本项目内部 Python 模块。

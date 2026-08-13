@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.6 - 2026-08-13
+
+- Add `measure-factor`, an immutable daily factor measurement for external Agents.
+- Freeze direction and the `signal t -> t+1 open -> t+2 open` clock; report continuous
+  rank returns, Rank IC, turnover, fixed Top20%, quintiles, horizon decay, yearly and
+  rolling diagnostics without adding account or admission semantics.
+- Save content-addressed daily traces and Top20% memberships so descriptive profiling
+  and later research gates can reuse the same evidence instead of recomputing it.
+
 ## 0.2.5 - 2026-08-13
 
 - Add the public return-blind `audit-factor` command for external research Agents.

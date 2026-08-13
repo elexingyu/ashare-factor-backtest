@@ -38,6 +38,7 @@ def _execution_frame() -> pd.DataFrame:
                 ["2024-01-02", "2024-01-02", "2024-01-03", "2024-01-03"]
             ),
             "hfq_open": [10.0, 20.0, 11.0, 19.0],
+            "hfq_close": [10.5, 19.5, 11.5, 18.5],
             "raw_open": [5.0, 10.0, 5.5, 9.5],
             "signal_eligible": [True, True, True, False],
             "is_suspended": [False, False, False, False],

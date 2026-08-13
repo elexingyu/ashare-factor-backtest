@@ -32,6 +32,12 @@ uv run ashare-backtest audit-factor \
   'cs_rank(ts_pct_change(close,5))' \
   --work-root /tmp/ashare-factor-demo \
   --json
+uv run ashare-backtest measure-factor \
+  --job examples/demo_daily/job.yaml \
+  'cs_rank(ts_pct_change(close,5))' \
+  --direction high \
+  --work-root /tmp/ashare-factor-demo \
+  --json
 uv run ashare-backtest audit-causality \
   --job examples/demo_daily/job.yaml \
   'cs_rank(ts_pct_change(close,5))' \
@@ -69,6 +75,11 @@ The bundled dataset is entirely synthetic. It covers a listing boundary, an ST i
   coverage inside the PIT universe, field clocks, target-column separation and prefix
   invariance without reading returns, targets, IC or portfolio results. An external
   Agent remains responsible for its own Stage 0 thresholds.
+- **Immutable daily-factor measurement:** `measure-factor` uses a predeclared direction
+  to produce a continuous-rank, zero-net, unit-gross daily factor series with IC,
+  turnover, fixed Top20%, quintiles, horizon curves, yearly and rolling monitoring.
+  It applies no cost, account, or admission gate, so an Agent can profile and later
+  judge the exact same artifact.
 - **A-share point-in-time semantics:** factor observation, historical universe membership and next-open execution are kept distinct.
 - **Temporal category plugin:** external entity/category/effective-date/expiry-date
   tables can be materialized as PIT fields. Missing, overlapping or multiply assigned
@@ -91,7 +102,7 @@ The bundled dataset is entirely synthetic. It covers a listing boundary, an ST i
   diagnostics, rather than binding a factor to a fixed holding period.
 - **Reproducible artifacts:** expression, data identity, job contract and evaluation semantics jointly identify reusable results.
 - **AI-first interface:** `capabilities`, `schema`, `doctor`, `compile`, `inspect-job`,
-  `audit-factor`, `audit-causality` and `evaluate` expose a versioned JSON protocol.
+  `audit-factor`, `measure-factor`, `audit-causality` and `evaluate` expose a versioned JSON protocol.
 
 `inspect-job` returns the engine version, protocol, data-asset identities, universe,
 and execution-contract identity before evaluation. An external Agent can therefore
